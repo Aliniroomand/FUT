@@ -1,0 +1,85 @@
+Done! Congratulations on your new bot. You will find it at t.me/SellYourFUT_Bot. You can now add a description, about section and profile picture for your bot, see /help for a list of commands. By the way, when you've finished creating your cool bot, ping our Bot Support if you want a better username for it. Just make sure the bot is fully operational before you do this.
+
+Use this token to access the HTTP API:
+7284227093:AAExLmuSzibDPpbxlVFieUfUOq-5kbUiXDo
+Keep your token secure and store it safely, it can be used by anyone to control your bot.
+
+For a description of the Bot API, see this page: https://core.telegram.org/bots/api
+
+
+فازبندی پروژه:
+
+✅ فاز 1: ساخت پنل ادمین (اولویت اول)
+ابزار: React + FastAPI + SQLite
+ویژگی‌ها:
+
+لاگین ادمین
+
+تنظیم قیمت لحظه‌ای خرید و فروش سکه
+
+ثبت و ویرایش شیوه‌های انتقال سکه
+
+مشاهده گزارش تراکنش‌ها: شماره کاربر، نوع انتقال، لیست کارت‌ها و قیمت‌ها
+
+محاسبه خودکار بدهکاری و طلبکاری ادمین با فرمول مشخص‌شده
+
+مدیریت اکانت‌های EA و سقف روزانه انتقال برای هرکدام
+
+✅ فاز 2: توسعه بات تلگرام پایه (ارتباط با خریدار/فروشنده)
+ابزار: python-telegram-bot + FastAPI
+ویژگی‌ها:
+
+دریافت نقش کاربر (خریدار یا فروشنده)
+
+دریافت موجودی برای انتقال
+
+دریافت و نمایش لیست شیوه‌های انتقال (دریافت‌شده از API پنل ادمین)
+
+ثبت انتخاب و نمایش کارت‌ها جهت انتقال
+
+تایید خرید و نمایش خلاصه تراکنش
+
+✅ فاز 3: ساخت API و اتصال Front و Bot
+ابزار: FastAPI + Pydantic + SQLite
+ویژگی‌ها:
+
+API برای ارتباط بین ربات و پنل ادمین (RESTful + WebSocket برای Real-Time)
+
+مدیریت کاربران، تراکنش‌ها، کارت‌ها و اطلاعات انتقال
+
+اعتبارسنجی و امنیت پایه
+
+قابلیت ارتقاء برای Redis/Celery در آینده
+
+✅ فاز 4: ارتباط Real-Time بین پنل ادمین و بات (WebSocket)
+ابزار: WebSocket + FastAPI + React
+ویژگی‌ها:
+
+نمایش لحظه‌ای تراکنش‌ها به ادمین
+
+امکان تایید/رد خاص از سوی ادمین در لحظه (مثلاً کارت‌های گران‌قیمت یا بیش از ۳ کارت)
+
+هم‌زمانی بالا برای پشتیبانی از چندین کاربر
+
+✅ فاز 5: تست و اتصال کامل سیستم
+ابزار: Postman/HTTPie + محیط تست
+ویژگی‌ها:
+
+تست اتصال کامل بات، پنل، و API
+
+سنجش هم‌زمانی کاربران
+
+شبیه‌سازی انواع انتقال و سناریوهای خاص
+
+✅ فاز 6: دیپلوی نهایی روی VPS
+ابزار:
+
+Uvicorn + Gunicorn برای اجرای FastAPI
+
+NGINX + HTTPS برای امنیت و هندل ریکوئست‌ها
+
+Supervisor یا systemd برای اجرای دائم
+
+Docker (اختیاری) برای کانتینرسازی و راحتی اجرا
+
+Domain + SSL (اختیاری)
