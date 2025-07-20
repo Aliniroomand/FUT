@@ -27,6 +27,9 @@ class CardBase(BaseModel):
     price_pc: Optional[int]
     last_update: Optional[str]
 
+    price_range_id: Optional[int]  # آیدی بازه قیمتی
+
+
 class CardCreate(CardBase):
     pass
 

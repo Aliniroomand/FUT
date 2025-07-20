@@ -5,16 +5,12 @@ env/
 __pycache__/
 *.pyc
 
-# نادیده گرفتن پوشه سایت‌پکیج‌های نصب شده (در .venv هم میفته)
 backend/.venv/Lib/site-packages/
 
-# نادیده گرفتن فولدر node_modules در فرانت‌اند
 frontend/node_modules/
 
-# فایل‌های لاگ و موقتی
 *.log
 *.tmp
 
-# فایل‌های تنظیمات IDE مثل vscode
 .vscode/
 .idea/

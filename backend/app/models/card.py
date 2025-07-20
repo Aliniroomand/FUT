@@ -38,3 +38,5 @@ class Card(Base):
 
     # رابطه با بازیکن
     player = relationship("Player", back_populates="cards")
+    price_range_id = Column(Integer, ForeignKey("card_ranges.id"))
+
