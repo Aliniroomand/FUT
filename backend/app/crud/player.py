@@ -15,10 +15,28 @@ def create_player(db: Session, player_data: PlayerCreate):
     db.refresh(db_player)
 
     for card in player_data.cards:
-        db_card = Card(**card.dict(), player_id=db_player.id)
+        # کارت رو ایجاد می‌کنیم بدون قیمت (Price) چون جداست
+        db_card = Card(
+            version=card.version,
+            rating=card.rating,
+            price_range_id=card.price_range_id,
+            player_id=db_player.id
+        )
         db.add(db_card)
+        db.commit()
+        db.refresh(db_card)
 
-    db.commit()
+        # اگر قیمت (Price) هم همراه کارت داده شده بود، ایجاد می‌کنیم
+        if hasattr(card, "price") and card.price:
+            from app.models.price import Price
+            db_price = Price(
+                buy_price=card.price.buy_price,
+                sell_price=card.price.sell_price,
+                card_id=db_card.id
+            )
+            db.add(db_price)
+            db.commit()
+
     return db_player
 
 def get_all_players(db: Session):

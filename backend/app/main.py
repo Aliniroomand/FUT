@@ -1,18 +1,34 @@
 from fastapi import FastAPI
-from app.routes import player, price, transfer_method
+from app.routes import player, price, transfer_method, card,card_range
 from app.database import engine, Base
+from app.models.player import Player
+from app.models.card import Card
+from app.models.card_range import CardRange
 
-# ایجاد جداول دیتابیس
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 @app.get("/")
-async def root():
+def root():
     return {"message": "API is running"}
 
-# اضافه کردن مسیرهای API
 app.include_router(player.router)
 app.include_router(price.router)
 app.include_router(transfer_method.router)
+app.include_router(card.router)
+app.include_router(card_range.router)
 
+# این رو برای دیپلوی حتما پاک کن !!!!!!!!!!!
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # اجازه به همه دامنه‌ها (در توسعه مشکلی نیست)
+    allow_credentials=True,
+    allow_methods=["*"],  # همه متدها مثل GET, POST, PUT, DELETE
+    allow_headers=["*"],  # همه هدرها مجاز هستن
+)
+# این رو برای دیپلوی حتما پاک کن !!!!!!!!!!!

@@ -1,6 +1,20 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+class PriceBase(BaseModel):
+    buy_price: float
+    sell_price: float
+
+class PriceCreate(PriceBase):
+    pass
+
+class Price(PriceBase):
+    id: int
+    card_id: int
+
+    class Config:
+        orm_mode = True
+
 class CardBase(BaseModel):
     version: Optional[str]
     rating: Optional[int]
@@ -22,24 +36,18 @@ class CardBase(BaseModel):
     defending: Optional[int]
     physicality: Optional[int]
 
-    price_ps: Optional[int]
-    price_xbox: Optional[int]
-    price_pc: Optional[int]
-    last_update: Optional[str]
-
-    price_range_id: Optional[int]  # آیدی بازه قیمتی
-
+    price_range_id: int  # حتماً لازم باشه
 
 class CardCreate(CardBase):
-    pass
+    price: Optional[PriceCreate] = None
 
 class Card(CardBase):
     id: int
     player_id: int
+    price: Optional[Price]
 
     class Config:
         orm_mode = True
-
 
 class PlayerBase(BaseModel):
     name: str
