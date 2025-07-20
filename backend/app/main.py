@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import player  # 👈 ایمپورت کردن روت مربوط به بازیکن
+from app.routes import player, price
 from app.database import engine, Base
 
 # ایجاد جداول دیتابیس
@@ -12,4 +12,5 @@ async def root():
     return {"message": "API is running"}
 
 # اضافه کردن مسیرهای API
-app.include_router(player.router, prefix="/players", tags=["Players"])
+app.include_router(player.router)
+app.include_router(price.router)

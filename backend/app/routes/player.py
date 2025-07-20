@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.player import Player, PlayerCreate
+from app.schemas.player import Player, PlayerCreate, CardCreate
 from app.crud import player as crud_player
 
 router = APIRouter(prefix="/players", tags=["Players"])
@@ -18,8 +18,7 @@ def list_players(db: Session = Depends(get_db)):
 def get_player(player_id: int, db: Session = Depends(get_db)):
     return crud_player.get_player_by_id(db, player_id)
 
-
-# ساخت API جدید برای افزودن بازیکن به همراه کارت با اطلاعات محدود
+# ساخت API جدید برای افزودن بازیکن با اطلاعات محدود
 @router.post("/simple", response_model=Player)
 def create_simple_player(
     name: str,
