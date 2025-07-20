@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import player, price
+from app.routes import player, price, transfer_method
 from app.database import engine, Base
 
 # ایجاد جداول دیتابیس
@@ -14,3 +14,5 @@ async def root():
 # اضافه کردن مسیرهای API
 app.include_router(player.router)
 app.include_router(price.router)
+app.include_router(transfer_method.router)
+
