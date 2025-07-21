@@ -1,5 +1,6 @@
+from app.routes import admin_choosen_price
 from fastapi import FastAPI
-from app.routes import player, price, transfer_method, card,card_range
+from app.routes import player, transfer_method, card,card_range , admin_choosen_price
 from app.database import engine, Base
 from app.models.player import Player
 from app.models.card import Card
@@ -15,7 +16,7 @@ def root():
     return {"message": "API is running"}
 
 app.include_router(player.router)
-app.include_router(price.router)
+app.include_router(admin_choosen_price.router)
 app.include_router(transfer_method.router)
 app.include_router(card.router)
 app.include_router(card_range.router)

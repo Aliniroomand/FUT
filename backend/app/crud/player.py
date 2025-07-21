@@ -28,7 +28,7 @@ def create_player(db: Session, player_data: PlayerCreate):
 
         # اگر قیمت (Price) هم همراه کارت داده شده بود، ایجاد می‌کنیم
         if hasattr(card, "price") and card.price:
-            from app.models.price import Price
+            from backend.app.models.admin_choosen_price import Price
             db_price = Price(
                 buy_price=card.price.buy_price,
                 sell_price=card.price.sell_price,

@@ -12,3 +12,4 @@ class Player(Base):
     league = Column(String)
 
     cards = relationship("Card", back_populates="player", cascade="all, delete")
+    card_ranges = relationship("CardRange", back_populates="player", cascade="all, delete")  

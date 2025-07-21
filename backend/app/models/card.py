@@ -14,4 +14,4 @@ class Card(Base):
 
     player = relationship("Player", back_populates="cards")
     price_range = relationship("CardRange")
-    price = relationship("Price", uselist=False, back_populates="card", cascade="all, delete")
+    price = relationship("AdminChoosenPrice", uselist=False, back_populates="card", cascade="all, delete")

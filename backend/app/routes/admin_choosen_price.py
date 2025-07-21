@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.price import PriceCreate, PriceOut
-from app.crud import price as price_crud
+from app.schemas.admin_choosen_price import PriceCreate, PriceOut
+from app.crud import admin_choosen_price as price_crud
 
 router = APIRouter(prefix="/prices", tags=["Prices"])
 
