@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getLatestPrice, setPrice } from "../services/api";
+import { getLatestPrice, setPrice } from "../../services/api";
 import toast, { Toaster } from "react-hot-toast";
 
 const PriceManager = () => {
@@ -46,32 +46,46 @@ const PriceManager = () => {
   if (loading) return <p className="text-white">در حال بارگذاری...</p>;
 
   return (
-    <div className="bg-black p-4 rounded-xl shadow-md text-white max-w-md mx-auto">
+    <div className=" bg-black p-4 rounded-xl shadow-md text-white max-w-full mx-auto">
       <h2 className="text-xl mb-4 text-[#B8860B]">مدیریت قیمت سکه</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label>قیمت خرید:</label>
-        <input
-          type="number"
-          value={inputBuyPrice}
-          onChange={(e) => setInputBuyPrice(e.target.value)}
-          className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white"
-          placeholder="مقداری جدید"
-        />
-        <p className="text-green-600 text-xl font-bold">
-          قیمت خرید فعلی : {originalBuyPrice}
-        </p>
-
-        <label>قیمت فروش:</label>
-        <input
-          type="number"
-          value={inputSellPrice}
-          onChange={(e) => setInputSellPrice(e.target.value)}
-          className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white"
-          placeholder="مقداری جدید"
-        />
-        <p className="text-red-500 text-xl font-bold">
-          قیمت فروش فعلی : {originalSellPrice}
-        </p>
+        <div className="flex w-full items-center ">
+          <label className="w-2/3">
+            قیمت پایه خرید هر 100k:
+            <br />
+            (به تومان)
+          </label>
+          <input
+            type="number"
+            value={inputBuyPrice}
+            onChange={(e) => setInputBuyPrice(e.target.value)}
+            className=" w-1/3 h-6 p-2 rounded bg-gray-900 border border-gray-700 text-white"
+            placeholder="مقداری جدید : مثلا برای دویست هزار تومان بنویس 200"
+          />
+          <p className="text-green-600 text-xl font-bold">
+            قیمت خرید فعلی:
+            <br /> {originalBuyPrice}(تومان)
+          </p>
+        </div>
+        <hr/>
+        <div className="flex w-full items-center ">
+          <label className="w-2/3">
+            قیمت فروش هر 100k:
+            <br />
+            (به تومان)
+          </label>
+          <input
+            type="number"
+            value={inputSellPrice}
+            onChange={(e) => setInputSellPrice(e.target.value)}
+            className=" w-1/3 h-6 p-2 rounded bg-gray-900 border border-gray-700 text-white"
+            placeholder="مقداری جدید : مثلا برای دویست هزار تومان بنویس 200"
+          />
+          <p className="text-red-500 text-xl font-bold">
+            قیمت فروش فعلی :<br/>
+             {originalSellPrice}(تومان)
+          </p>
+        </div>
 
         <button
           type="submit"
