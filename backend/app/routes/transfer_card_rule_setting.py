@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.TransferCard_range_setting import TransferSettings
+from app.models.card_range_assignment import CardRangeAssignment
 from app.schemas.transfer_card_rule_setting import TransferSettingCreate, TransferSettingOut
 from app.services.transfer_card_range_logic import create_auto_ranges_and_rules
 
@@ -9,13 +9,13 @@ router = APIRouter(prefix="/transfer-settings", tags=["Transfer Settings"])
 
 @router.post("/", response_model=TransferSettingOut)
 def set_threshold(setting: TransferSettingCreate, db: Session = Depends(get_db)):
-    existing = db.query(TransferSettings).first()
+    existing = db.query(CardRangeAssignment).first()
     if existing:
         existing.threshold_amount = setting.threshold_amount
         db.commit()
         db.refresh(existing)
         return existing
-    new_setting = TransferSettings(threshold_amount=setting.threshold_amount)
+    new_setting = CardRangeAssignment(threshold_amount=setting.threshold_amount)
     db.add(new_setting)
     db.commit()
     db.refresh(new_setting)
@@ -23,7 +23,7 @@ def set_threshold(setting: TransferSettingCreate, db: Session = Depends(get_db))
 
 @router.get("/", response_model=TransferSettingOut)
 def get_threshold(db: Session = Depends(get_db)):
-    setting = db.query(TransferSettings).first()
+    setting = db.query(CardRangeAssignment).first()
     if not setting:
         raise HTTPException(status_code=404, detail="Threshold not set")
     return setting
@@ -39,11 +39,11 @@ def apply_ranges(
         raise HTTPException(status_code=400, detail="Exactly 3 cards required")
     
     # 1. ذخیره مقدار threshold
-    existing = db.query(TransferSettings).first()
+    existing = db.query(CardRangeAssignment).first()
     if existing:
         existing.threshold_amount = threshold
     else:
-        setting = TransferSettings(threshold_amount=threshold)
+        setting = CardRangeAssignment(threshold_amount=threshold)
         db.add(setting)
     db.commit()
 

@@ -1,6 +1,7 @@
 from app.routes import admin_choosen_price,transfer_card_rule_setting
 from fastapi import FastAPI
 from app.routes import player, transfer_method, card,card_range , admin_choosen_price,transfer_card_rule
+from app.routes import transfer_range_setting
 from app.database import engine, Base
 from app.models.player import Player
 from app.models.card import Card
@@ -22,6 +23,7 @@ app.include_router(card.router)
 app.include_router(card_range.router)
 app.include_router(transfer_card_rule.router)
 app.include_router(transfer_card_rule_setting.router)
+app.include_router(transfer_range_setting.router)
 
 
 

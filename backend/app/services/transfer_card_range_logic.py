@@ -33,7 +33,7 @@ def create_auto_ranges_and_rules(db: Session, n: int, cards: list[int], platform
 
 
 def select_transfer_card_by_amount(db: Session, amount: int, platform: str):
-    from app.models.TransferCard_range_setting import TransferSettings
+    from backend.app.models.card_range_assignment import TransferSettings
     from app.models.card_range import CardRange
     from app.models.transfer_card_rule import TransferCardRule
 
