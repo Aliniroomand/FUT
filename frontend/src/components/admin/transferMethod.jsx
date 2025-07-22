@@ -4,7 +4,7 @@ import {
   createTransferMethod,
   updateTransferMethod,
   deleteTransferMethod,
-} from '../services/api';
+} from '../../services/api';
 
 const TransferMethods = () => {
   const [methods, setMethods] = useState([]);
