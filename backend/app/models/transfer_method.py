@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text  # Text برای منطق بهتر از String هست
+from sqlalchemy import Column, Integer, String, Boolean, Text  
 from app.database import Base
 from sqlalchemy.orm import relationship
 
@@ -10,6 +10,7 @@ class TransferMethod(Base):
     name = Column(String, unique=True, nullable=False)
     description = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
-    logic = Column(Text, nullable=True)  
-    ranges = relationship("CardRangeAssignment", back_populates="method", cascade="all, delete")
-
+    logic = Column(Text, nullable=True)
+    
+    # تغییر رابطه: اکنون مستقیماً به CardRange مرتبط است
+    card_ranges = relationship("CardRange", back_populates="transfer_method")

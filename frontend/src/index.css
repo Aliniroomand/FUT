@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
-:root , body{
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+:root, body {
+  font-family: "Playpen Sans Arabic", system-ui, Avenir, Helvetica, Arial, sans-serif;
 
+  /* 🎨 رنگ‌های گلوبال لوکس */
+  --color-black: #171414;
+  --color-gold: #B8860B;
+  --color-gold-accent: #A2711D;
+  --color-gold-warm: #cea52b;
+  --color-dark-shadow: #1C1C1C;
+
+  background-color: var(--color-black);
+  color: var(--color-gold); /* متن پیش‌فرض طلایی */
 }

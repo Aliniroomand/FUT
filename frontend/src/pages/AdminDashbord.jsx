@@ -1,6 +1,6 @@
 import TransferMethods from '../components/admin/transferMethod';
 import PriceManager from '../components/admin/PriceManager';
-import { CardRangeForm } from '../components/admin/CardRangeForm';
+import TransferRangeAssignment from '../components/admin/TransferRangeAssignment/TransferRangeAssignment';
 
 const AdminDashboard = () => {
   return (
@@ -8,7 +8,7 @@ const AdminDashboard = () => {
       <h1 className="text-2xl font-bold mb-6 text-[#B8860B]">پنل ادمین</h1>
       {/* <PriceManager /> */}
       {/* <TransferMethods /> */}
-      <CardRangeForm />
+      <TransferRangeAssignment />
     </div>
   );
 };

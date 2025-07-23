@@ -1,10 +1,18 @@
-# schemas/card_range_assignment.py
 from pydantic import BaseModel
 from typing import Optional
 
-class CardRangeAssignmentCreate(BaseModel):
+class CardRangeAssignmentBase(BaseModel):
     method_id: int
     start_price: float
     end_price: float
     primary_card_id: int
     fallback_card_id: Optional[int] = None
+
+class CardRangeAssignmentCreate(CardRangeAssignmentBase):
+    pass
+
+class CardRangeAssignmentOut(CardRangeAssignmentBase):
+    id: int
+
+    class Config:
+        orm_mode = True
