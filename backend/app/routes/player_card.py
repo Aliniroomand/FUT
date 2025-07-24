@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.player_card import PlayerCardCreate, PlayerCardUpdate, PlayerCardOut
-from app.schemas.transaction import TransactionOut  # Import اضافه شده
+from app.schemas.transactions import TransactionOut 
 from app.crud import player_card as crud
 
 router = APIRouter(prefix="/player-cards", tags=["Player Cards"])

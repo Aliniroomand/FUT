@@ -1,4 +1,3 @@
-# app/models/playercard.py
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -13,13 +12,11 @@ class PlayerCard(Base):
     nation = Column(String)
     league = Column(String)
     position = Column(String)
-    
     # اطلاعات کارت
     version = Column(String, nullable=False)
     rating = Column(Integer, nullable=False)
     chemistry = Column(Integer, default=0)
     is_special = Column(Boolean, default=False)
-    
     # اطلاعات قیمت و معاملات
     bid_price = Column(Float)
     buy_now_price = Column(Float)
@@ -31,7 +28,6 @@ class PlayerCard(Base):
     # آمار بازیکن
     games_played = Column(Integer, default=0)
     goals = Column(Integer, default=0)
-    assists = Column(Integer, default=0)
     owner_count = Column(Integer, default=1)
     
     # روابط
@@ -40,13 +36,13 @@ class PlayerCard(Base):
         foreign_keys="[CardRange.primary_card_id]",
         back_populates="primary_card"
     )
-    
     fallback_ranges = relationship(
         "CardRange", 
         foreign_keys="[CardRange.fallback_card_id]",
         back_populates="fallback_card"
     )
-    
+    transactions = relationship("Transaction", back_populates="card")
+
     # محاسبه قیمت خالص بعد از کسر مالیات
     def net_price(self, price):
         return price * (1 - self.tax)
