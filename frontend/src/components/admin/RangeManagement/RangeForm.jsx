@@ -27,25 +27,17 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
     fetchPlayerCards();
   }, []);
 
-<<<<<<< HEAD
-useEffect(() => {
-  if (initialData) {
-    setFormData({
-      min_value: initialData.min_value ?? "",
-      max_value: initialData.max_value ?? "",
-      description: initialData.description ?? "",
-      primary_card_id: initialData.primary_card_id ?? "",
-      fallback_card_id: initialData.fallback_card_id ?? "",
-    });
-  }
-}, [initialData]);
-=======
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        min_value: initialData.min_value ?? "",
+        max_value: initialData.max_value ?? "",
+        description: initialData.description ?? "",
+        primary_card_id: initialData.primary_card_id ?? "",
+        fallback_card_id: initialData.fallback_card_id ?? "",
+      });
     }
   }, [initialData]);
->>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78
 
   const handleChange = (e) => {
     const { name, value } = e.target;
