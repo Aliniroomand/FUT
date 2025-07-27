@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -6,9 +6,21 @@ class CardRange(Base):
     __tablename__ = "card_ranges"
 
     id = Column(Integer, primary_key=True, index=True)
-    min_value = Column(Integer, nullable=False)
-    max_value = Column(Integer, nullable=False)
+    min_value = Column(Float, nullable=False)
+    max_value = Column(Float, nullable=False)
     description = Column(String)
-
-    player_id = Column(Integer, ForeignKey("players.id"), nullable=True)  
-    player = relationship("Player", back_populates="card_ranges") 
+    primary_card_id = Column(Integer, ForeignKey("playercards.id"))
+    fallback_card_id = Column(Integer, ForeignKey("playercards.id"), nullable=True)
+    
+    # تعریف روابط با استفاده از foreign_keys
+    primary_card = relationship(
+        "PlayerCard", 
+        foreign_keys=[primary_card_id],
+        backref="primary_ranges"
+    )
+    
+    fallback_card = relationship(
+        "PlayerCard", 
+        foreign_keys=[fallback_card_id],
+        backref="fallback_ranges"
+    )

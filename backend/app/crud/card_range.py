@@ -2,30 +2,21 @@ from sqlalchemy.orm import Session
 from app.models.card_range import CardRange
 from app.schemas.card_range import CardRangeCreate
 
-def get_all(db: Session):
-    return db.query(CardRange).all()
-
-def create(db: Session, card_range: CardRangeCreate):
-    db_card_range = CardRange(**card_range.dict())
-    db.add(db_card_range)
+def create_card_range(db: Session, range_data: CardRangeCreate):
+    db_range = CardRange(
+        min_value=range_data.min_value,
+        max_value=range_data.max_value,
+        description=range_data.description,
+        primary_card_id=range_data.primary_card_id,
+        fallback_card_id=range_data.fallback_card_id
+    )
+    db.add(db_range)
     db.commit()
-    db.refresh(db_card_range)
-    return db_card_range
+    db.refresh(db_range)
+    return db_range
 
-def update(db: Session, id: int, card_range: CardRangeCreate):
-    db_card_range = db.query(CardRange).filter(CardRange.id == id).first()
-    if not db_card_range:
-        return None
-    for key, value in card_range.dict().items():
-        setattr(db_card_range, key, value)
-    db.commit()
-    db.refresh(db_card_range)
-    return db_card_range
-
-def delete(db: Session, id: int):
-    db_card_range = db.query(CardRange).filter(CardRange.id == id).first()
-    if not db_card_range:
-        return False
-    db.delete(db_card_range)
-    db.commit()
-    return True
+def get_ranges_for_amount(db: Session, amount: float):
+    return db.query(CardRange).filter(
+        CardRange.min_value <= amount,
+        CardRange.max_value >= amount
+    ).all()

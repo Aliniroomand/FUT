@@ -1,59 +1,142 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+// ایجاد یک instance از axios با تنظیمات پایه
+const api = axios.create({
+  baseURL: 'http://localhost:8000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-// API برای قیمت‌ها (فقط یک قیمت کلی برای خرید و فروش)
+// افزودن interceptor برای مدیریت خطاها
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      console.error('API Error:', error.response.data);
+      return Promise.reject(error.response.data);
+    }
+    console.error('API Connection Error:', error.message);
+    return Promise.reject(error);
+  }
+);
+
+// Price APIs
 export const getLatestPrice = async () => {
-  const response = await axios.get(`${API_BASE}/prices/latest`);
+  const response = await api.get('/prices/latest');
   return response.data;
 };
 
 export const setPrice = async (buy_price, sell_price) => {
-  const response = await axios.post(`${API_BASE}/prices/`, {
+  const response = await api.post('/prices/', {
     buy_price,
     sell_price,
   });
   return response.data;
 };
 
-// API برای روش‌های انتقال
+// Transfer Method APIs
 export const getTransferMethods = async () => {
-  const res = await axios.get(`${API_BASE}/transfer-methods/`);
-  return res.data;
+  const response = await api.get('/transfer-methods/');
+  return response.data;
 };
 
 export const createTransferMethod = async (data) => {
-  const res = await axios.post(`${API_BASE}/transfer-methods/`, data);
-  return res.data;
+  const response = await api.post('/transfer-methods/', data);
+  return response.data;
 };
 
-export const updateTransferMethod = async (id, data) => {
-  const res = await axios.put(`${API_BASE}/transfer-methods/${id}`, data);
-  return res.data;
+export const getTransferMethod = async (method_id) => {
+  const response = await api.get(`/transfer-methods/${method_id}`);
+  return response.data;
 };
 
-export const deleteTransferMethod = async (id) => {
-  const res = await axios.delete(`${API_BASE}/transfer-methods/${id}`);
-  return res.data;
+export const updateTransferMethod = async (method_id, data) => {
+  const response = await api.put(`/transfer-methods/${method_id}`, data);
+  return response.data;
 };
 
-// API جدید برای بازه‌های قیمتی (CardRanges)
+export const deleteTransferMethod = async (method_id) => {
+  const response = await api.delete(`/transfer-methods/${method_id}`);
+  return response.data;
+};
+
+export const getRangesForMethod = async (method_id) => {
+  const response = await api.get(`/transfer-methods/${method_id}/ranges`);
+  return response.data;
+};
+
+// Card Ranges APIs
 export const getCardRanges = async () => {
-  const res = await axios.get(`${API_BASE}/card-ranges/`);
-  return res.data;
+  try {
+    const response = await api.get('/card-ranges/');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const createCardRange = async (data) => {
-  const res = await axios.post(`${API_BASE}/card-ranges/`, data);
-  return res.data;
+  try {
+    const response = await api.post('/card-ranges/', data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
-
 export const updateCardRange = async (id, data) => {
-  const res = await axios.put(`${API_BASE}/card-ranges/${id}`, data);
-  return res.data;
+  const response = await api.put(`/card-ranges/${id}`, data);
+  return response.data;
 };
 
 export const deleteCardRange = async (id) => {
-  const res = await axios.delete(`${API_BASE}/card-ranges/${id}`);
-  return res.data;
+  const response = await api.delete(`/card-ranges/${id}`);
+  return response.data;
+};
+
+export const getRangesForAmount = async (amount) => {
+  const response = await api.get(`/card-ranges/for-amount/${amount}`);
+  return response.data;
+};
+
+// Player Cards APIs
+export const getPlayerCards = async () => {
+  const response = await api.get('/player-cards/');
+  return response.data;
+};
+
+export const createPlayerCard = async (data) => {
+  const response = await api.post('/player-cards/', data);
+  return response.data;
+};
+
+export const getPlayerCard = async (id) => {
+  const response = await api.get(`/player-cards/${id}`);
+  return response.data;
+};
+
+export const updatePlayerCard = async (id, data) => {
+  const response = await api.put(`/player-cards/${id}`, data);
+  return response.data;
+};
+
+export const deletePlayerCard = async (id) => {
+  const response = await api.delete(`/player-cards/${id}`);
+  return response.data;
+};
+
+// Authentication APIs (در صورت نیاز)
+export const login = async (credentials) => {
+  const response = await api.post('/auth/login', credentials);
+  return response.data;
+};
+
+export const logout = async () => {
+  const response = await api.post('/auth/logout');
+  return response.data;
+};
+
+export const getProfile = async () => {
+  const response = await api.get('/auth/profile');
+  return response.data;
 };
