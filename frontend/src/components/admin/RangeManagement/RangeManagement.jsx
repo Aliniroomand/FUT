@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
 import {
   getCardRanges,
@@ -8,10 +9,18 @@ import {
 import RangeForm from "./RangeForm";
 import RangeList from "./RangeList";
 import toast, { Toaster } from "react-hot-toast";
+=======
+import { useState, useEffect } from 'react';
+import { getCardRanges, createCardRange, updateCardRange, deleteCardRange } from '../../../services/api';
+import RangeForm from './RangeForm';
+import RangeList from './RangeList';
+import Toaster from "react-hot-toast"
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78
 
 export default function RangeManagement() {
   const [ranges, setRanges] = useState([]);
   const [selectedRange, setSelectedRange] = useState(null);
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
 
   const fetchRanges = useCallback(async () => {
@@ -118,21 +127,80 @@ export default function RangeManagement() {
       <div className="text-center py-8 text-white">در حال بارگذاری...</div>
     );
   }
+=======
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchRanges = async () => {
+    try {
+      setLoading(true);
+      const data = await getCardRanges();
+      setRanges(data);
+    } catch (error) {
+      setError('خطا در دریافت اطلاعات بازه‌ها');
+      console.error('Error fetching ranges:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRanges();
+  }, []);
+
+  const handleSubmit = async (formData) => {
+    try {
+      if (selectedRange) {
+        await updateCardRange(selectedRange.id, formData);
+      } else {
+        await createCardRange(formData);
+      }
+      await fetchRanges();
+      setSelectedRange(null);
+    } catch (error) {
+      setError('خطا در ذخیره‌سازی بازه');
+      console.error('Error saving range:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('آیا از حذف این بازه مطمئن هستید؟')) {
+      try {
+        await deleteCardRange(id);
+        await fetchRanges();
+      } catch (error) {
+        setError('خطا در حذف بازه');
+        console.error('Error deleting range:', error);
+      }
+    }
+  };
+
+  if (loading) return <div className="text-center py-8 text-white">در حال بارگذاری...</div>;
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78
 
   return (
     <div className="space-y-6">
       <div className="bg-gray-800 rounded-xl p-6">
         <h2 className="text-2xl font-bold text-amber-400 mb-6">
+<<<<<<< HEAD
           {selectedRange ? "ویرایش بازه قیمتی" : "ایجاد بازه قیمتی جدید"}
         </h2>
         <RangeForm
           onSubmit={handleSubmit}
           initialData={selectedRange}
+=======
+          {selectedRange ? 'ویرایش بازه قیمتی' : 'ایجاد بازه قیمتی جدید'}
+        </h2>
+        <RangeForm 
+          onSubmit={handleSubmit} 
+          initialData={selectedRange} 
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78
           onCancel={() => setSelectedRange(null)}
         />
       </div>
 
       <div className="bg-gray-800 rounded-xl p-6">
+<<<<<<< HEAD
         <h2 className="text-2xl font-bold text-amber-400 mb-4">
           لیست بازه‌های قیمتی
         </h2>
@@ -145,3 +213,22 @@ export default function RangeManagement() {
     </div>
   );
 }
+=======
+        <h2 className="text-2xl font-bold text-amber-400 mb-4">لیست بازه‌های قیمتی</h2>
+        <RangeList 
+          ranges={ranges} 
+          onEdit={setSelectedRange} 
+          onDelete={handleDelete} 
+        />
+      </div>
+
+      <Toaster 
+        show={!!error} 
+        message={error} 
+        type="error" 
+        onClose={() => setError('')} 
+      />
+    </div>
+  );
+}
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78

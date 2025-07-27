@@ -22,14 +22,23 @@ class PlayerCard(Base):
     as_primary_ranges = relationship(
         "CardRange", 
         foreign_keys="[CardRange.primary_card_id]",
+<<<<<<< HEAD
         back_populates="primary_card",
         overlaps="primary_ranges"
+=======
+        back_populates="primary_card"
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78
     )
     as_fallback_ranges = relationship(
         "CardRange", 
         foreign_keys="[CardRange.fallback_card_id]",
+<<<<<<< HEAD
         back_populates="fallback_card",
         overlaps="primary_ranges"
     )
 
     transactions = relationship("Transaction", back_populates="card")
+=======
+        back_populates="fallback_card"
+    )
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78

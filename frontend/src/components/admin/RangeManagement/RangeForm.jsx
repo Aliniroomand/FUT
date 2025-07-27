@@ -27,6 +27,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
     fetchPlayerCards();
   }, []);
 
+<<<<<<< HEAD
 useEffect(() => {
   if (initialData) {
     setFormData({
@@ -38,6 +39,13 @@ useEffect(() => {
     });
   }
 }, [initialData]);
+=======
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+>>>>>>> 2f5059349b2485927d54e31ccc3f626f2b7f6e78
 
   const handleChange = (e) => {
     const { name, value } = e.target;
