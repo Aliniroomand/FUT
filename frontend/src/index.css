@@ -4,8 +4,8 @@
   font-family: "Playpen Sans Arabic", system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   /* 🎨 رنگ‌های گلوبال لوکس */
-  --color-black: #000000;              /* مشکی خالص */
-  --color-black-soft: #1a1a1a;         /* مشکی نرم‌تر برای پنل‌ها */
+  --color-dark: #000000;              /* مشکی خالص */
+  --color-dark-soft: #251d02;         /* مشکی نرم‌تر برای پنل‌ها */
   --color-gold: #FFD700;               /* طلایی درخشان */
   --color-gold-accent: #B8860B;        /* طلایی سلطنتی و کلاسیک */
   --color-gold-light: #F5DEB3;         /* طلایی روشن برای های‌لایت */
@@ -14,6 +14,6 @@
   --color-text-secondary: #AAAAAA;     /* متن کم‌اهمیت */
   --color-dark-shadow: #1C1C1C;        /* سایه‌ی تیره */
 
-  background-color: var(--color-black);
+  background-color: var(--color-dark-soft);
   color: var(--color-text-primary); /* متن پیش‌فرض سفید روشن برای خوانایی */
 }

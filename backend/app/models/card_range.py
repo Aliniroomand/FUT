@@ -9,20 +9,18 @@ class CardRange(Base):
     min_value = Column(Float, nullable=False)
     max_value = Column(Float, nullable=False)
     description = Column(String)
-    
-    transfer_method_id = Column(Integer, ForeignKey("transfer_methods.id"), nullable=False)
     primary_card_id = Column(Integer, ForeignKey("playercards.id"))
     fallback_card_id = Column(Integer, ForeignKey("playercards.id"), nullable=True)
-
-    # روابط
-    transfer_method = relationship("TransferMethod", back_populates="card_ranges")
+    
+    # تعریف روابط با استفاده از foreign_keys
     primary_card = relationship(
         "PlayerCard", 
         foreign_keys=[primary_card_id],
-        back_populates="primary_ranges"
+        backref="primary_ranges"
     )
+    
     fallback_card = relationship(
         "PlayerCard", 
         foreign_keys=[fallback_card_id],
-        back_populates="fallback_ranges"
+        backref="fallback_ranges"
     )

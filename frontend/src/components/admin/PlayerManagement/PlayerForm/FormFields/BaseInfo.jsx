@@ -18,9 +18,10 @@ export const BaseInfoSection = ({ formData, handleChange }) => (
       onChange={handleChange}
     />
     <InputField
-      label="ملیت"
-      name="nation"
-      value={formData.nation}
+      label="تعداد بازی‌ها"
+      name="games_played"
+      type="number"
+      value={formData.games_played || 0}
       onChange={handleChange}
     />
   </div>

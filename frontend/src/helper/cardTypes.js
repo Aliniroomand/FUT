@@ -18,3 +18,13 @@ export const CARD_TYPES ={
     "TOTGS (Low-rated)"
   ]
 }
+
+export const PLAYERS_POSITION={
+  "all_positions":[
+  "GK", "RB", "RWB", "CB", "LB", "LWB",
+  "CDM", "CM", "CAM", "RM", "LM",
+  "RW", "LW", "RF", "LF",
+  "CF", "ST"
+]
+
+}

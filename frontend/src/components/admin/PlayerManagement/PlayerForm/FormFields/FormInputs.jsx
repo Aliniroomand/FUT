@@ -1,4 +1,3 @@
-import React from "react";
 
 export const InputField = ({ label, type = "text", ...props }) => (
   <div className="mb-4">

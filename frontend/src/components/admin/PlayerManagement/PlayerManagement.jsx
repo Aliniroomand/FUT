@@ -56,7 +56,7 @@ export default function PlayerManagement() {
       <h2 className="text-xl font-bold text-amber-500">مدیریت کارت‌های بازیکنان</h2>
       <p className="text-sm font-bold text-red-500">فیلدهایی که با (*) نشان گذاری شده اند پرکردنشون الزامیه</p>
       
-      <div className="bg-gray-800 p-4 rounded-lg">
+      <div className="bg-gold-900 p-4 rounded-lg">
         <PlayerForm 
           onSubmit={handleSubmit} 
           initialData={selectedPlayer} 

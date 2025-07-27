@@ -7,21 +7,17 @@ export default function PlayerForm({ onSubmit, initialData, onCancel }) {
   const [formData, setFormData] = useState({
     name: "",
     club: "",
-    nation: "",
-    league: "",
     position: "",
     version: "",
     rating: "",
     chemistry: 0,
-    is_special: false,
     bid_price: "",
     buy_now_price: "",
-    last_sale_price: "",
     price_range_min: "",
     price_range_max: "",
     games_played: 0,
-    goals: 0,
-    assists: 0,
+    contract_number: 0,
+    owner_number: 0,
   });
 
   useEffect(() => {

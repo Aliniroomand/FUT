@@ -1,12 +1,12 @@
 import React from "react";
-import { InputField, CheckboxField } from "./FormInputs";
-import { CARD_TYPES } from "@/helper/cardTypes";
+import { InputField } from "./FormInputs";
+import { CARD_TYPES, PLAYERS_POSITION } from "@/helper/cardTypes";
 
 export const CardInfoSection = ({ formData, handleChange }) => (
   <div className="space-y-2">
     <h3 className="font-medium text-amber-400 mb-2">اطلاعات کارت</h3>
     <InputField
-      label="* Card Version"
+      label="* ورژن کارت"
       name="version"
       value={formData.version || ""}
       onChange={handleChange}
@@ -21,20 +21,32 @@ export const CardInfoSection = ({ formData, handleChange }) => (
       ))}
     </InputField>
     <InputField
-      label="* rating"
+      label="* ریتینگ"
       name="rating"
-      type="number"
       value={formData.rating}
       onChange={handleChange}
       required
     />
     <InputField
-      label="chemistry"
+      label="کمستری"
       name="chemistry"
       type="number"
-      value={formData.chemistry}
+      value={formData.chemistry || 0}
       onChange={handleChange}
     />
-
+    <InputField
+      label="پوزیشن"
+      name="position"
+      value={formData.position || ""}
+      onChange={handleChange}
+      type="select"
+    >
+      <option value="">-- انتخاب پوزیشن --</option>
+      {PLAYERS_POSITION.all_positions.map((pos, index) => (
+        <option key={index} value={pos}>
+          {pos}
+        </option>
+      ))}
+    </InputField>
   </div>
 );

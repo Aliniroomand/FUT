@@ -1,4 +1,3 @@
-// src/components/admin/AdminDashboard.jsx
 import { useState } from 'react';
 import PlayerManagement from "@/components/admin/PlayerManagement/PlayerManagement"
 import RangeManagement from "@/components/admin/RangeManagement/RangeManagement";
@@ -14,7 +13,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="bg-gray-900 min-h-screen p-4 text-white">
+    <div className="bg-dark-soft min-h-screen p-4 text-white">
       <h1 className="text-2xl font-bold mb-6 text-amber-500 border-b border-amber-500 pb-2">
         پنل مدیریت ادمین
       </h1>
@@ -35,7 +34,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* محتوای تب‌ها */}
-      <div className="bg-gray-800 rounded-lg p-4">
+      <div className="bg-dark-soft rounded-lg p-4">
         {activeTab === 'players' && <PlayerManagement />}
         {activeTab === 'ranges' && <RangeManagement />}
         {activeTab === 'methods' && <TransferMethod />}

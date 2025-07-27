@@ -1,4 +1,3 @@
-// RangeForm.jsx
 import { useEffect, useState } from "react";
 import { getPlayerCards } from "../../../services/api";
 
@@ -9,8 +8,8 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
     description: "",
     primary_card_id: "",
     fallback_card_id: "",
-    transfer_method_id: "",
   });
+  
   const [playerCards, setPlayerCards] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +40,15 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // تبدیل مقادیر به عدد
+    const processedData = {
+      ...formData,
+      min_value: parseFloat(formData.min_value),
+      max_value: parseFloat(formData.max_value),
+    };
+    
+    onSubmit(processedData);
   };
 
   if (loading) return <div>در حال بارگذاری...</div>;
@@ -60,6 +67,8 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             onChange={handleChange}
             className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
             required
+            min="0"
+            step="0.01"
           />
         </div>
 
@@ -74,6 +83,8 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             onChange={handleChange}
             className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
             required
+            min="0"
+            step="0.01"
           />
         </div>
 
@@ -89,16 +100,11 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             required
           >
             <option value="">انتخاب کنید</option>
-
-            {playerCards.length === 0 ? (
-              <option className="text-red-300" disabled>بازیکنی وارد نکرده‌اید</option>
-            ) : (
-              playerCards.map((card) => (
-                <option key={card.id} value={card.id}>
-                  {card.name} - {card.rating} ({card.version})
-                </option>
-              ))
-            )}
+            {playerCards.map((card) => (
+              <option key={card.id} value={card.id}>
+                {card.name} - {card.rating} ({card.version})
+              </option>
+            ))}
           </select>
         </div>
 
@@ -121,7 +127,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
           </select>
         </div>
 
-        <div>
+        <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-300 mb-1">
             توضیحات
           </label>
@@ -130,24 +136,25 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             value={formData.description}
             onChange={handleChange}
             className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
-            rows={2}
+            rows={3}
+            placeholder="توضیحات مربوط به این بازه قیمتی"
           />
         </div>
       </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 pt-4">
         {initialData && (
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition"
           >
             انصراف
           </button>
         )}
         <button
           type="submit"
-          className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-500"
+          className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-500 transition"
         >
           {initialData ? "ذخیره تغییرات" : "ایجاد بازه جدید"}
         </button>

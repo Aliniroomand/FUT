@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.schemas.transfer_method import TransferMethodCreate, TransferMethodUpdate, TransferMethodOut
-from app.schemas.card_range import CardRangeOut  # Import اضافه شده
+from app.schemas.card_range import CardRange  # Import اضافه شده
 from app.crud import transfer_method as crud
 
 router = APIRouter(prefix="/transfer-methods", tags=["Transfer Methods"])
@@ -37,6 +37,6 @@ def delete_method(method_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Method not found")
     return
 
-@router.get("/{method_id}/ranges", response_model=List[CardRangeOut])
+@router.get("/{method_id}/ranges", response_model=List[CardRange])
 def get_ranges_for_method(method_id: int, db: Session = Depends(get_db)):
     return crud.get_ranges_for_method(db, method_id)
