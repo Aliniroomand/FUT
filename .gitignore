@@ -1,0 +1,16 @@
+# نادیده گرفتن فولدرهای محیط مجازی پایتون (virtualenv)
+backend/.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+backend/.venv/Lib/site-packages/
+
+frontend/node_modules/
+
+*.log
+*.tmp
+
+.vscode/
+.idea/
