@@ -65,7 +65,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             name="min_value"
             value={formData.min_value}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-white/30 backdrop-blur-md border border-gray-600 text-white"
+            className="w-full p-2 rounded glass-light border border-gray-600 text-white"
             required
             min="0"
             step="0.01"
@@ -81,7 +81,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             name="max_value"
             value={formData.max_value}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-white/30 backdrop-blur-md border border-gray-600 text-white"
+            className="w-full p-2 rounded glass-light border border-gray-600 text-white"
             required
             min="0"
             step="0.01"
@@ -96,7 +96,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             name="primary_card_id"
             value={formData.primary_card_id}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-white/30 backdrop-blur-md border border-gray-600 text-white"
+            className="w-full p-2 rounded glass-light border border-gray-600 text-white"
             required
           >
             <option value="">انتخاب کنید</option>
@@ -116,7 +116,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             name="fallback_card_id"
             value={formData.fallback_card_id}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-white/30 backdrop-blur-md border border-gray-600 text-white"
+            className="w-full p-2 rounded glass-light border border-gray-600 text-white"
           >
             <option value="">انتخاب کنید (اختیاری)</option>
             {playerCards.map((card) => (
@@ -135,7 +135,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-white/30 backdrop-blur-md border border-gray-600 text-white"
+            className="w-full p-2 rounded glass-light border border-gray-600 text-white"
             rows={3}
             placeholder="توضیحات مربوط به این بازه قیمتی"
           />

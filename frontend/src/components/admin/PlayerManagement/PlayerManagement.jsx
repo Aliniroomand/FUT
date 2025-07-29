@@ -59,7 +59,7 @@ export default function PlayerManagement() {
             onClick={() => {
               toast.dismiss(t.id);
             }}
-            className="px-4 py-2 text-sm text-white bg-gray-600 rounded hover:bg-white/30 backdrop-blur-md"
+            className="px-4 py-2 text-sm text-white bg-gray-600 rounded hover:glass-light"
           >
             انصراف
           </button>

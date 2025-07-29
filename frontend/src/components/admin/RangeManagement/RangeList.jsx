@@ -42,12 +42,12 @@ export default function RangeList({ ranges, onEdit, onDelete }) {
           ) : (
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3 mb-2 ">
-                <span className="font-extrabold bg-black/50 backdrop-blur-md rounded-4xl p-4 shadow-gold-accent shadow text-xl text-gold">
+                <span className="font-extrabold glass-dark rounded-4xl p-4 shadow-gold-accent shadow text-xl text-gold">
                   محدوده از {range.min_value.toLocaleString()} تا {range.max_value.toLocaleString()}
                 </span>
 
                 {range.description && (
-                  <span className="text-sm bg-white/30 backdrop-blur-md px-2 py-1 rounded">
+                  <span className="text-sm glass-light px-2 py-1 rounded">
                     {range.description}
                   </span>
                 )}

@@ -11,7 +11,15 @@
   --color-text-secondary: #AAAAAA;     /* متن کم‌اهمیت */
   --color-dark-shadow: #1C1C1C;        /* سایه‌ی تیره */
 
+}
 
+@layer utilities {
+  .glass-light {
+    @apply bg-white/30 backdrop-blur-xs shadow-2xl shadow-black border-2 border-black ;
+  }
+  .glass-dark {
+    @apply bg-black/30 backdrop-blur-xs shadow-2xl shadow-black border-2 border-black;
+  }
 }
 :root, body {
   font-family: "Playpen Sans Arabic", system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -24,5 +32,5 @@
   background-repeat: no-repeat;
   background-attachment: fixed;   /* برای اسکرول شیک */
   background-color: #000;         /* fallback لوکس */
-  color: #000;                   /* پیش‌فرض برای متن */
+  color: #fff;                   /* پیش‌فرض برای متن */
 }

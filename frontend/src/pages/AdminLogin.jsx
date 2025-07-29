@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { login } from '../services/api';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -10,25 +11,23 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // TODO: Call your auth API here
-      if (email === 'ali@gmail.com' && password === '1234') {
+      const response = await login({ email, password });
+      if (response) {
         localStorage.setItem('isAdminLoggedIn', 'true');
         toast.success('ورود موفق');
         navigate('/admin');
-      } else {
-        throw new Error('اطلاعات نامعتبر');
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error('اطلاعات نامعتبر');
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen ">
-      <form onSubmit={handleSubmit} className=" p-8 rounded-lg shadow-lg w-full max-w-sm">
+    <div className="flex items-center justify-center h-screen">
+      <form onSubmit={handleSubmit} className="p-8 glass-dark rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-6 text-center">ورود ادمین</h2>
         <label className="block mb-4">
-          <span className="text-gray-700">ایمیل</span>
+          <span className="">ایمیل</span>
           <input
             type="email"
             value={email}
@@ -38,7 +37,7 @@ const AdminLogin = () => {
           />
         </label>
         <label className="block mb-6">
-          <span className="text-gray-700">رمز عبور</span>
+          <span >رمز عبور</span>
           <input
             type="password"
             value={password}
@@ -49,7 +48,7 @@ const AdminLogin = () => {
         </label>
         <button
           type="submit"
-          className="w-full bg-amber-500 text-dark-hard py-2 rounded-lg font-semibold hover:bg-amber-600"
+          className="w-full bg-gold text-dark-hard cursor-pointer transition text-black py-2 rounded-lg font-semibold hover:bg-amber-600"
         >
           ورود
         </button>

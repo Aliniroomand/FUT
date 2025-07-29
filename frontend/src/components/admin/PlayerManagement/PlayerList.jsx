@@ -118,7 +118,7 @@ const handleDelete = async (playerId) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-700">
-        <thead className="bg-black/10 backdrop-blur-md">
+        <thead className="glass-dark">
           <tr>
             <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">نام</th>
             <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">باشگاه</th>
@@ -144,7 +144,7 @@ const handleDelete = async (playerId) => {
                       name="name"
                       value={formData.name || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                       placeholder="نام بازیکن"
                     />
                   ) : (
@@ -159,7 +159,7 @@ const handleDelete = async (playerId) => {
                       name="club"
                       value={formData.club || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                       placeholder="باشگاه"
                     />
                   ) : (
@@ -174,7 +174,7 @@ const handleDelete = async (playerId) => {
                       name="position"
                       value={formData.position || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                     >
                       <option value="">-- انتخاب پوزیشن --</option>
                       {PLAYERS_POSITION.all_positions.map((pos, index) => (
@@ -193,7 +193,7 @@ const handleDelete = async (playerId) => {
                       name="version"
                       value={formData.version || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                     >
                       <option value="">-- انتخاب کنید --</option>
                       {CARD_TYPES.low_price_card_types.map((type, index) => (
@@ -212,7 +212,7 @@ const handleDelete = async (playerId) => {
                       name="rating"
                       value={formData.rating || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                       placeholder="رتبه"
                     />
                   ) : (
@@ -228,7 +228,7 @@ const handleDelete = async (playerId) => {
                       type="number"
                       value={formData.chemistry || 0}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                     />
                   ) : (
                     displayValue(player.chemistry)
@@ -242,7 +242,7 @@ const handleDelete = async (playerId) => {
                       name="bid_price"
                       value={formData.bid_price || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                       placeholder="قیمت پیشنهادی"
                     />
                   ) : (
@@ -257,7 +257,7 @@ const handleDelete = async (playerId) => {
                       name="buy_now_price"
                       value={formData.buy_now_price || ''}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                       placeholder="قیمت خرید فوری"
                     />
                   ) : (
@@ -273,7 +273,7 @@ const handleDelete = async (playerId) => {
                       type="number"
                       value={formData.games_played || 0}
                       onChange={handleChange}
-                      className="bg-white/30 backdrop-blur-md text-white px-2 py-1 rounded text-sm w-full"
+                      className="glass-light text-white px-2 py-1 rounded text-sm w-full"
                     />
                   ) : (
                     displayValue(player.games_played)

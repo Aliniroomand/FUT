@@ -141,7 +141,7 @@ const TransferMethods = () => {
                 </td>
               </tr>
             ) : (
-              <tr key={method.id} className="hover:bg-white/30 backdrop-blur-md">
+              <tr key={method.id} className="hover:glass-light">
                 <td className="p-2 border border-gray-700">{method.name}</td>
                 <td className="p-2 border border-gray-700">{method.description}</td>
                 <td className="p-2 border border-gray-700 text-center">{method.is_active ? '✔' : '✘'}</td>

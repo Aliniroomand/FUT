@@ -75,14 +75,14 @@ const PriceManager = () => {
     );
 
   return (
-    <div className="bg-white/30 backdrop-blur-md p-6 rounded-xl shadow-lg max-w-3xl mx-auto text-[var(--color-text-primary)]">
+    <div className="glass-light p-6 rounded-xl shadow-lg max-w-3xl mx-auto text-[var(--color-text-primary)]">
       <h2 className="text-2xl font-bold mb-6 text-[var(--color-gold-accent)] border-b border-[var(--color-gold-shadow)] pb-2">
         مدیریت قیمت سکه
       </h2>
 
       <div className="flex flex-col gap-6">
         {/* باکس قیمت خرید */}
-        <div className="bg-white/30 backdrop-blur-md border-l-4 border-green-500 p-4 rounded-md shadow-sm">
+        <div className="glass-light border-l-4 border-green-500 p-4 rounded-md shadow-sm">
           <label className="block mb-2 font-semibold text-green-800">
             قیمت پایه خرید هر 100 کا (تومان):
           </label>
