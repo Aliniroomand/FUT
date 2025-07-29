@@ -13,9 +13,9 @@ export const CardInfoSection = ({ formData, handleChange }) => (
       type="select"
       required
     >
-      <option value="">-- انتخاب کنید --</option>
+      <option className="text-black"  value="">-- انتخاب کنید --</option>
       {CARD_TYPES.low_price_card_types.map((type, index) => (
-        <option key={index} value={type}>
+        <option className="text-black bg-white/10 backdrop-blur-md"  key={index} value={type}>
           {type}
         </option>
       ))}
@@ -45,7 +45,7 @@ export const CardInfoSection = ({ formData, handleChange }) => (
     >
       <option value="">-- انتخاب پوزیشن --</option>
       {PLAYERS_POSITION.all_positions.map((pos, index) => (
-        <option key={index} value={pos}>
+        <option className="text-black" key={index} value={pos}>
           {pos}
         </option>
       ))}

@@ -8,7 +8,7 @@ const AdminLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex flex-row-reverse min-h-screen bg-dark-soft text-white relative">
+    <div className="flex flex-row-reverse min-h-screen bg-dark-soft text-white relative  ">
       {/* دکمه منوی موبایل */}
       <button
         className="md:hidden absolute top-4 right-4 z-40 cursor-pointer"

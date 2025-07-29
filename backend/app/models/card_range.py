@@ -11,7 +11,7 @@ class CardRange(Base):
     description = Column(String)
 
     primary_card_id = Column(Integer, ForeignKey("playercards.id"))
-    fallback_card_id = Column(Integer, ForeignKey("playercards.id"), nullable=True)
+    fallback_card_id = Column(Integer, ForeignKey("playercards.id", ondelete="CASCADE"), nullable=True)
     
     primary_card = relationship(
         "PlayerCard", 

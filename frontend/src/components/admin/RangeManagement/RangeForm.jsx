@@ -54,11 +54,11 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
   if (loading) return <div>در حال بارگذاری...</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className=" space-y-4">
+      <div className="grid  grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            حداقل قیمت
+          *  حداقل موجودی مشتری
           </label>
           <input
             type="number"
@@ -74,7 +74,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            حداکثر قیمت
+             * حداکثر موجودی مشتری
           </label>
           <input
             type="number"
@@ -90,7 +90,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            کارت اصلی
+           * کارت اصلی
           </label>
           <select
             name="primary_card_id"
@@ -101,7 +101,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
           >
             <option value="">انتخاب کنید</option>
             {playerCards.map((card) => (
-              <option key={card.id} value={card.id}>
+              <option className="text-black" key={card.id} value={card.id}>
                 {card.name} - {card.rating} ({card.version})
               </option>
             ))}
@@ -120,7 +120,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
           >
             <option value="">انتخاب کنید (اختیاری)</option>
             {playerCards.map((card) => (
-              <option key={card.id} value={card.id}>
+              <option className="text-black" key={card.id} value={card.id}>
                 {card.name} - {card.rating} ({card.version})
               </option>
             ))}

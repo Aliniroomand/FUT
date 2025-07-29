@@ -5,6 +5,6 @@ from app.database import Base
 class AdminChoosenPrice(Base):
     __tablename__ = "admin_prices"
 
-    id = Column(Integer, primary_key=True, index=True)
-    buy_price = Column(Float, nullable=False)
-    sell_price = Column(Float, nullable=False)
+    id = Column(Float, primary_key=True, default=1)
+    buy_price = Column(Float, nullable=False, default=0.0)
+    sell_price = Column(Float, nullable=False, default=0.0)

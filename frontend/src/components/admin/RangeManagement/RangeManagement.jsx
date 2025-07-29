@@ -1,8 +1,15 @@
+// src/components/admin/RangeManagement/RangeManagement.jsx
+
 import { useState, useEffect } from 'react';
-import { getCardRanges, createCardRange, updateCardRange, deleteCardRange } from '../../../services/api';
+import {
+  getCardRanges,
+  createCardRange,
+  updateCardRange,
+  deleteCardRange,
+} from '../../../services/api';
 import RangeForm from './RangeForm';
 import RangeList from './RangeList';
-import  { toast } from "react-hot-toast"
+import { toast } from 'react-hot-toast';
 
 export default function RangeManagement() {
   const [ranges, setRanges] = useState([]);
@@ -41,6 +48,18 @@ export default function RangeManagement() {
     }
   };
 
+  const handleInlineEdit = async (formDataWithId) => {
+    try {
+      const { id, ...formData } = formDataWithId;
+      await updateCardRange(id, formData);
+      await fetchRanges();
+      toast.success("تغییرات با موفقیت انجام شد")
+    } catch (error) {
+      toast.error('خطا در ویرایش بازه');
+      console.error('Error updating range:', error);
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('آیا از حذف این بازه مطمئن هستید؟')) {
       try {
@@ -53,7 +72,8 @@ export default function RangeManagement() {
     }
   };
 
-  if (loading) return <div className="text-center py-8 text-white">در حال بارگذاری...</div>;
+  if (loading)
+    return <div className="text-center py-8 text-white">در حال بارگذاری...</div>;
 
   return (
     <div className="space-y-6">
@@ -61,23 +81,21 @@ export default function RangeManagement() {
         <h2 className="text-2xl font-bold text-amber-400 mb-6">
           {selectedRange ? 'ویرایش بازه قیمتی' : 'ایجاد بازه قیمتی جدید'}
         </h2>
-        <RangeForm 
-          onSubmit={handleSubmit} 
-          initialData={selectedRange} 
+        <RangeForm
+          onSubmit={handleSubmit}
+          initialData={selectedRange}
           onCancel={() => setSelectedRange(null)}
         />
       </div>
 
       <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
         <h2 className="text-2xl font-bold text-amber-400 mb-4">لیست بازه‌های قیمتی</h2>
-        <RangeList 
-          ranges={ranges} 
-          onEdit={setSelectedRange} 
-          onDelete={handleDelete} 
+        <RangeList
+          ranges={ranges}
+          onEdit={handleInlineEdit}
+          onDelete={handleDelete}
         />
       </div>
-
-
     </div>
   );
 }

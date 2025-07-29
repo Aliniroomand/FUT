@@ -22,11 +22,8 @@ export const getLatestPrice = async () => {
   return response.data;
 };
 
-export const setPrice = async (buy_price, sell_price) => {
-  const response = await api.post('/prices/', {
-    buy_price,
-    sell_price,
-  });
+export const setPrice = async (priceObj) => {
+  const response = await api.post('/prices/', priceObj);
   return response.data;
 };
 

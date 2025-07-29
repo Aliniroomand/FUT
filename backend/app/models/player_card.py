@@ -29,6 +29,8 @@ class PlayerCard(Base):
     as_fallback_ranges = relationship(
         "CardRange",
         foreign_keys="CardRange.fallback_card_id",
-        back_populates="fallback_card"
+        back_populates="fallback_card",
+        cascade="all, delete-orphan",
+        passive_deletes=True
     )
 
