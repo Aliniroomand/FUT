@@ -1,16 +1,27 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-// ساده: استفاده از localStorage برای ذخیره وضعیت ورود
-const isAuthenticated = () => {
-  return localStorage.getItem('isAdminLoggedIn') === 'true';
-};
+// مسیرهای فقط برای ادمین‌ها
+export const AdminRoute = ({ children }) => {
+  const isAdmin = localStorage.getItem('isAdminLoggedIn') === 'true';
+  const token = localStorage.getItem('access_token');
 
-const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  if (!token || !isAdmin) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 
-export default ProtectedRoute;
+// مسیرهای فقط برای کاربران معمولی
+export const UserRoute = ({ children }) => {
+  const isAdmin = localStorage.getItem('isAdminLoggedIn') === 'true';
+  const token = localStorage.getItem('access_token');
+
+  // اگر لاگین نیست یا ادمینه، نذار به صفحه کاربر بره
+  if (!token || isAdmin) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};

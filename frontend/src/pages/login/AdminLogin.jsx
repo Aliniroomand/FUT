@@ -1,26 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { login } from '../services/api';
+import { login, getProfile } from '@/services/api';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await login({ email, password });
-      if (response) {
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await login({ email, password });
+    if (response && response.access_token) {
+      localStorage.setItem('access_token', response.access_token);
+
+      // بعد از لاگین، نقش کاربر را دریافت می‌کنیم
+      const profile = await getProfile();
+      if (profile.role === 'admin') {
         localStorage.setItem('isAdminLoggedIn', 'true');
-        toast.success('ورود موفق');
-        navigate('/admin');
+        navigate('/admin/dashboard');
+      } else {
+        localStorage.setItem('isAdminLoggedIn', 'false');
+        navigate('/profile');  // صفحه پروفایل کاربر معمولی (بعدا ساخته می‌شود)
       }
-    } catch (err) {
-      toast.error('اطلاعات نامعتبر');
     }
-  };
+  } catch (err) {
+    toast.error('خطا در ورود');
+    console.error('Login failed:', err);
+  }
+};
 
   return (
     <div className="flex items-center justify-center h-screen">

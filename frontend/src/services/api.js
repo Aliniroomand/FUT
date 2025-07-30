@@ -124,6 +124,14 @@ export const getProfile = async () => {
   const response = await api.get('/auth/profile');
   return response.data;
 };
+// src/services/api.js
+export const register = async (data) => {
+  const response = await api.post('/auth/register', data);
+  return response.data;
+};
+
+
+
 // بررسی اینکه بازیکن در بازه‌ای استفاده شده یا نه
 export async function checkPlayerUsage(playerId) {
   const response = await fetch(`/api/player-cards/${playerId}/usage`);
