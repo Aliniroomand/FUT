@@ -1,14 +1,15 @@
 // src/services/api.js
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: "http://localhost:8000",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// فقط خطا رو reject کن، نه console.log و نه toast
+
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -16,24 +17,25 @@ api.interceptors.response.use(
   }
 );
 
-// فقط دیتا رو برگردون، نه catch و نه throw
+
+
 export const getLatestPrice = async () => {
-  const response = await api.get('/prices/latest');
+  const response = await api.get("/prices/latest");
   return response.data;
 };
 
 export const setPrice = async (priceObj) => {
-  const response = await api.post('/prices/', priceObj);
+  const response = await api.post("/prices/", priceObj);
   return response.data;
 };
 
 export const getTransferMethods = async () => {
-  const response = await api.get('/transfer-methods/');
+  const response = await api.get("/transfer-methods/");
   return response.data;
 };
 
 export const createTransferMethod = async (data) => {
-  const response = await api.post('/transfer-methods/', data);
+  const response = await api.post("/transfer-methods/", data);
   return response.data;
 };
 
@@ -59,12 +61,12 @@ export const getRangesForMethod = async (method_id) => {
 
 // Card Ranges APIs
 export const getCardRanges = async () => {
-  const response = await api.get('/card-ranges/');
+  const response = await api.get("/card-ranges/");
   return response.data;
 };
 
 export const createCardRange = async (data) => {
-  const response = await api.post('/card-ranges/', data);
+  const response = await api.post("/card-ranges/", data);
   return response.data;
 };
 
@@ -85,12 +87,12 @@ export const getRangesForAmount = async (amount) => {
 
 // Player Cards APIs
 export const getPlayerCards = async () => {
-  const response = await api.get('/player-cards/');
+  const response = await api.get("/player-cards/");
   return response.data;
 };
 
 export const createPlayerCard = async (data) => {
-  const response = await api.post('/player-cards/', data);
+  const response = await api.post("/player-cards/", data);
   return response.data;
 };
 
@@ -110,27 +112,6 @@ export const deletePlayerCard = async (id) => {
 };
 
 // Authentication APIs
-export const login = async (credentials) => {
-  const response = await api.post('/auth/login', credentials);
-  return response.data;
-};
-
-export const logout = async () => {
-  const response = await api.post('/auth/logout');
-  return response.data;
-};
-
-export const getProfile = async () => {
-  const response = await api.get('/auth/profile');
-  return response.data;
-};
-// src/services/api.js
-export const register = async (data) => {
-  const response = await api.post('/auth/register', data);
-  return response.data;
-};
-
-
 
 // بررسی اینکه بازیکن در بازه‌ای استفاده شده یا نه
 export async function checkPlayerUsage(playerId) {
@@ -142,7 +123,7 @@ export async function checkPlayerUsage(playerId) {
 // حذف همه بازه‌هایی که بازیکن primary_card آن‌ها بوده
 export async function deleteRangesWithPrimaryCard(playerId) {
   const response = await fetch(`/api/card-ranges/by-primary-card/${playerId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
   if (!response.ok) throw new Error("Failed to delete related ranges");
   return await response.json();

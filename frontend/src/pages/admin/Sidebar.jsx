@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import LogoutBTN from '../../helper/LogoutBTN';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
@@ -23,7 +24,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             { to: '/admin/rangeManagement/method', label: 'مدیریت روش‌های انتقال' },
         ],
     },
-    // می‌تونی لینک‌های دیگه‌ای هم اضافه کنی...
+    { to: '/admin/make-admin', label: 'ارتقای کاربر به ادمین' },
   ];
 
   return (
@@ -85,6 +86,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
           </NavLink>
         )
       )}
+      <LogoutBTN/>
     </aside>
   );
 };

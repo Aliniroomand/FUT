@@ -3,7 +3,7 @@ import { AdminRoute, UserRoute } from './ProtectedRoute';
 
 // pages
 import HomePage from "@/pages/homePage";
-import AdminLogin from "@/pages/login/AdminLogin";
+import Login from "@/pages/login/Login";
 import NotFoundPage from "@/pages/NotFoundPage";
 // admin pages and layout
 import AdminLayout from "@/pages/admin/Layout";
@@ -12,18 +12,31 @@ import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
 import PlayerManagement from "@/pages/admin/RangeManagement/PlayerManagement";
 import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
 import PriceManager from "../components/admin/PriceManager";
-import Register from "../pages/login/register";
+import MakeAdminPage from "@/pages/admin/MakeAdminPage";
 // user profile
 import UserProfile from "../pages/User/UserProfile";
+import UserDashboard from "../pages/User/UserDashboard";
+import Register from "../pages/login/register";
+import ForgotPassword from "../pages/login/ForgotPassword";
+import ResetPassword from "../pages/login/ResetPassword";
+
 
 const router = createBrowserRouter([
   {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+  },
+  {
     path: "/",
-    element: <HomePage />, // صفحه اصلی
+    element: <HomePage />, 
   },
   {
     path: "/login",
-    element: <AdminLogin />,
+    element: <Login />,
   },
   {
     path: "/register",
@@ -34,7 +47,7 @@ const router = createBrowserRouter([
     path: "/profile",
     element: (
       <UserRoute>
-        <UserProfile />
+        <UserDashboard />
       </UserRoute>
     ),
   },
@@ -50,6 +63,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <Dashboard /> },
       { path: "mainPrices", element: <PriceManager /> },
+      { path: "make-admin", element: <MakeAdminPage /> },
       {
         path: "rangeManagement",
         element: <Outlet />,
