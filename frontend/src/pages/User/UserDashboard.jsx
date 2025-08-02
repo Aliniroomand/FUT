@@ -15,7 +15,7 @@ const UserDashboard = () => {
         const data = await getProfile();
         setProfile(data);
       } catch (err) {
-        toast.error("دریافت اطلاعات کاربر ناموفق بود");
+        toast.error(err?.esponse?.data?.detail || "دریافت اطلاعات کاربر ناموفق بود");
       } finally {
         setLoading(false);
       }

@@ -45,7 +45,6 @@ const Login = () => {
     if (!validate()) return;
     try {
       const response = await login({ email, password });
-      console.log(response)
       // Store both tokens if present
       if (response?.access_token) {
         localStorage.setItem("access_token", response.access_token);
@@ -62,7 +61,7 @@ const Login = () => {
         }
       }
     } catch (err) {
-      toast.error("ورود ناموفق بود");
+      toast.error(err.response.data.detail);
     }
   };
 
