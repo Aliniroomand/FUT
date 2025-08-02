@@ -7,10 +7,11 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     phone_number = Column(String, unique=True, nullable=False)
-    email = Column(String, unique=True, nullable=True)
+    email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=True)
     telegram_id = Column(String, unique=True, nullable=True)
     reset_token = Column(String, nullable=True)
+    is_admin = Column(Integer, default=0, nullable=False)  # 0: user, 1: admin
 
     profile = relationship("UserProfile", back_populates="user", uselist=False)
 

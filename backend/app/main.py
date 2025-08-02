@@ -1,10 +1,11 @@
 from app.routes import admin_choosen_price
-from fastapi import FastAPI
-from app.routes import player_card, transfer_method, transaction,card_range , admin_choosen_price,auth
+from fastapi import FastAPI,Depends  
+from app.routes import player_card, transfer_method, transaction,card_range , admin_choosen_price,auth,profile,admin
 from app.database import engine, Base
 
 
 Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 
@@ -17,7 +18,13 @@ app.include_router(card_range.router)
 app.include_router(player_card.router)
 app.include_router(transaction.router)
 app.include_router(transfer_method.router)
+
 app.include_router(auth.router)
+app.include_router(profile.router)
+app.include_router(admin.router)
+
+
+
 
 
 

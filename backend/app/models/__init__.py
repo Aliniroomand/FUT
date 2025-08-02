@@ -1,4 +1,3 @@
-from .admin import Admin
 from .transfer_method import TransferMethod
 from .transactions import Transaction
 from .player_card import PlayerCard

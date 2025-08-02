@@ -1,16 +1,48 @@
-# نادیده گرفتن فولدرهای محیط مجازی پایتون (virtualenv)
-backend/.venv/
+# ========== Python Virtual Environments ==========
+.venv/
 venv/
 env/
+backend/.venv/
+
+# ========== Python Bytecode ==========
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
 
-backend/.venv/Lib/site-packages/
+# ========== Python Package folders (不要 include site-packages) ==========
+# DO NOT include site-packages
+backend/.venv/Lib/
 
-frontend/node_modules/
+# ========== Alembic ==========
+# Keep alembic migrations (important!)
+# Ignore local SQLite DBs or migration cache (optional)
+*.db
+*.sqlite3
 
+# ========== Logs and temp files ==========
 *.log
 *.tmp
 
+# ========== IDEs ==========
 .vscode/
 .idea/
+
+# ========== Node.js ==========
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+frontend/build/
+
+# ========== OS/System ==========
+.DS_Store
+Thumbs.db
+
+# ========== Test / Coverage ==========
+htmlcov/
+coverage.xml
+*.cover
+.cache/
+
+# ========== Misc ==========
+*.env
+.env.*
