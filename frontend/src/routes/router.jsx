@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { AdminRoute, UserRoute } from './ProtectedRoute';
 
 // pages
-import HomePage from "@/pages/homePage";
+import HomePage from "@/pages/home/homePage";
 import Login from "@/pages/login/Login";
 import NotFoundPage from "@/pages/NotFoundPage";
 // admin pages and layout

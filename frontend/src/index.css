@@ -25,13 +25,36 @@
   font-family: "Playpen Sans Arabic", system-ui, Avenir, Helvetica, Arial, sans-serif;
   margin: 0 auto;
   text-align: center;
-  
+  box-sizing: border-box;
   background-image: url('/MainBG.jpg');
   background-size: cover;         /* یا 'contain' بسته به نیاز */
   background-position: center;
-  
   background-repeat: no-repeat;
-  background-attachment: fixed;   /* برای اسکرول شیک */
-  background-color: #000;         /* fallback لوکس */
   color: #fff;                   /* پیش‌فرض برای متن */
+  
+}
+.dark_bronze{
+  color: #26201b;
+text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+font-weight: bold;
+letter-spacing: 1px;
+}
+.home-links{
+  position: absolute;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bronze-dark, #010000);
+  font-size: 1.rem; 
+  z-index: 50;
+
+  font-weight: 800;
+  padding-inline: 15px;
+}
+
+.home-links:hover{
+  transform: scale(1.1);
 }
