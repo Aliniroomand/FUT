@@ -1,57 +1,70 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
-import { AdminRoute, UserRoute } from './ProtectedRoute';
+import { AdminRoute, UserRoute } from "./ProtectedRoute";
 
-// pages
+// عمومی
+import NotFoundPage from "@/pages/NotFoundPage";
+import MainLayout from "@/pages/MainLayout";
 import HomePage from "@/pages/home/homePage";
 import Login from "@/pages/login/Login";
-import NotFoundPage from "@/pages/NotFoundPage";
-// admin pages and layout
+import Register from "@/pages/login/Register";
+import ForgotPassword from "@/pages/login/ForgotPassword";
+import ResetPassword from "@/pages/login/ResetPassword";
+// import ContactPage from "@/pages/public/Contact";s
+// import SupportPage from "@/pages/public/Support";s
+// import FAQPage from "@/pages/public/FAQ";s
+// import BotPage from "@/pages/public/Bot";s
+
+// کاربر
+import UserLayout from "@/pages/User/UserLayout";
+import UserDashboard from "@/pages/User/UserDashboard";
+import UserTransactions from "@/pages/User/UserTransactions";
+
+// ادمین
 import AdminLayout from "@/pages/admin/Layout";
 import Dashboard from "@/pages/admin/Dashboard";
-import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
-import PlayerManagement from "@/pages/admin/RangeManagement/PlayerManagement";
-import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
-import PriceManager from "../components/admin/PriceManager";
+import PriceManager from "@/components/admin/PriceManager";
 import MakeAdminPage from "@/pages/admin/MakeAdminPage";
-// user profile
-import UserProfile from "../pages/User/UserProfile";
-import UserDashboard from "../pages/User/UserDashboard";
-import Register from "../pages/login/register";
-import ForgotPassword from "../pages/login/ForgotPassword";
-import ResetPassword from "../pages/login/ResetPassword";
-
+import AdminTransactions from "@/pages/admin/AdminTransactions";
+import PlayerManagementPage from "@/pages/admin/RangeManagement/PlayerManagement";
+import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
+import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
 
 const router = createBrowserRouter([
-  {
-    path: "/forgot-password",
-    element: <ForgotPassword />,
-  },
-  {
-    path: "/reset-password",
-    element: <ResetPassword />,
-  },
+  // مسیرهای احراز هویت
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password", element: <ResetPassword /> },
+
+  // مسیر اصلی با layout مشترک و navbar
   {
     path: "/",
-    element: <HomePage />, 
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      // { path: "contact", element: <ContactPage /> },
+      // { path: "support", element: <SupportPage /> },
+      // { path: "faq", element: <FAQPage /> },
+      // { path: "bot", element: <BotPage /> },
+    ],
   },
 
+  // مسیرهای کاربر
   {
-    path: "/profile",
+    path: "/user",
     element: (
       <UserRoute>
-        <UserDashboard />
+        <UserLayout />
       </UserRoute>
     ),
+    children: [
+      { index: true, element: <Navigate to="dashboard" /> },
+      { path: "dashboard", element: <UserDashboard /> },
+      { path: "transactions", element: <UserTransactions /> },
+    ],
   },
 
+  // مسیرهای ادمین
   {
     path: "/admin",
     element: (
@@ -60,21 +73,24 @@ const router = createBrowserRouter([
       </AdminRoute>
     ),
     children: [
-      { index: true, element: <Navigate to="dashboard" replace /> },
+      { index: true, element: <Navigate to="dashboard" /> },
       { path: "dashboard", element: <Dashboard /> },
       { path: "mainPrices", element: <PriceManager /> },
       { path: "make-admin", element: <MakeAdminPage /> },
+      { path: "transactions", element: <AdminTransactions /> },
       {
-        path: "rangeManagement",
+        path: "range-management",
         element: <Outlet />,
         children: [
-          { path: "player", element: <PlayerManagement /> },
+          { index: true, element: <Navigate to="player" /> },
+          { path: "player", element: <PlayerManagementPage /> },
           { path: "range", element: <RangeManagement /> },
           { path: "method", element: <MethodManagement /> },
         ],
       },
     ],
   },
+
   { path: "*", element: <NotFoundPage /> },
 ]);
 

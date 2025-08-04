@@ -57,7 +57,7 @@ const Login = () => {
         if (Boolean(response.is_admin)) {
           navigate("/admin/dashboard", { replace: true });
         } else {
-          navigate("/profile", { replace: true });
+          navigate("/user/dashboard", { replace: true });
         }
       }
     } catch (err) {

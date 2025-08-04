@@ -16,6 +16,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const links = [
     { to: '/admin/dashboard', label: 'صفحه اصلی داشبورد' },
     { to: '/admin/mainPrices', label: 'تعیین قیمت خرید و فروش' },
+    { to: '/admin/transactions', label: 'گزارش تراکنش‌ها' },
     {
         label: 'مدیریت کارت‌های انتقال',
         subItems: [

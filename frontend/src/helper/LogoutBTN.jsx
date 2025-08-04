@@ -1,7 +1,9 @@
 import { logout } from "@/services/auth";
 import { FiLogOut } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const LogoutBTN = () => {
+  const navigate=useNavigate()
   const handleLogout = () => {
     logout();
     navigate("/login");

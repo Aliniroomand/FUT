@@ -24,20 +24,20 @@ export default function LivePriceTicker() {
 
   return (
     <div className="
-      fixed bottom-0 z-50 glass-dark px-4 py-2 shadow-xl animate-slideDown
+      fixed bottom-0 z-50 bg-white/40 backdrop-blur-xs px-4 py-2 shadow-xl animate-slideDown
       flex flex-row justify-between gap-4 text-md text-white
       w-full left-0 right-0 rounded-none
       sm:rounded-xl sm:w-2/4 sm:left-auto sm:right-1/4
     ">
-      <div className="flex justify-between gap-4 text-shadow-white">
-        <span className="text-green-600">تعرفه خرید:</span>
-        <span className="text-green-600 font-bold">
+      <div className="flex justify-between items-center gap-4 text-shadow-white">
+        <span className="text-green-800 sm:text-xl">تعرفه خرید:</span>
+        <span className="text-green-800 font-bold text-xl">
           {prices.buy || prices.buy === 0 ? `${prices.buy} 🪙` : "دریافت نشد🪙"}
         </span>
       </div>
       <div className="flex justify-between gap-4">
-        <span className="text-red-600">تعرفه فروش:</span>
-        <span className="text-red-600 font-bold">
+        <span className="text-red-600 sm:text-xl">تعرفه فروش:</span>
+        <span className="text-red-600 font-bold text-xl">
           {prices.sell || prices.sell === 0 ? `${prices.sell} 🪙` : "دریافت نشد🪙"}
 
         </span>

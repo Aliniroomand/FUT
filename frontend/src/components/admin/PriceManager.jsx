@@ -76,15 +76,24 @@ const PriceManager = () => {
 
   return (
     <div className="glass-light p-6 rounded-xl shadow-lg max-w-3xl mx-auto text-[var(--color-text-primary)]">
-      <h2 className="text-2xl font-bold mb-6 text-[var(--color-gold-accent)] border-b border-[var(--color-gold-shadow)] pb-2">
-        مدیریت قیمت سکه
-      </h2>
-
+      <h2 className="text-2xl font-bold mb-6  pb-2">مدیریت قیمت سکه</h2>
+      <div className="bg-amber-400 rounded-2xl ">
+        <p className="mt-2 text-2xl text-green-800 font-bold">
+          {`قیمت خرید فعلی: ${
+            originalBuyPrice ? `${originalBuyPrice} تومان` : "نامشخص"
+          }`}
+        </p>
+        <p className="mt-2 text-2xl text-red-600 font-bold">
+          {`قیمت فروش فعلی: ${
+            originalSellPrice ? `${originalSellPrice} تومان` : "نامشخص"
+          }`}
+        </p>
+      </div>
       <div className="flex flex-col gap-6">
         {/* باکس قیمت خرید */}
         <div className="glass-light border-l-4 border-green-500 p-4 rounded-md shadow-sm">
           <label className="block mb-2 font-semibold text-green-800">
-            قیمت پایه خرید هر 100 کا (تومان):
+            تغییر قیمت پایه خرید هر 100 کا (تومان)
           </label>
           <input
             type="number"
@@ -93,11 +102,7 @@ const PriceManager = () => {
             className="w-full p-2 rounded bg-[var(--color-dark)] border border-gray-700 text-[var(--color-text-primary)] focus:outline-none focus:ring-1 focus:ring-green-800"
             placeholder="مثلاً 200"
           />
-          <p className="mt-2 text-sm text-green-800 font-bold">
-            {`قیمت خرید فعلی: ${
-              originalBuyPrice ? `${originalBuyPrice} تومان` : "نامشخص"
-            }`}
-          </p>
+
           <button
             onClick={handleBuyPriceSave}
             className="mt-3 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
@@ -109,7 +114,7 @@ const PriceManager = () => {
         {/* باکس قیمت فروش */}
         <div className="bg-[#1f1f1f] border-l-4 border-red-500 p-4 rounded-md shadow-sm">
           <label className="block mb-2 font-semibold text-red-400">
-            قیمت فروش هر 100 کا (تومان):
+            تغییر قیمت فروش هر 100 کا (تومان)
           </label>
           <input
             type="number"
@@ -118,11 +123,7 @@ const PriceManager = () => {
             className="w-full p-2 rounded bg-[var(--color-dark)] border border-gray-700 text-[var(--color-text-primary)] focus:outline-none focus:ring-1 focus:ring-red-500"
             placeholder="مثلاً 200"
           />
-          <p className="mt-2 text-sm text-red-400 font-bold">
-            {`قیمت فروش فعلی: ${
-              originalSellPrice ? `${originalSellPrice} تومان` : "نامشخص"
-            }`}
-          </p>
+
           <button
             onClick={handleSellPriceSave}
             className="mt-3 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"

@@ -3,8 +3,6 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import Engine
 import sqlite3
 
-
-
 DATABASE_URL = "sqlite:///./fut.db" 
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -25,3 +23,6 @@ def enforce_foreign_keys(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON;")
         cursor.close()
+        
+        
+

@@ -23,13 +23,15 @@
 }
 :root, body {
   font-family: "Playpen Sans Arabic", system-ui, Avenir, Helvetica, Arial, sans-serif;
-  margin: 0 auto;
-  text-align: center;
   box-sizing: border-box;
+  text-align: center;
+  
   background-image: url('/MainBG.jpg');
-  background-size: cover;         /* یا 'contain' بسته به نیاز */
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;  /* اختیاری: برای ثابت ماندن در اسکرول */
+
   color: #fff;                   /* پیش‌فرض برای متن */
   
 }
@@ -47,7 +49,6 @@ letter-spacing: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bronze-dark, #010000);
   font-size: 1.rem; 
   z-index: 50;
 
