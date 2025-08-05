@@ -12,7 +12,6 @@ export default function LivePriceTicker() {
   const fetchPrices = async () => {
     try {
       const data = await getLatestPrice();
-      console.log(data.buy_price);
       setPrices({
         buy: data.buy_price,
         sell: data.sell_price,

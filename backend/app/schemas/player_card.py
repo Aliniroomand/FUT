@@ -8,8 +8,10 @@ class PlayerCardBase(BaseModel):
     version: str
     rating: str
     chemistry: int = 0
-    bid_price: Optional[str] = None
-    buy_now_price: Optional[str] = None
+    min_bid_price: Optional[int] = 0
+    max_bid_price: Optional[int] = 0
+    min_buy_now_price: Optional[int] = 0
+    max_buy_now_price: Optional[int] = 0
     price_range_min: Optional[str] = None
     price_range_max: Optional[str] = None
     games_played: int = 0
@@ -26,8 +28,10 @@ class PlayerCardUpdate(BaseModel):
     version: Optional[str] = None
     rating: Optional[str] = None
     chemistry: Optional[int] = None
-    bid_price: Optional[str] = None
-    buy_now_price: Optional[str] = None
+    min_bid_price: Optional[int] = 0
+    max_bid_price: Optional[int] = 0
+    min_buy_now_price: Optional[int] = 0
+    max_buy_now_price: Optional[int] = 0
     price_range_min: Optional[str] = None
     price_range_max: Optional[str] = None
     games_played: Optional[int] = None

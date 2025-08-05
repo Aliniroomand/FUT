@@ -25,7 +25,7 @@ import Dashboard from "@/pages/admin/Dashboard";
 import PriceManager from "@/components/admin/PriceManager";
 import MakeAdminPage from "@/pages/admin/MakeAdminPage";
 import AdminTransactions from "@/pages/admin/AdminTransactions";
-import PlayerManagementPage from "@/pages/admin/RangeManagement/PlayerManagement";
+import PlayerManagement from "@/pages/admin/RangeManagement/PlayerManagement";
 import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
 import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
 
@@ -79,11 +79,11 @@ const router = createBrowserRouter([
       { path: "make-admin", element: <MakeAdminPage /> },
       { path: "transactions", element: <AdminTransactions /> },
       {
-        path: "range-management",
+        path: "rangeManagement",
         element: <Outlet />,
         children: [
           { index: true, element: <Navigate to="player" /> },
-          { path: "player", element: <PlayerManagementPage /> },
+          { path: "player", element: <PlayerManagement /> },
           { path: "range", element: <RangeManagement /> },
           { path: "method", element: <MethodManagement /> },
         ],

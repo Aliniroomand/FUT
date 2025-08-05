@@ -5,7 +5,7 @@ export const PriceInfoSection = ({ formData, handleChange }) => (
   <div className="space-y-2">
     <h3 className="font-medium text-amber-400 mb-2">اطلاعات قیمت</h3>
     <InputField
-      label="قیمت پیشنهادی"
+      label="Bid price "
       name="bid_price"
       value={formData.bid_price ?? 0}
       onChange={handleChange}

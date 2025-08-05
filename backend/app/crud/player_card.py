@@ -12,8 +12,10 @@ def create_player_card(db: Session, player_card: PlayerCardCreate):
         version=player_card.version,
         rating=player_card.rating,
         chemistry=player_card.chemistry,
-        bid_price=player_card.bid_price,
-        buy_now_price=player_card.buy_now_price,
+        min_bid_price=player_card.min_bid_price,
+        max_bid_price=player_card.max_bid_price,
+        min_buy_now_price=player_card.min_buy_now_price,
+        max_buy_now_price=player_card.max_buy_now_price,
         games_played=player_card.games_played,
         contract_number=player_card.contract_number,
         owner_number=player_card.owner_number
@@ -71,26 +73,67 @@ def delete_player_card(db: Session, player_card_id: int):
 def get_card_transactions(db: Session, card_id: int):
     return db.query(Transaction).filter(Transaction.card_id == card_id).all()
 
-def sell_player_card(db: Session, card_id: int, price: str):
+def sell_player_card(
+    db: Session,
+    card_id: int,
+    min_bid_price: int,
+    max_bid_price: int,
+    min_buy_now_price: int,
+    max_buy_now_price: int,
+):
     card = get_player_card(db, card_id)
     if not card:
         raise ValueError("Player card not found")
     
-    # Update card price information
-    card.bid_price = price
-    db.commit()
-    db.refresh(card)
-    
-    return {"status": "listed_for_sale", "card_id": card_id, "price": price}
+    # آپدیت قیمت‌ها
+    card.min_bid_price = min_bid_price
+    card.max_bid_price = max_bid_price
+    card.min_buy_now_price = min_buy_now_price
+    card.max_buy_now_price = max_buy_now_price
 
-def buy_player_card(db: Session, card_id: int, buyer_id: int, price: str):
-    card = get_player_card(db, card_id)
-    if not card:
-        raise ValueError("Player card not found")
-    
-    # Update card ownership information
-    card.owner_number += 1
     db.commit()
     db.refresh(card)
     
-    return {"status": "purchased", "buyer_id": buyer_id, "card_id": card_id, "price": price}
+    return {
+        "status": "listed_for_sale",
+        "card_id": card_id,
+        "min_bid_price": min_bid_price,
+        "max_bid_price": max_bid_price,
+        "min_buy_now_price": min_buy_now_price,
+        "max_buy_now_price": max_buy_now_price,
+    }
+
+
+def buy_player_card(
+    db: Session,
+    card_id: int,
+    buyer_id: int,
+    min_bid_price: int,
+    max_bid_price: int,
+    min_buy_now_price: int,
+    max_buy_now_price: int,
+):
+    card = get_player_card(db, card_id)
+    if not card:
+        raise ValueError("Player card not found")
+
+    # ثبت قیمت‌های خرید واقعی
+    card.min_bid_price = min_bid_price
+    card.max_bid_price = max_bid_price
+    card.min_buy_now_price = min_buy_now_price
+    card.max_buy_now_price = max_buy_now_price
+
+
+
+    db.commit()
+    db.refresh(card)
+
+    return {
+        "status": "purchased",
+        "buyer_id": buyer_id,
+        "card_id": card_id,
+        "min_bid_price": min_bid_price,
+        "max_bid_price": max_bid_price,
+        "min_buy_now_price": min_buy_now_price,
+        "max_buy_now_price": max_buy_now_price,
+    }

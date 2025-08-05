@@ -92,7 +92,7 @@ def list_transactions(
                 else:
                     base_query = base_query.order_by(sort_col.desc())
         else:
-            base_query = base_query.order_by(crud.Transaction.timestamp.desc())
+            base_query = base_query.order_by(crud.Transaction.timestamp.desc(),crud.Transaction.id.desc() )
         items = base_query.offset(skip).limit(limit).all()
 
     return JSONResponse(content={

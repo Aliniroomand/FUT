@@ -18,7 +18,7 @@ export const BaseInfoSection = ({ formData, handleChange }) => (
       onChange={handleChange}
     />
     <InputField
-      label="تعداد بازی‌ها"
+      label="*تعداد بازی‌ها"
       name="games_played"
       type="number"
       value={formData.games_played || 0}

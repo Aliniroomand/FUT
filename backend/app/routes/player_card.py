@@ -53,17 +53,44 @@ def get_card_transactions(card_id: int, db: Session = Depends(get_db)):
 def sell_player_card(card_id: int, price: str, db: Session = Depends(get_db)):
     return crud.sell_player_card(db, card_id, price)
 
-@router.post("/{card_id}/buy")
-def buy_player_card(card_id: int, buyer_id: int, price: str, db: Session = Depends(get_db)):
-    return crud.buy_player_card(db, card_id, buyer_id, price)
+@router.post("/{card_id}/sell")
+def sell_player_card(
+    card_id: int,
+    min_bid_price: int,
+    max_bid_price: int,
+    min_buy_now_price: int,
+    max_buy_now_price: int,
+    db: Session = Depends(get_db)
+):
+    return crud.sell_player_card(
+        db,
+        card_id,
+        min_bid_price=min_bid_price,
+        max_bid_price=max_bid_price,
+        min_buy_now_price=min_buy_now_price,
+        max_buy_now_price=max_buy_now_price,
+    )
 
-@router.get("/{player_id}/usage", response_model=schemas.PlayerUsageResponse)
-def check_player_usage(player_id: int, db: Session = Depends(get_db)):
-    ranges = db.query(models.CardRange).filter(models.CardRange.primary_card_id == player_id).all()
-    return {
-        "is_used": len(ranges) > 0,
-        "ranges": [{"id": r.id, "min_value": r.min_value, "max_value": r.max_value} for r in ranges],
-    }
+
+@router.post("/{card_id}/buy")
+def buy_player_card(
+    card_id: int,
+    buyer_id: int,
+    min_bid_price: int,
+    max_bid_price: int,
+    min_buy_now_price: int,
+    max_buy_now_price: int,
+    db: Session = Depends(get_db)
+):
+    return crud.buy_player_card(
+        db,
+        card_id,
+        buyer_id=buyer_id,
+        min_bid_price=min_bid_price,
+        max_bid_price=max_bid_price,
+        min_buy_now_price=min_buy_now_price,
+        max_buy_now_price=max_buy_now_price,
+    )
 
 @router.delete("/by-primary-card/{player_id}", status_code=204)
 def delete_ranges_with_primary_card(player_id: int, db: Session = Depends(get_db)):
