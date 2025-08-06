@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models.card_range import CardRange
-from app.models.player_card import PlayerCard
+from app.models import CardRange,PlayerCard,TransferMethod
 from app.schemas.card_range import (
     CardRange as CardRangeSchema,
     CardRangeCreate,
@@ -27,7 +26,10 @@ def create_card_range(range_data: CardRangeCreate, db: Session = Depends(get_db)
         fallback_card = db.query(PlayerCard).filter(PlayerCard.id == range_data.fallback_card_id).first()
         if not fallback_card:
             raise HTTPException(status_code=400, detail="کارت جایگزین یافت نشد")
-    
+    # بررسی اینکه شیوه انتقال وجود دارد
+    transfer_method = db.query(TransferMethod).filter(TransferMethod.id == range_data.transfer_method_id).first()
+    if not transfer_method:
+        raise HTTPException(status_code=400, detail="شیوه انتقال یافت نشد")
     # بررسی صحت بازه قیمتی
     if range_data.min_value >= range_data.max_value:
         raise HTTPException(status_code=400, detail="حداقل مقدار باید کمتر از حداکثر مقدار باشد")
@@ -99,6 +101,12 @@ def delete_card_range(range_id: int, db: Session = Depends(get_db)):
     db.delete(db_range)
     db.commit()
     return {"message": "بازه قیمتی با موفقیت حذف شد"}
+
+    
+@router.get("/{method_id}/ranges")
+def get_ranges(method_id: int, db: Session = Depends(get_db)):
+    return crud.get_ranges_for_method(db, method_id)
+
 
 @router.get("/for-amount/{amount}", response_model=list[CardRangeSchema])
 def get_ranges_for_amount(amount: float, db: Session = Depends(get_db)):

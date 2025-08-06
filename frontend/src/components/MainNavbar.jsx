@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
 import {
   FaHome,
-  FaSignInAlt,
   FaUserCircle,
-  FaPhoneAlt,
   FaQuestionCircle,
   FaTelegramPlane,
   FaHeadset,
@@ -13,12 +11,12 @@ const Navbar = () => {
   return (
     <>
       {/* mobile nav */}
-      <nav className="sm:hidden glass-dark w-svw py-1 text-white text-nowrap flex justify-around items-center">
+      <nav className="fixed h-15 sm:hidden glass-dark w-svw py-1 text-white text-nowrap flex justify-around items-center">
           <Link to="/faq" className="grid place-items-center ">
             <span className="text-center w-fit">
               <FaQuestionCircle size={25} />
             </span>
-            <p className="text-xs">سوالات متداول</p>
+            <p className="text-xs">سوالات </p>
           </Link>
 
           <Link to="/support" className="grid place-items-center  items-center">
@@ -49,7 +47,7 @@ const Navbar = () => {
           </Link>
       </nav>
       {/* desktop */}
-      <nav className="hidden glass-dark w-3/5 left-1/5 relative rounded-full py-2 text-white text-nowrap sm:flex justify-between px-2 items-center">
+      <nav className="hidden fixed glass-dark w-3/5 left-1/5 h-15 rounded-full py-2 text-white text-nowrap sm:flex justify-between px-2 items-center">
         <div>
           <Link to="/" className="flex items-center justify-between gap-3  ">
             <span>

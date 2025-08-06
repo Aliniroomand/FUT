@@ -117,26 +117,26 @@ const handleDelete = async (playerId) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-700">
-        <thead className="glass-dark">
-          <tr>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">نام</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">باشگاه</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">پوزیشن</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">ورژن</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">رتبه</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">کمستری</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">قیمت پیشنهادی</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">قیمت خرید فوری</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">بازی‌ها</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">عملیات</th>
+      <table className="min-w-full ">
+        <thead className="glass-light text-base  ">
+          <tr className='divide-x divide-gray-600'>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">نام</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">باشگاه</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">پوزیشن</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">ورژن</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">رتبه</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">کمستری</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">قیمت پیشنهادی</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">قیمت خرید فوری</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">بازی‌ها</th>
+            <th className="px-4 py-3 font-medium text-gray-800  tracking-wider">عملیات</th>
           </tr>
         </thead>
         <tbody className="bg-white/10 backdrop-blur-md divide-y divide-gray-700">
           {players.map(player => {
             const isEditing = editingPlayerId === player.id;
             return (
-              <tr key={player.id} className={isEditing ? "bg-gray-750" : ""}>
+              <tr key={player.id} className={isEditing ? "bg-gray-75 divide-x divide-gray-600" : "divide-x divide-gray-600"}>
                 {/* Name */}
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-white">
                   {isEditing ? (

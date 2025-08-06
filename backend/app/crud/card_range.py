@@ -8,12 +8,14 @@ def create_card_range(db: Session, range_data: CardRangeCreate):
         max_value=range_data.max_value,
         description=range_data.description,
         primary_card_id=range_data.primary_card_id,
-        fallback_card_id=range_data.fallback_card_id
+        fallback_card_id=range_data.fallback_card_id,
+        transfer_method_id=range_data.transfer_method_id 
     )
     db.add(db_range)
     db.commit()
     db.refresh(db_range)
     return db_range
+
 
 def get_ranges_for_amount(db: Session, amount: float):
     return db.query(CardRange).filter(

@@ -31,6 +31,7 @@ export const setPrice = async (priceObj) => {
 
 export const getTransferMethods = async () => {
   const response = await api.get("/transfer-methods/");
+  console.log(response.data.length)
   return response.data;
 };
 

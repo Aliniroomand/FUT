@@ -47,7 +47,7 @@ const Register = () => {
         if (decoded.is_admin) {
           navigate("/admin/dashboard");
         } else {
-          navigate("/profile");
+          navigate("/user/dashboard");
         }
       } catch {}
     }
@@ -68,7 +68,7 @@ const Register = () => {
         if (response.is_admin) {
           navigate("/admin/dashboard");
         } else {
-          navigate("/profile");
+          navigate("/user/dashboard");
         }
         toast.success("ثبت‌نام و ورود با موفقیت انجام شد");
       }
