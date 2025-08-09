@@ -2,7 +2,8 @@ import  { useEffect, useState } from "react";
 import { getTransactions } from "@/services/transactions";
 import TransactionTable from "@/components/transactions/TransactionTable";
 import Pagination from "@/components/common/Pagination";
-import Tesst from "@/components/Tesst"
+
+
 const AdminTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [total, setTotal] = useState(0);
@@ -16,6 +17,7 @@ const AdminTransactions = () => {
       try {
         const data = await getTransactions(page, limit);
         setTransactions(data.items);
+        console.log(data.response);
         setTotal(data.total);
       } catch (err) {
         setTransactions([]);
@@ -29,7 +31,6 @@ const AdminTransactions = () => {
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">گزارش تراکنش‌ها</h2>
-      <Tesst/>
       {loading ? (
         <div>در حال بارگذاری...</div>
       ) : (

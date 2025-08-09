@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPlayerCards, createPlayerCard, updatePlayerCard, deletePlayerCard } from '@/services/api';
+import { getPlayerCards, createPlayerCard, updatePlayerCard, deletePlayerCard } from '@/services/playerCardsApi';
 import PlayerForm from './PlayerForm';
 import PlayerList from './PlayerList';
 import toast from 'react-hot-toast';

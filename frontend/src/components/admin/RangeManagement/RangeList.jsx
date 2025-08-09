@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import RangeForm from "./RangeForm";
-import { getTransferMethod } from "@/services/api";
+import { getTransferMethod } from "@/services/transferAndRanges";
 
 export default function RangeList({ ranges, onEdit, onDelete }) {
   const [editingId, setEditingId] = useState(null);

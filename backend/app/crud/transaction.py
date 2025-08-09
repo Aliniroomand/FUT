@@ -2,14 +2,29 @@ from sqlalchemy.orm import Session
 from app.models.transactions import Transaction
 from app.schemas.transactions import TransactionCreate
 from sqlalchemy import func
+from datetime import datetime
+from fastapi import HTTPException
+from app.models.transactions import Transaction
 
 def create(db: Session, transaction: TransactionCreate):
     db_transaction = Transaction(
+        user_id=transaction.user_id,
         card_id=transaction.card_id,
+        transfer_method_id=transaction.transfer_method_id,
         amount=transaction.amount,
         transaction_type=transaction.transaction_type,
-        user_id=transaction.user_id
-    )
+        is_successful=transaction.is_successful,
+        is_settled=transaction.is_settled,
+        buy_price=transaction.buy_price,
+        sell_price=transaction.sell_price,
+        customer_phone=transaction.customer_phone,
+        customer_email=transaction.customer_email,
+        debt_or_credit=transaction.debt_or_credit,
+        debt_or_credit_type=transaction.debt_or_credit_type,
+        transfer_multiplier=transaction.transfer_multiplier,
+        timestamp=transaction.timestamp
+)
+
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
@@ -55,10 +70,18 @@ def get_all(
     if max_amount is not None:
         query = query.filter(Transaction.amount <= max_amount)
     if start_date:
-        query = query.filter(Transaction.timestamp >= start_date)
-    if end_date:
-        query = query.filter(Transaction.timestamp <= end_date)
+        try:
+            start_dt = datetime.fromisoformat(start_date)
+            base_query = base_query.filter(Transaction.timestamp >= start_dt)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid start_date format. Use ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS")
 
+    if end_date:
+        try:
+            end_dt = datetime.fromisoformat(end_date)
+            base_query = base_query.filter(Transaction.timestamp <= end_dt)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid end_date format. Use ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS")
     # مرتب‌سازی
     if sort_by:
         sort_col = getattr(Transaction, sort_by, None)

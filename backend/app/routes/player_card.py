@@ -6,6 +6,8 @@ from app.schemas.transactions import TransactionOut
 from app.crud import player_card as crud
 from app.schemas import player_card as schemas
 from app import models  
+from typing import Optional
+
 
 router = APIRouter(prefix="/player-cards", tags=["Player Cards"])
 
@@ -50,27 +52,29 @@ def get_card_transactions(card_id: int, db: Session = Depends(get_db)):
     return crud.get_card_transactions(db, card_id)
 
 @router.post("/{card_id}/sell")
-def sell_player_card(card_id: int, price: str, db: Session = Depends(get_db)):
-    return crud.sell_player_card(db, card_id, price)
-
-@router.post("/{card_id}/sell")
 def sell_player_card(
     card_id: int,
-    min_bid_price: int,
-    max_bid_price: int,
-    min_buy_now_price: int,
-    max_buy_now_price: int,
+    price: Optional[str] = None,
+    min_bid_price: Optional[int] = None,
+    max_bid_price: Optional[int] = None,
+    min_buy_now_price: Optional[int] = None,
+    max_buy_now_price: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
-    return crud.sell_player_card(
-        db,
-        card_id,
-        min_bid_price=min_bid_price,
-        max_bid_price=max_bid_price,
-        min_buy_now_price=min_buy_now_price,
-        max_buy_now_price=max_buy_now_price,
-    )
-
+    if price:
+        return crud.sell_player_card(db, card_id, price)
+    
+    if None not in (min_bid_price, max_bid_price, min_buy_now_price, max_buy_now_price):
+        return crud.sell_player_card(
+            db,
+            card_id,
+            min_bid_price=min_bid_price,
+            max_bid_price=max_bid_price,
+            min_buy_now_price=min_buy_now_price,
+            max_buy_now_price=max_buy_now_price,
+        )
+    
+    raise HTTPException(status_code=400, detail="Invalid parameters for selling player card")
 
 @router.post("/{card_id}/buy")
 def buy_player_card(

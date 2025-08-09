@@ -1,4 +1,3 @@
-// src/components/transactions/TransactionTable.jsx
 const TransactionTable = ({ transactions }) => {
   return (
     <table className="w-full text-sm border glass-dark">

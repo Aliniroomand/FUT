@@ -11,7 +11,7 @@ const Navbar = () => {
   return (
     <>
       {/* mobile nav */}
-      <nav className="fixed h-15 sm:hidden glass-dark w-svw py-1 text-white text-nowrap flex justify-around items-center">
+      <nav className="fixed z-[100]  sm:hidden glass-dark w-svw py-1 text-white text-nowrap flex justify-around items-center">
           <Link to="/faq" className="grid place-items-center ">
             <span className="text-center w-fit">
               <FaQuestionCircle size={25} />
@@ -47,7 +47,7 @@ const Navbar = () => {
           </Link>
       </nav>
       {/* desktop */}
-      <nav className="hidden fixed glass-dark w-3/5 left-1/5 h-15 rounded-full py-2 text-white text-nowrap sm:flex justify-between px-2 items-center">
+      <nav className="hidden h-1/12 z-100 fixed glass-dark w-3/5 left-1/5 rounded-full py-2 text-white text-nowrap sm:flex justify-between px-2 items-center">
         <div>
           <Link to="/" className="flex items-center justify-between gap-3  ">
             <span>

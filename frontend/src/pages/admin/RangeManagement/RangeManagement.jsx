@@ -1,4 +1,4 @@
-import RangeManagement from "../../../components/admin/RangeManagement/RangeManagement";
+import RangeManagement from "@/components/admin/RangeManagement/RangeManagement";
 
 const MethodManagement = () => {
   return (

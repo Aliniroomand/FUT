@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getPlayerCards, getTransferMethods } from "../../../services/api";
+import { getPlayerCards } from "@/services/playerCardsApi";
+import { getTransferMethods } from "@/services/transferAndRanges";
 
 export default function RangeForm({ onSubmit, initialData, onCancel }) {
   const [formData, setFormData] = useState({
@@ -8,13 +9,13 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
     description: "",
     primary_card_id: "",
     fallback_card_id: "",
-    transfer_method_id: "",         // ← اضافه کردن فیلد
+    transfer_method_id: "", // ← اضافه کردن فیلد
   });
 
   const [playerCards, setPlayerCards] = useState([]);
-  const [transferMethods, setTransferMethods] = useState([]);  // ← لیست متدها
+  const [transferMethods, setTransferMethods] = useState([]); // ← لیست متدها
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");                      // ← پیام خطا
+  const [error, setError] = useState(""); // ← پیام خطا
 
   // بارگذاری کارت‌ها و متدها
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
         description: initialData.description || "",
         primary_card_id: initialData.primary_card_id,
         fallback_card_id: initialData.fallback_card_id || "",
-        transfer_method_id: initialData.transfer_method_id,  // ← مقداردهی
+        transfer_method_id: initialData.transfer_method_id, // ← مقداردهی
       });
     }
   }, [initialData]);
@@ -183,11 +184,13 @@ export default function RangeForm({ onSubmit, initialData, onCancel }) {
             required
           >
             <option value="">انتخاب کنید</option>
-            {transferMethods.length === 0 ? "بازه ای نیافت نشد" :transferMethods.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
+            {transferMethods.length === 0
+              ? "بازه ای نیافت نشد"
+              : transferMethods.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
           </select>
         </div>
 

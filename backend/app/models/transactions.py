@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey ,String
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime
+from sqlalchemy.sql import func
 
 
 class Transaction(Base):
@@ -14,7 +15,7 @@ class Transaction(Base):
     transfer_method_id = Column(Integer, ForeignKey("transfer_methods.id"), nullable=True)
     amount = Column(Float, nullable=False)  # مبلغ کل انتقال
     transaction_type = Column(String, nullable=False)  # خرید/فروش/انتقال
-    timestamp = Column(DateTime, default=datetime.now(),nullable=False)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     is_successful = Column(Integer, default=0, nullable=False)  # 1: موفق، 0: ناموفق
     is_settled = Column(Integer, default=0,nullable=False)  # 1: تسویه شده، 0: تسویه نشده
     buy_price = Column(Float, nullable=True)  # قیمت خرید سکه توسط ادمین در لحظه تراکنش

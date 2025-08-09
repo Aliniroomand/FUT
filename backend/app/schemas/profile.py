@@ -12,7 +12,7 @@ class ProfileResponse(ProfileBase):
     is_admin: bool = False
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ProfileUpdate(ProfileBase):
     pass

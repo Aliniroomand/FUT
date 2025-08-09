@@ -6,7 +6,7 @@ import {
   createCardRange,
   updateCardRange,
   deleteCardRange,
-} from '../../../services/api';
+} from '@/services/transferAndRanges';
 import RangeForm from './RangeForm';
 import RangeList from './RangeList';
 import { toast } from 'react-hot-toast';

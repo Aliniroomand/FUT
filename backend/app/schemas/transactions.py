@@ -18,7 +18,7 @@ class TransactionBase(BaseModel):
     customer_email: Optional[str] = None
     debt_or_credit: Optional[float] = None
     debt_or_credit_type: Optional[str] = None
-    transfer_multiplier: Optional[float] = None
+    transfer_multiplier: float = None
 
 
 class TransactionCreate(TransactionBase):

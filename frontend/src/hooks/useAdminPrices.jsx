@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLatestPrice, setPrice } from "../services/api";
+import { getLatestPrice, setPrice } from "../services/transferAndRanges";
 import toast from "react-hot-toast";
 
 const usePriceManager = () => {
