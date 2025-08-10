@@ -11,43 +11,43 @@ const Navbar = () => {
   return (
     <>
       {/* mobile nav */}
-      <nav className="fixed z-[100]  sm:hidden glass-dark w-svw py-1 text-white text-nowrap flex justify-around items-center">
+      <nav className="fixed z-[100]  sm:hidden glass-dark w-svw p-1 text-white text-nowrap flex justify-around items-center">
           <Link to="/faq" className="grid place-items-center ">
             <span className="text-center w-fit">
               <FaQuestionCircle size={25} />
             </span>
-            <p className="text-xs">سوالات </p>
+            <p className="text-shadow-lg text-shadow-black text-xs">سوالات </p>
           </Link>
 
           <Link to="/support" className="grid place-items-center  items-center">
             <span>
               <FaHeadset size={25} />
             </span>
-            <p className="text-xs">پشتیبانی</p>
+            <p className="text-shadow-lg text-shadow-black text-xs">پشتیبانی</p>
           </Link>
 
           <Link to="/" className="grid place-items-center ">
             <span>
               <FaHome size={25} />
             </span>
-            <p className="text-xs">صفحه اصلی</p>
+            <p className="text-shadow-lg text-shadow-black text-xs">صفحه اصلی</p>
           </Link>
           <Link to="/bot" className="grid place-items-center  ">
             <span>
               <FaTelegramPlane size={25} />
             </span>
-            <p className="text-xs">ربات تلگرام</p>
+            <p className="text-shadow-lg text-shadow-black text-xs">ربات تلگرام</p>
           </Link>
 
           <Link to="/user/dashboard" className="grid place-items-center  ">
             <span>
               <FaUserCircle size={25} />
             </span>
-            <p className="text-xs">داشبورد</p>
+            <p className="text-shadow-lg text-shadow-black text-xs">داشبورد</p>
           </Link>
       </nav>
       {/* desktop */}
-      <nav className="hidden h-1/12 z-100 fixed glass-dark w-3/5 left-1/5 rounded-full py-2 text-white text-nowrap sm:flex justify-between px-2 items-center">
+      <nav className="hidden h-1/12 z-100 fixed glass-dark w-3/5 left-1/5 rounded-full p-1 text-white text-nowrap sm:flex justify-between px-2 items-center bg-red-500 ">
         <div>
           <Link to="/" className="flex items-center justify-between gap-3  ">
             <span>

@@ -24,10 +24,10 @@ import AdminLayout from "@/pages/admin/Layout";
 import Dashboard from "@/pages/admin/Dashboard";
 import PriceManager from "@/components/admin/PriceManager";
 import MakeAdminPage from "@/pages/admin/MakeAdminPage";
-import AdminTransactions from "@/pages/admin/AdminTransactions";
 import PlayerManagement from "@/pages/admin/RangeManagement/PlayerManagement";
 import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
 import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
+import TransactionsPage from "../pages/TransactionsPage";
 
 const router = createBrowserRouter([
   // مسیرهای احراز هویت
@@ -77,7 +77,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
       { path: "mainPrices", element: <PriceManager /> },
       { path: "make-admin", element: <MakeAdminPage /> },
-      { path: "transactions", element: <AdminTransactions /> },
+      { path: "transactions", element: <TransactionsPage /> },
       {
         path: "rangeManagement",
         element: <Outlet />,

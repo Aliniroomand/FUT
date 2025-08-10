@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { CARD_TYPES, PLAYERS_POSITION } from "@/helper/cardTypes";
+import { CARD_TYPES, PLAYERS_POSITION } from "@/constants/cardTypes";
 
 export default function PlayerList({ players, onDelete, onUpdate }) {
   const [editingPlayerId, setEditingPlayerId] = useState(null);

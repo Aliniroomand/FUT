@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+
 const UserTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
+      setError(null);
       try {
         const token = localStorage.getItem("access_token");
         const res = await axios.get(`/api/transactions?skip=${(page - 1) * limit}&limit=${limit}`,
@@ -19,6 +22,7 @@ const UserTransactions = () => {
         setTransactions(res.data.items);
         setTotal(res.data.total);
       } catch (err) {
+        setError("خطا در دریافت تراکنش‌ها. لطفا دوباره تلاش کنید.");
         setTransactions([]);
       } finally {
         setLoading(false);
@@ -32,6 +36,10 @@ const UserTransactions = () => {
       <h2 className="text-xl font-bold mb-4">تراکنش‌های من</h2>
       {loading ? (
         <div>در حال بارگذاری...</div>
+      ) : error ? (
+        <div className="text-red-500 mb-4">{error}</div>
+      ) : transactions.length === 0 ? (
+        <div className="text-gray-500 mb-4">تراکنشی یافت نشد</div>
       ) : (
         <>
           <table className="w-full text-sm border">

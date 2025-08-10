@@ -1,7 +1,7 @@
+# app/schemas/transactions.py
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
-
 
 class TransactionBase(BaseModel):
     user_id: int
@@ -18,15 +18,12 @@ class TransactionBase(BaseModel):
     customer_email: Optional[str] = None
     debt_or_credit: Optional[float] = None
     debt_or_credit_type: Optional[str] = None
-    transfer_multiplier: float = None
+    transfer_multiplier: Optional[float] = None
 
+    model_config = {"from_attributes": True}
 
 class TransactionCreate(TransactionBase):
     pass
 
-
 class TransactionOut(TransactionBase):
     id: int
-
-    class Config:
-        from_attributes = True

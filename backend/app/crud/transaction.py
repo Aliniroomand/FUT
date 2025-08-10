@@ -1,10 +1,10 @@
+# app/crud/transaction.py
 from sqlalchemy.orm import Session
 from app.models.transactions import Transaction
 from app.schemas.transactions import TransactionCreate
-from sqlalchemy import func
+from sqlalchemy import func, select
 from datetime import datetime
 from fastapi import HTTPException
-from app.models.transactions import Transaction
 
 def create(db: Session, transaction: TransactionCreate):
     db_transaction = Transaction(
@@ -22,8 +22,9 @@ def create(db: Session, transaction: TransactionCreate):
         debt_or_credit=transaction.debt_or_credit,
         debt_or_credit_type=transaction.debt_or_credit_type,
         transfer_multiplier=transaction.transfer_multiplier,
-        timestamp=transaction.timestamp
-)
+        timestamp=transaction.timestamp or datetime.utcnow()  # Set default timestamp if not provided
+    )
+
 
     db.add(db_transaction)
     db.commit()
@@ -56,9 +57,9 @@ def get_all(
     if transaction_type:
         query = query.filter(Transaction.transaction_type == transaction_type)
     if customer_phone:
-        query = query.filter(Transaction.customer_phone == customer_phone)
+        query = query.filter(Transaction.customer_phone.ilike(f"%{customer_phone}%"))
     if customer_email:
-        query = query.filter(Transaction.customer_email == customer_email)
+        query = query.filter(Transaction.customer_email.ilike(f"%{customer_email}%"))
     if is_settled is not None:
         query = query.filter(Transaction.is_settled == is_settled)
     if is_successful is not None:
@@ -69,20 +70,22 @@ def get_all(
         query = query.filter(Transaction.amount >= min_amount)
     if max_amount is not None:
         query = query.filter(Transaction.amount <= max_amount)
+
+    # parse dates safely (accept ISO strings)
     if start_date:
         try:
             start_dt = datetime.fromisoformat(start_date)
-            base_query = base_query.filter(Transaction.timestamp >= start_dt)
+            query = query.filter(Transaction.timestamp >= start_dt)
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid start_date format. Use ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS")
-
+            raise HTTPException(status_code=400, detail="Invalid start_date format. Use ISO format")
     if end_date:
         try:
             end_dt = datetime.fromisoformat(end_date)
-            base_query = base_query.filter(Transaction.timestamp <= end_dt)
+            query = query.filter(Transaction.timestamp <= end_dt)
         except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid end_date format. Use ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS")
-    # مرتب‌سازی
+            raise HTTPException(status_code=400, detail="Invalid end_date format. Use ISO format")
+
+    # sorting
     if sort_by:
         sort_col = getattr(Transaction, sort_by, None)
         if sort_col is not None:
@@ -93,7 +96,33 @@ def get_all(
     else:
         query = query.order_by(Transaction.timestamp.desc())
 
-    return query.offset(skip).limit(limit).all()
+    # try normal ORM fetch first
+    try:
+        total = query.count()
+        items = query.offset(skip).limit(limit).all()
+        return total, items
+    except TypeError:
+        # fallback: fetch raw rows as mappings and normalize timestamp to ISO strings
+        stmt = query.statement.offset(skip).limit(limit)
+        results = db.execute(stmt).mappings().all()  # list[Mapping]
+        items = []
+        for r in results:
+            row = dict(r)
+            ts = row.get("timestamp")
+            if ts is None:
+                row["timestamp"] = None
+            elif isinstance(ts, datetime):
+                row["timestamp"] = ts.isoformat()
+            else:
+                # try to coerce to string and parse, otherwise keep stringified value
+                try:
+                    row["timestamp"] = datetime.fromisoformat(str(ts)).isoformat()
+                except Exception:
+                    row["timestamp"] = str(ts)
+            items.append(row)
+        # compute total via a safe count
+        total = db.execute(select(func.count()).select_from(Transaction)).scalar()
+        return total, items
 
 def get(db: Session, transaction_id: int):
     return db.query(Transaction).filter(Transaction.id == transaction_id).first()

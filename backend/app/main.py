@@ -1,5 +1,5 @@
 from app.routes import admin_choosen_price
-from fastapi import FastAPI,Depends  
+from fastapi import FastAPI  
 from app.routes import player_card, transfer_method, transaction,card_range , admin_choosen_price,auth,profile,admin
 from app.database import engine, Base
 

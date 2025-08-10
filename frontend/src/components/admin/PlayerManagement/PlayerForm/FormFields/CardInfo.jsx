@@ -1,6 +1,5 @@
-import React from "react";
 import { InputField } from "./FormInputs";
-import { CARD_TYPES, PLAYERS_POSITION } from "@/helper/cardTypes";
+import { CARD_TYPES, PLAYERS_POSITION } from "@/constants/cardTypes";
 
 export const CardInfoSection = ({ formData, handleChange }) => (
   <div className="space-y-2">

@@ -24,7 +24,7 @@ const UserSidebar = ({ isOpen, setIsOpen }) => {
           to={link.to}
           className={({ isActive }) =>
             `block px-4 py-2 rounded-lg transition hover:bg-white hover:text-amber-950   ${
-              isActive ? "bg-amber-500 text-dark-hard" : "hover:bg-amber-800"
+              isActive ? "bg-amber-500 text-dark-hard text-shadow-lg text-shadow-black" : "hover:bg-amber-800"
             }`
           }
         >

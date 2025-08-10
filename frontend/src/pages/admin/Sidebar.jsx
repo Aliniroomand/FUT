@@ -46,7 +46,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
           <div key={index}>
             <button
               onClick={() => toggleDropdown(link.label)}
-              className="w-full flex justify-between items-center px-4 py-2 font-semibold text-amber-400 hover:bg-white hover:text-amber-950 rounded"
+              className="glass-dark w-full flex justify-between items-center px-4 py-2 font-semibold text-amber-400 hover:bg-white hover:text-amber-800 rounded "
             >
               {link.label}
               {openDropdowns[link.label] ? (
@@ -62,7 +62,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
                     key={sub.to}
                     to={sub.to}
                     className={({ isActive }) =>
-                      `block px-3 py-1 rounded-lg text-sm transition ${
+                      `block px-3 py-1 text-sm transitiontext-shadow-lg text-shadow-black rounded-full ${
                         isActive ? 'bg-amber-500 text-dark-hard' : 'hover:bg-amber-800'
                       }`
                     }
@@ -78,7 +78,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             key={link.to}
             to={link.to}
             className={({ isActive }) =>
-              `block px-4 py-2 rounded-lg transition hover:bg-white hover:text-amber-950   ${
+              `block px-4 py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950   ${
                 isActive ? 'bg-amber-500 text-dark-hard' : 'hover:bg-amber-800'
               }`
             }

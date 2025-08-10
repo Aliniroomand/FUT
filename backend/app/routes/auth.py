@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body, Path
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import (
@@ -90,7 +90,6 @@ def login_user(data: UserLogin, db: Session = Depends(get_db)):
         "require_password_change": False,
     }
 # endpoint for refreshing access token
-from fastapi import Body
 
 @router.post("/refresh-token")
 def refresh_token(refresh_token: str = Body(...)):
@@ -132,3 +131,20 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     return {"message": "رمز با موفقیت تغییر یافت"}
+
+
+from app.schemas.user import UserResponse
+from fastapi import Path
+
+@router.get("/user/{user_id}", response_model=UserResponse)
+def get_user_by_id(user_id: int = Path(...), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserResponse(
+        id=user.id,
+        phone_number=user.phone_number,
+        email=user.email,
+        is_admin=bool(user.is_admin),
+        require_password_change=False
+    )
