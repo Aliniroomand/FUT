@@ -14,7 +14,7 @@ const AdminLayout = () => {
       <div className="flex flex-row-reverse min-h-screen bg-dark-soft text-white relative  ">
         {/* دکمه منوی موبایل */}
         <button
-          className="md:hidden absolute top-4 right-4 z-40 cursor-pointer"
+          className="md:hidden absolute top-12 glass-dark right-0 rounded-bl-full p-3 pl-5 pb-4 z-50 cursor-pointer"
           onClick={() => setIsOpen(true)}
         >
           <FaBars size={24} />

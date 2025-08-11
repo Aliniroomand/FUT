@@ -1,7 +1,19 @@
-import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import LogoutBTN from '../../helper/LogoutBTN';
+import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaHome,
+  FaMoneyBillWave,
+  FaExchangeAlt,
+  FaGamepad,
+  FaUserPlus,
+  FaUsers,
+  FaListOl,
+  FaTasks
+} from "react-icons/fa";
+import { GiCardExchange } from "react-icons/gi";
+import LogoutBTN from "../../helper/LogoutBTN";
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
@@ -14,24 +26,26 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
   };
 
   const links = [
-    { to: '/admin/dashboard', label: 'صفحه اصلی داشبورد' },
-    { to: '/admin/mainPrices', label: 'تعیین قیمت خرید و فروش' },
-    { to: '/admin/transactions', label: 'گزارش تراکنش‌ها' },
+    { to: "/admin/dashboard", label: "صفحه اصلی داشبورد", icon: <FaHome size={25} /> },
+    { to: "/admin/mainPrices", label: "تعیین قیمت خرید و فروش", icon: <FaMoneyBillWave size={25} /> },
+    { to: "/admin/transactions", label: "گزارش تراکنش‌ها", icon: <FaExchangeAlt size={25} /> },
     {
-        label: 'مدیریت کارت‌های انتقال',
-        subItems: [
-            { to: '/admin/rangeManagement/player', label: 'مدیریت بازیکنان' },
-            { to: '/admin/rangeManagement/range', label: 'مدیریت بازه‌ها' },
-            { to: '/admin/rangeManagement/method', label: 'مدیریت روش‌های انتقال' },
-        ],
+      label: "مدیریت کارت‌های انتقال",
+      icon: <GiCardExchange size={25}/>,
+      subItems: [
+        { to: "/admin/rangeManagement/player", label: "مدیریت بازیکنان", icon: <FaUsers size={25} /> },
+        { to: "/admin/rangeManagement/range", label: "مدیریت بازه‌ها", icon: <FaListOl size={25} /> },
+        { to: "/admin/rangeManagement/method", label: "مدیریت روش‌های انتقال", icon: <FaTasks size={25} /> },
+      ],
     },
-    { to: '/admin/make-admin', label: 'ارتقای کاربر به ادمین' },
+    { to: "/admin/ea-accounts", label: "EA مدیریت اکانت‌های ", icon: <FaGamepad size={25} /> },
+    { to: "/admin/make-admin", label: "ارتقای کاربر به ادمین", icon: <FaUserPlus size={25} /> },
   ];
 
   return (
     <aside
-      className={`fixed md:static top-0 right-0 h-full z-50 w-64 bg-dark-hard p-4 space-y-4 border-r bg-white/10 backdrop-blur-md transform transition-transform duration-300 
-        ${isOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0 `}
+      className={`fixed md:static  right-0 h-full z-50 w-64 bg-dark-hard p-4 space-y-4 border-r bg-white/10 backdrop-blur-md transform transition-transform duration-300 top-12 
+        ${isOpen ? "translate-x-0" : "translate-x-full"} md:translate-x-0 `}
     >
       {/* دکمه بستن برای موبایل */}
       <div className="flex justify-between items-center md:hidden mb-4">
@@ -46,28 +60,36 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
           <div key={index}>
             <button
               onClick={() => toggleDropdown(link.label)}
-              className="glass-dark w-full flex justify-between items-center px-4 py-2 font-semibold text-amber-400 hover:bg-white hover:text-amber-800 rounded "
+              className="w-full flex justify-between items-center py-2 font-semibold hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-800 rounded"
             >
-              {link.label}
+              <span className="flex items-center gap-2 flex-row-reverse">
+                {link.icon}
+                {link.label}
+              </span>
               {openDropdowns[link.label] ? (
-                <FaChevronUp className="text-xs" />
+                <FaChevronUp size={12} className="text-xs" />
               ) : (
-                <FaChevronDown className="text-xs" />
+                <FaChevronDown size={12} className="text-xs" />
               )}
             </button>
             {openDropdowns[link.label] && (
-              <div className="pl-6 mt-1 space-y-1">
+              <div className="pr-6 mt-1 space-y-1">
                 {link.subItems.map((sub) => (
                   <NavLink
                     key={sub.to}
                     to={sub.to}
                     className={({ isActive }) =>
-                      `block px-3 py-1 text-sm transitiontext-shadow-lg text-shadow-black rounded-full ${
-                        isActive ? 'bg-amber-500 text-dark-hard' : 'hover:bg-amber-800'
+                      `block py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950 ${
+                        isActive
+                          ? "bg-amber-500 text-dark-hard"
+                          : "hover:bg-amber-800"
                       }`
                     }
                   >
-                    {sub.label}
+                    <span className="flex items-center gap-2 flex-row-reverse">
+                      {sub.icon}
+                      {sub.label}
+                    </span>
                   </NavLink>
                 ))}
               </div>
@@ -78,16 +100,19 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             key={link.to}
             to={link.to}
             className={({ isActive }) =>
-              `block px-4 py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950   ${
-                isActive ? 'bg-amber-500 text-dark-hard' : 'hover:bg-amber-800'
+              `block py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950 ${
+                isActive ? "bg-amber-500 text-dark-hard" : "hover:bg-amber-800"
               }`
             }
           >
-            {link.label}
+            <span className="flex items-center gap-2 flex-row-reverse">
+              {link.icon}
+              {link.label}
+            </span>
           </NavLink>
         )
       )}
-      <LogoutBTN/>
+      <LogoutBTN />
     </aside>
   );
 };

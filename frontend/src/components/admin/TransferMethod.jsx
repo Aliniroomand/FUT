@@ -63,7 +63,7 @@ const TransferMethods = () => {
   if (loading) return <p className="text-white">در حال بارگذاری...</p>;
 
   return (
-    <div className="bg-black p-4 rounded-xl shadow-md text-white mt-8">
+    <div className="glass-dark p-4 rounded-xl shadow-md text-white mt-8">
       <h2 className="text-xl mb-4 text-[#B8860B]">مدیریت شیوه‌های انتقال</h2>
       
       {/* فرم اضافه کردن */}
