@@ -2,6 +2,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+from app.schemas.ea_account import EAAccountOut
 
 class TransactionBase(BaseModel):
     user_id: int
@@ -23,7 +24,11 @@ class TransactionBase(BaseModel):
     model_config = {"from_attributes": True}
 
 class TransactionCreate(TransactionBase):
-    pass
+    account_id: int  # اضافه کردن فیلد account_id
 
 class TransactionOut(TransactionBase):
     id: int
+
+class TransactionResponse(BaseModel):
+    transaction: TransactionOut
+    next_account: EAAccountOut | None

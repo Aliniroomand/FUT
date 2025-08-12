@@ -1,3 +1,6 @@
+import api from "./api";
+
+
 export const addEAAccount = async (account) => {
   try {
     const res = await api.post("/ea-accounts/", account);
@@ -14,7 +17,6 @@ export const deleteEAAccount = async (id) => {
     throw err;
   }
 };
-import api from "./api";
 
 export const fetchEAAccounts = async () => {
   try {
@@ -24,12 +26,12 @@ export const fetchEAAccounts = async () => {
     throw err;
   }
 };
-
-export const updateEADailyLimit = async (id, daily_limit) => {
+export const updateEADailyLimit = async (id, dailyLimit) => {
   try {
-    await api.patch(`/ea-accounts/${id}/daily-limit`, { daily_limit });
-  } catch (err) {
-    throw err;
+    const response = await api.patch(`/ea-accounts/${id}/daily-limit`, { daily_limit: dailyLimit });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message || "خطای ناشناخته رخ داده است";
   }
 };
 

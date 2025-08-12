@@ -5,8 +5,13 @@ from app.models.ea_account import EAAccount
 from app.schemas.ea_account import EAAccountCreate, EAAccountOut
 from app.crud.ea_account import create_ea_account, delete_ea_account
 from app.utils.deps import get_current_user
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/ea-accounts", tags=["EA Accounts"])
+
+
+class DailyLimitUpdate(BaseModel):
+    daily_limit: int
 
 
 # لیست اکانت‌ها (برای پنل ادمین)
@@ -31,10 +36,15 @@ def remove_account(account_id: int, db: Session = Depends(get_db), current_user=
 
 # ویرایش daily_limit هر اکانت (inline edit)
 @router.patch("/{account_id}/daily-limit")
-def update_daily_limit(account_id: int, daily_limit: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-	account = db.query(EAAccount).filter_by(id=account_id).first()
-	if not account:
-		raise HTTPException(status_code=404, detail="اکانت پیدا نشد")
-	account.daily_limit = daily_limit
-	db.commit()
-	return {"message": "سقف روزانه با موفقیت بروزرسانی شد"}
+def update_daily_limit(
+    account_id: int,
+    daily_limit_update: DailyLimitUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    account = db.query(EAAccount).filter_by(id=account_id).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="اکانت پیدا نشد")
+    account.daily_limit = daily_limit_update.daily_limit
+    db.commit()
+    return {"message": "سقف روزانه با موفقیت بروزرسانی شد"}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 
@@ -14,14 +13,57 @@ function TestTransaction() {
     api.get("/ea-accounts/").then(res => setAccounts(res.data));
   }, []);
 
+  useEffect(() => {
+    // دریافت لیست اکانت‌ها برای انتخاب و به‌روزرسانی جدول
+    const fetchAccounts = async () => {
+      const res = await api.get("/ea-accounts/");
+      setAccounts(res.data);
+    };
+
+    fetchAccounts();
+  }, [result, accountId]); // به‌روزرسانی جدول پس از تغییر نتیجه تراکنش یا تغییر اکانت
+
   const handleTx = async (e) => {
     e.preventDefault();
     setResult("");
     setUsedAccount(null);
     try {
+      // پیدا کردن اکانت انتخاب‌شده
+      const selectedAccount = accounts.find(acc => acc.id === Number(accountId));
+      if (!selectedAccount) throw new Error("اکانت انتخاب نشده!");
+
+      // ساخت payload کامل بر اساس مدل بک‌اند
+      const payload = {
+        user_id: 1, // مقدار مناسب را جایگزین کنید
+        account_id: selectedAccount.id,
+        card_id: null, // مقدار مناسب را جایگزین کنید یا از اکانت بگیرید
+        transfer_method_id: 1, // مقدار مناسب را جایگزین کنید
+        amount: Number(amount),
+        transaction_type: "auction", // یا مقدار مناسب دیگر
+        timestamp: new Date().toISOString(),
+        status: null,
+        completed_at: null,
+        is_successful: 0,
+        is_settled: 0,
+        buy_price: null,
+        sell_price: null,
+        customer_phone: "09388862446",
+        customer_email: "ali@gmail.com",
+        debt_or_credit: null,
+        debt_or_credit_type: null,
+        transfer_multiplier: 1, // مقدار مناسب را جایگزین کنید یا از اکانت بگیرید
+      };
+
       // ارسال تراکنش
-      const res = await api.post("/transactions/", { account_id: accountId, amount: Number(amount) });
+      const res = await api.post("/transactions/", payload);
       setResult("موفق: " + (res.data?.message || "تراکنش ثبت شد"));
+
+      // دریافت اکانت بعدی از پاسخ بک‌اند
+      const nextAccount = res.data?.next_account;
+      if (nextAccount) {
+        setAccountId(nextAccount.id.toString());
+      }
+
       // دریافت مجدد لیست اکانت‌ها برای نمایش پیشرفت
       const accRes = await api.get("/ea-accounts/");
       setAccounts(accRes.data);

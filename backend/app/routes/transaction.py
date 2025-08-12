@@ -10,9 +10,11 @@ from sqlalchemy.orm.state import InstanceState
 
 from app.database import get_db
 from app.utils.deps import get_current_user
-from app.schemas.transactions import TransactionCreate, TransactionOut
+from app.schemas.transactions import TransactionCreate, TransactionOut, TransactionResponse
 from app.crud import transaction as crud
 from app.models.transactions import Transaction as TransactionModel  # برای فیلتر در صورت نیاز
+from app.models.ea_account import EAAccount, EAAccountStatus  # Import EAAccount model and status
+from app.models.alert import Alert, AlertType  # Import Alert model and type
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
@@ -145,9 +147,46 @@ def get_transactions_for_card(card_id: int, db: Session = Depends(get_db)):
     return crud.get_for_card(db, card_id)
 
 
-@router.post("/", response_model=TransactionOut)
+@router.post("/", response_model=TransactionResponse)
 def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
-    return crud.create(db, transaction)
+    # بررسی وضعیت اکانت قبل از ایجاد تراکنش
+    ea_account = db.query(EAAccount).filter(EAAccount.id == transaction.account_id).first()
+    if ea_account:
+        if ea_account.status == EAAccountStatus.paused:
+            # گزارش به ادمین در صورت تلاش برای تراکنش با اکانت paused
+            alert = Alert(
+                account_id=ea_account.id,
+                type=AlertType.ERROR,
+                message=f"تلاش برای تراکنش با اکانت {ea_account.name} که وضعیت آن paused است.",
+                created_at=datetime.utcnow()
+            )
+            db.add(alert)
+            db.commit()
+            raise HTTPException(status_code=400, detail="این اکانت غیرفعال است و نمی‌توان تراکنش انجام داد.")
+
+    # ایجاد تراکنش
+    created_transaction = crud.create(db, transaction)
+
+    # به‌روزرسانی اکانت EA مرتبط
+    if ea_account:
+        ea_account.transferred_today += transaction.amount
+        ea_account.last_transfer_time = datetime.utcnow()
+
+        # بررسی سقف روزانه و غیرفعال کردن اکانت در صورت نیاز
+        if ea_account.daily_limit and ea_account.transferred_today >= ea_account.daily_limit:
+            ea_account.status = EAAccountStatus.paused
+
+        db.commit()
+
+    # انتخاب اکانت بعدی برای تراکنش (اگر is_user_account = false باشد)
+    next_account = (
+        db.query(EAAccount)
+        .filter(EAAccount.is_user_account == False, EAAccount.id != transaction.account_id)
+        .order_by(EAAccount.id)
+        .first()
+    )
+
+    return {"transaction": created_transaction, "next_account": next_account}
 
 
 @router.get("/stats/{card_id}")

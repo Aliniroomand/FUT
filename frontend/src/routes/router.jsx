@@ -28,7 +28,7 @@ import PlayerManagement from "@/pages/admin/RangeManagement/PlayerManagement";
 import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
 import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
 import TransactionsPage from "../pages/TransactionsPage";
-import AdminEAAccountPanel from "../components/admin/AdminEAAccountPanel";
+import AdminEAAccountPanel from "../components/admin/EAAcountsManagement/AdminEAAccountPanel";
 
 const router = createBrowserRouter([
   // مسیرهای احراز هویت

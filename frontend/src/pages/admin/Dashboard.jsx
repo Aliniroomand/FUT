@@ -1,6 +1,6 @@
 import PriceManager from "../../components/admin/PriceManager";
 import MakeAdmin from "../../components/admin/MakeAdmin";
-import AdminEAAccountPanel from "../../components/admin/AdminEAAccountPanel";
+import AdminEAAccountPanel from "../../components/admin/EAAcountsManagement/AdminEAAccountPanel";
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import Show_live_price from "@/components/Show_live_price"

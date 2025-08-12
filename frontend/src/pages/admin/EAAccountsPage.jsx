@@ -1,4 +1,4 @@
-import AdminEAAccountPanel from "../../components/admin/AdminEAAccountPanel";
+import AdminEAAccountPanel from "@/components/admin/EAAcountsManagement/AdminEAAccountPanel";
 
 const EAAccountsPage = () => {
   return <AdminEAAccountPanel />;

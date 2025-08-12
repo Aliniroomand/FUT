@@ -1,4 +1,3 @@
-// منطق جدا شده برای مدیریت اکانت EA
 import {
   fetchEAAccounts,
   updateEADailyLimit,
