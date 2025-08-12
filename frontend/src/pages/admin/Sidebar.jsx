@@ -10,7 +10,8 @@ import {
   FaUserPlus,
   FaUsers,
   FaListOl,
-  FaTasks
+  FaTasks,
+  FaToggleOn,
 } from "react-icons/fa";
 import { GiCardExchange } from "react-icons/gi";
 import LogoutBTN from "../../helper/LogoutBTN";
@@ -26,20 +27,57 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
   };
 
   const links = [
-    { to: "/admin/dashboard", label: "صفحه اصلی داشبورد", icon: <FaHome size={25} /> },
-    { to: "/admin/mainPrices", label: "تعیین قیمت خرید و فروش", icon: <FaMoneyBillWave size={25} /> },
-    { to: "/admin/transactions", label: "گزارش تراکنش‌ها", icon: <FaExchangeAlt size={25} /> },
+    {
+      to: "/admin/dashboard",
+      label: "صفحه اصلی داشبورد",
+      icon: <FaHome size={23} />,
+    },
+    {
+      to: "/admin/mainPrices",
+      label: "تعیین قیمت خرید و فروش",
+      icon: <FaMoneyBillWave size={23} />,
+    },
+    {
+      to: "/admin/transactions",
+      label: "گزارش تراکنش‌ها",
+      icon: <FaExchangeAlt size={23} />,
+    },
     {
       label: "مدیریت کارت‌های انتقال",
-      icon: <GiCardExchange size={25}/>,
+      icon: <GiCardExchange size={23} />,
       subItems: [
-        { to: "/admin/rangeManagement/player", label: "مدیریت بازیکنان", icon: <FaUsers size={25} /> },
-        { to: "/admin/rangeManagement/range", label: "مدیریت بازه‌ها", icon: <FaListOl size={25} /> },
-        { to: "/admin/rangeManagement/method", label: "مدیریت روش‌های انتقال", icon: <FaTasks size={25} /> },
+        {
+          to: "/admin/rangeManagement/player",
+          label: "مدیریت بازیکنان",
+          icon: <FaUsers size={23} />,
+        },
+        {
+          to: "/admin/rangeManagement/range",
+          label: "مدیریت بازه‌ها",
+          icon: <FaListOl size={23} />,
+        },
+        {
+          to: "/admin/rangeManagement/method",
+          label: "مدیریت روش‌های انتقال",
+          icon: <FaTasks size={23} />,
+        },
       ],
     },
-    { to: "/admin/ea-accounts", label: "EA مدیریت اکانت‌های ", icon: <FaGamepad size={25} /> },
-    { to: "/admin/make-admin", label: "ارتقای کاربر به ادمین", icon: <FaUserPlus size={25} /> },
+    {
+      to: "/admin/ea-accounts",
+      label: "EA مدیریت اکانت‌های ",
+      icon: <FaGamepad size={23} />,
+    },
+    {
+      to: "/admin/make-admin",
+      label: "ارتقای کاربر به ادمین",
+      icon: <FaUserPlus size={23} />,
+    },
+    {
+      to: "/admin/transaction-control",
+      label: "باز و بسته کردن دوکون",
+      icon: <FaToggleOn size={23} />,
+    },
   ];
 
   return (
@@ -60,17 +98,20 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
           <div key={index}>
             <button
               onClick={() => toggleDropdown(link.label)}
-              className="w-full flex justify-between items-center py-2 font-semibold hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-800 rounded"
+              className="w-full flex-row-reverse justify-between font-semibold hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-800  hover:text-shadow-white rounded"
             >
-              <span className="flex items-center gap-2 flex-row-reverse">
+              <span className="flex items-center justify-start gap-2 flex-row-reverse ">
                 {link.icon}
                 {link.label}
               </span>
+              <span >
+
               {openDropdowns[link.label] ? (
-                <FaChevronUp size={12} className="text-xs" />
+                <FaChevronUp size={12}  />
               ) : (
-                <FaChevronDown size={12} className="text-xs" />
+                <FaChevronDown size={12}  />
               )}
+              </span>
             </button>
             {openDropdowns[link.label] && (
               <div className="pr-6 mt-1 space-y-1">
@@ -82,7 +123,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
                       `block py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950 ${
                         isActive
                           ? "bg-amber-500 text-dark-hard"
-                          : "hover:bg-amber-800"
+                          : "hover:bg-amber-800 hover:text-shadow-white"
                       }`
                     }
                   >
@@ -101,7 +142,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             to={link.to}
             className={({ isActive }) =>
               `block py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950 ${
-                isActive ? "bg-amber-500 text-dark-hard" : "hover:bg-amber-800"
+                isActive ? "bg-amber-500 text-dark-hard" : "hover:bg-amber-800 hover:text-shadow-white"
               }`
             }
           >

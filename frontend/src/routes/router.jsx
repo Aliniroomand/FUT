@@ -29,6 +29,7 @@ import RangeManagement from "@/pages/admin/RangeManagement/RangeManagement";
 import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
 import TransactionsPage from "../pages/TransactionsPage";
 import AdminEAAccountPanel from "../components/admin/EAAcountsManagement/AdminEAAccountPanel";
+import TransactionsControl from "@/components/admin/TransactionsControl"
 
 const router = createBrowserRouter([
   // مسیرهای احراز هویت
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
       { path: "make-admin", element: <MakeAdminPage /> },
       { path: "transactions", element: <TransactionsPage /> },
       { path: "ea-accounts", element:<AdminEAAccountPanel/>} ,
+      { path: "transaction-control", element:<TransactionsControl/>} ,
       {
         path: "rangeManagement",
         element: <Outlet />,

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from app.routes import player_card, transfer_method, transaction,card_range , admin_choosen_price,auth,profile,admin
 from app.database import engine, Base
 import app.models
-from app.routes import alert, ea_account
+from app.routes import alert, ea_account, transactionsControl
 
 Base.metadata.create_all(bind=engine)
 
@@ -21,6 +21,7 @@ app.include_router(card_range.router)
 app.include_router(player_card.router)
 app.include_router(transaction.router)
 app.include_router(transfer_method.router)
+app.include_router(transactionsControl.router)
 
 app.include_router(auth.router)
 app.include_router(profile.router)
