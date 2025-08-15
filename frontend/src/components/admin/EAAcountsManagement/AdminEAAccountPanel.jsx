@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useEAAccountLogic } from "../../../hooks/eaAccountLogic";
-import { addEAAccount, deleteEAAccount, updateEADailyLimit } from "../../../services/eaAccountApi";
+import { useEAAccountLogic } from "@/hooks/eaAccountLogic";
+import { addEAAccount, deleteEAAccount, updateEADailyLimit } from "@/services/eaAccountApi";
 // import TestTransaction from "./TestTransaction";
 import toast from "react-hot-toast";
 import AccountTable from "./AccountTable";

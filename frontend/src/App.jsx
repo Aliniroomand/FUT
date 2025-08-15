@@ -4,7 +4,6 @@ import {Toaster} from 'react-hot-toast';
 // routes
 import { RouterProvider } from "react-router-dom";
 import router from '@/routes/router';
-import ErrorBoundary from "@/components/ErrorBoundary";
 
 
 

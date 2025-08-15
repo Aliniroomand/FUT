@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchLiveAlerts, fetchPendingTransactions, resolveAlert } from "../../services/eaAccountApi";
+import { fetchLiveAlerts, fetchPendingTransactions, resolveAlert } from "../../../services/eaAccountApi";
 
 const alertColor = {
   CAPTCHA: "bg-red-100 border-red-400 text-red-700",
@@ -64,3 +64,5 @@ const LiveAlertsAndPendingTxs = () => {
 };
 
 export default LiveAlertsAndPendingTxs;
+ 
+

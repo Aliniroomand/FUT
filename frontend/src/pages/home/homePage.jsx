@@ -1,78 +1,103 @@
 import { Link, useNavigate } from "react-router-dom";
-import coin from "@/assets/coin-2.webp";
-import messi from "@/assets/messi.webp";
-import ronaldo from "@/assets/ronaldo.webp";
-import mbappe from "@/assets/mbape.webp";
-import bgCoin from "@/assets/plainCoin.webp";
-import MobileLayout from "./MobileLayout";
+import sandoghMiddle from "@/assets/sandogh-left.webp";
+import sandoghRight from "@/assets/sandogh-right.webp";
+import mainCoin from "@/assets/mainCoin.webp";
+
+import ghaabLeft from "@/assets/ghaab-left.webp";
+
+// import MobileLayout from "./MobileLayout";
 import { getUserRole } from "@/utils/auth";
 
 const HomePage = () => {
   return (
     <div className="relative min-h-screen text-white overflow-hidden flex flex-col">
-      <h1 className="absolute top-0  w-svw  rounded-3xl right-0  sm:text-2xl py-2">به اولین سامانه مدیریت سکه (ادمین + هوش مصنوعی ) خوش اومدید</h1>
-      {/* سکه مرکزی و بازیکن‌ها */}
-      <div className="flex-grow relative bottom-0 left-0">
-        {/* Desktop layout */}
-        <div className="hidden h-[700px] lg:grid grid-cols-3 absolute w-full items-end justify-items-center">
-          <div className="relative h-full w-full col-span-1">
+      {/* عنوان بالای صفحه */}
+      <h1 className="absolute top-0 w-svw rounded-3xl right-0 fut-gold-text font-extrabold bg-black sm:text-2xl py-2">
+        به اولین سامانه مدیریت سکه (ادمین + هوش مصنوعی) خوش اومدید
+      </h1>
+
+      {/* Desktop layout */}
+      <div className="hidden lg:grid grid-cols-3 absolute w-full h-[700px] items-end justify-items-center">
+        {/* ستون اول */}
+        <div id="1" className="relative  h-full w-full col-span-1">
+          {/* بخش ۱-۱ */}
+          <div className="absolute left-20 top-12 h-1/2 w-full ">
             <img
-              src={mbappe}
-              alt="mbappe"
-              className="absolute h-[600px] w-auto bottom-0 left-4"
+              src={ghaabLeft}
+              alt="ghaabLeft"
+              className="absolute h-55 rounded-2xl top-0"
             />
             <Link
-              className="w-34 h-34 home-links left-4 top-48 text-amber-950"
-              style={{ backgroundImage: `url(${bgCoin})` }}
+              className="home-links w-30 h-30 text-amber-950 top-12 left-11"
+              to="#"
+            >
+              پشتیبانی <br /> تماس با ما
+            </Link>
+          </div>
+
+          {/* بخش ۱-۲ */}
+          <div className="absolute  h-1/2 w-full bottom-0 left-0 ">
+            <img
+              src={sandoghMiddle}
+              alt="sandoghMiddle"
+              className="absolute w-85 left-10 bottom-20"
+            />
+            <Link
+              className="absolute w-34 h-34 home-links left-38 bottom-26 text-shadow-2xl text-3xl! text-nowrap text-amber-950 shadow-white -skew-y-6"
               to={(() => {
                 const role = getUserRole();
-                if (role === 'admin') return '/admin/dashboard';
-                if (role === 'user') return '/user/dashboard';
-                return '/login';
+                if (role === "admin") return "/admin/dashboard";
+                if (role === "user") return "/user/dashboard";
+                return "/login";
               })()}
               rel="noreferrer"
             >
               ورود کاربران
             </Link>
           </div>
-
-          <div className="relative w-96 h-96 flex items-center justify-center swing col-span-1 -bottom-2">
-            <img src={coin} alt="Fut Coin" className="absolute w-full h-full" />
-            <img src={messi} alt="Messi" className="absolute -top-50 w-40" />
+        </div>
+        <div className="relative w-full h-full col-span-1 top-16 swing ">
+          <img
+            src={mainCoin}
+            alt="mainCoin"
+            className="absolute h-auto w-full "
+          />
+        </div>
+        {/* ستون دوم */}
+        <div id="2" className="relative h-full w-full col-span-1">
+          {/* بخش ۲-۱ */}
+          <div className="absolute w-full h-1/2  ">
+            <img
+              src={ghaabLeft}
+              alt="ghaabLeft"
+              className="absolute h-60 right-20 top-12 "
+            />
             <Link
-              className="home-links w-30 h-30 -left-12 -top-12 text-amber-950"
-              style={{ backgroundImage: `url(${bgCoin})` }}
+              className="home-links w-30 h-30 text-amber-950 right-35 top-28 text-2xl!"
               to="#"
             >
-              پشتیبانی و<br /> تماس با ما
-            </Link>
-            <Link
-              className="home-links w-30 h-30 -right-12 -top-12 text-amber-950"
-              style={{ backgroundImage: `url(${bgCoin})` }}
-              to="#"
-            >
-              سوالات و<br /> متدها
+              سوالات متداول
             </Link>
           </div>
 
-          <div className="relative h-full w-full col-span-1">
+          {/* بخش ۲-۲ */}
+          <div className="absolute h-1/2 w-full bottom-0 ">
             <img
-              src={ronaldo}
-              alt="Ronaldo"
-              className="absolute h-[600px] w-auto bottom-0 right-4"
+              src={sandoghRight}
+              alt="sandoghRight"
+              className="absolute h-60 w-auto top-0 right-4"
             />
             <Link
-              className="home-links w-30 h-30 right-16 top-60 text-amber-950"
-              style={{ backgroundImage: `url(${bgCoin})` }}
+              className="home-links w-30 h-30 right-39 bottom-30 text-amber-950 skew-y-8 text-3xl! text-nowrap"
               to="#"
             >
-              بات تلگرام
+              ربات تلگرام
             </Link>
           </div>
         </div>
-
-    <MobileLayout/>
       </div>
+      {/* Mobile layout */}
+      {/* <MobileLayout /> */}
     </div>
   );
 };

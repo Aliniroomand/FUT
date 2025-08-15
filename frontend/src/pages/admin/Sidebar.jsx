@@ -12,9 +12,10 @@ import {
   FaListOl,
   FaTasks,
   FaToggleOn,
+  FaExclamationTriangle 
 } from "react-icons/fa";
 import { GiCardExchange } from "react-icons/gi";
-import LogoutBTN from "../../helper/LogoutBTN";
+import LogoutBTN from "@/helper/LogoutBTN";
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
@@ -77,6 +78,11 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
       to: "/admin/transaction-control",
       label: "باز و بسته کردن دوکون",
       icon: <FaToggleOn size={23} />,
+    },
+    {
+      to: "/admin/alerts",
+      label: "تراکنش های درحال انجام",
+      icon: <FaExclamationTriangle  size={23} />,
     },
   ];
 

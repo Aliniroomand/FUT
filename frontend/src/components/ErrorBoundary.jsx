@@ -18,7 +18,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="error-boundary">
-          <h2>Something went wrong.</h2>
+          <h2>خطایی پیش اومده،دوباره امتحان کنید</h2>
           <p>{this.state.error?.message || "An unexpected error occurred."}</p>
         </div>
       );

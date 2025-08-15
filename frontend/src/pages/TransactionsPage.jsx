@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getTransactions } from "../services/transactions";
-import TransactionDetailsPopup from "../components/transactions/TransactionDetailsPopup";
+import { getTransactions } from "@/services/transactions";
+import TransactionDetailsPopup from "@/components/transactions/TransactionDetailsPopup";
 
 
 

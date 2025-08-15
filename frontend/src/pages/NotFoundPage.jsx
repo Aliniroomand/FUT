@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import mbape from "../assets/pageNotFound.webp";
+import mbape from "@/assets/pageNotFound.webp";
 const NotFoundPage = () => {
   const navigate = useNavigate();
 

@@ -4,7 +4,7 @@ import {
   fetchLiveAlerts,
   fetchPendingTransactions,
   resolveAlert,
-} from "../services/eaAccountApi";
+} from "@/services/eaAccountApi";
 
 export const useEAAccountLogic = () => {
   const fetchAccounts = async (setAccounts, setError) => {

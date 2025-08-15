@@ -1,4 +1,4 @@
-import MakeAdmin from "../../components/admin/MakeAdmin";
+import MakeAdmin from "@/components/admin/MakeAdmin";
 
 const MakeAdminPage = () => {
   return (

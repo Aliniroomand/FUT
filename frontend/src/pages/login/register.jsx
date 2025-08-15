@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 import { register } from "@/services/auth";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { login } from "../../services/auth";
+import { login } from "@/services/auth";
 
 const Register = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
