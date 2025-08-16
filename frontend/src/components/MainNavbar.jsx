@@ -6,6 +6,8 @@ import {
   FaTelegramPlane,
   FaHeadset,
 } from "react-icons/fa";
+import coin from "@/assets/icon.webp"
+
 
 const Navbar = () => {
   return (
@@ -27,10 +29,8 @@ const Navbar = () => {
           </Link>
 
           <Link to="/" className="grid place-items-center ">
-            <span>
-              <FaHome size={25} />
-            </span>
-            <p className="text-shadow-lg text-shadow-black text-xs">صفحه اصلی</p>
+
+            <p className=" logo fut-gold-text text-2xl!">Coin Father</p>
           </Link>
           <Link to="/bot" className="grid place-items-center  ">
             <span>
@@ -51,9 +51,9 @@ const Navbar = () => {
         <div>
           <Link to="/" className="flex items-center justify-between gap-3  ">
             <span>
-              <FaHome size={32} />
+              <img src={coin} alt="coin" />
             </span>
-            <p className="text-md">صفحه اصلی</p>
+            <p className=" logo fut-gold-text">Coin Father</p>
           </Link>
         </div>
         <div className="flex gap-6 items-center">

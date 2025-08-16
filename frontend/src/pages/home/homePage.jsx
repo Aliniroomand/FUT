@@ -2,19 +2,20 @@ import { Link, useNavigate } from "react-router-dom";
 import sandoghMiddle from "@/assets/sandogh-left.webp";
 import sandoghRight from "@/assets/sandogh-right.webp";
 import mainCoin from "@/assets/mainCoin.webp";
-
 import ghaabLeft from "@/assets/ghaab-left.webp";
-
-// import MobileLayout from "./MobileLayout";
+import MobileLayout from "./MobileLayout";
 import { getUserRole } from "@/utils/auth";
 
 const HomePage = () => {
   return (
     <div className="relative min-h-screen text-white overflow-hidden flex flex-col">
       {/* عنوان بالای صفحه */}
-      <h1 className="absolute top-0 w-svw rounded-3xl right-0 fut-gold-text font-extrabold bg-black sm:text-2xl py-2">
-        به اولین سامانه مدیریت سکه (ادمین + هوش مصنوعی) خوش اومدید
+      <div className="absolute top-0 md:w-2/4 md:right-1/4 mx-2 rounded-full px-2 text-base glass-dark">
+        
+      <h1 className=" top-0  fut-gold-text font-extrabold  sm:text-2xl py-2 ">
+        به اولین سامانه مدیریت سکه ادمین + هوش مصنوعی خوش اومدید
       </h1>
+      </div>
 
       {/* Desktop layout */}
       <div className="hidden lg:grid grid-cols-3 absolute w-full h-[700px] items-end justify-items-center">
@@ -96,8 +97,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      {/* Mobile layout */}
-      {/* <MobileLayout /> */}
+      <MobileLayout />
     </div>
   );
 };

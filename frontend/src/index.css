@@ -34,6 +34,14 @@
   color: #fff;                   /* پیش‌فرض برای متن */
   
 }
+.logo {
+  font-family: "Style Script", cursive;
+  font-size: 35px;
+  font-weight: 900;
+  line-height: normal;
+  color: gold;
+}
+
 .dark_bronze{
   color: #26201b;
 text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
@@ -71,7 +79,7 @@ text-shadow: 0 0 2px #d5a41e,
       #ffe27a 15%,
       #d5a41e 35%,
       #f4c427 55%,
-      #664906 75%,
+      #a5780e 75%,
       #ffef9a 100%
     );
     -webkit-background-clip: text;

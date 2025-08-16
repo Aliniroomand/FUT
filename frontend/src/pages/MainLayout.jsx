@@ -11,7 +11,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
         <footer className=" fixed bottom-0 h-fit z-50 w-full">
-          <p className="z-50 bg-amber-200/70 text-black  text-sm">
+          <p className="z-50 bg-amber-200/70 text-black  text-xs">
             تمامی حقوق این سایت متعلق به اوس پوری می باشد و  هرگونه کپی یا
             استفاده از محتوا بدون ذکر منبع پیگرد قانونی دارد
           </p>
