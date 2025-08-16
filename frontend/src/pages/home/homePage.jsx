@@ -75,7 +75,7 @@ const HomePage = () => {
             />
             <Link
               className="home-links w-30 h-30 text-amber-950 right-35 top-28 text-2xl!"
-              to="#"
+              to="faq"
             >
               سوالات متداول
             </Link>

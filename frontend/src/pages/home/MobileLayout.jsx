@@ -23,7 +23,7 @@ const MobileLayout = () => {
           />
           <Link
             className="home-links w-10 h-10 right-11 top-25 text-xs! text-orange-950"
-            to="#"
+            to="faq"
           >
             سوالات متداول
           </Link>

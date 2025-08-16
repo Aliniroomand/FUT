@@ -9,10 +9,7 @@ import Login from "@/pages/login/Login";
 import Register from "@/pages/login/Register";
 import ForgotPassword from "@/pages/login/ForgotPassword";
 import ResetPassword from "@/pages/login/ResetPassword";
-// import ContactPage from "@/pages/public/Contact";s
-// import SupportPage from "@/pages/public/Support";s
-// import FAQPage from "@/pages/public/FAQ";s
-// import BotPage from "@/pages/public/Bot";s
+
 
 // کاربر
 import UserLayout from "@/pages/User/UserLayout";
@@ -31,6 +28,7 @@ import TransactionsPage from "@/pages/TransactionsPage";
 import AdminEAAccountPanel from "@/components/admin/EAAcountsManagement/AdminEAAccountPanel";
 import TransactionsControl from "@/components/admin/TransactionsControl"
 import LiveAlertsAndPendingTxs from "../components/admin/Alerts/OneLineAlertShow";
+import ComingSoon from "../components/comingSoon";
 
 const router = createBrowserRouter([
   // مسیرهای احراز هویت
@@ -45,10 +43,10 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      // { path: "contact", element: <ContactPage /> },
-      // { path: "support", element: <SupportPage /> },
-      // { path: "faq", element: <FAQPage /> },
-      // { path: "bot", element: <BotPage /> },
+      { path: "contact", element: <ComingSoon /> },
+      { path: "support", element: <ComingSoon /> },
+      { path: "/faq", element: <ComingSoon /> },
+      { path: "bot", element: <ComingSoon /> },
     ],
   },
 
