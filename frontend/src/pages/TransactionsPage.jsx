@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { getTransactions } from "@/services/transactions";
 import TransactionDetailsPopup from "@/components/transactions/TransactionDetailsPopup";
 
-
-
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,11 +20,17 @@ const TransactionsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      // Remove empty filter fields before sending to API
       const activeFilters = Object.fromEntries(
         Object.entries(filters).filter(([_, v]) => v && v.trim() !== "")
       );
-      const data = await getTransactions({ ...activeFilters, page: currentPage, limit: itemsPerPage });
+
+      const params = {
+        ...activeFilters,
+        skip: (currentPage - 1) * itemsPerPage,
+        limit: itemsPerPage,
+      };
+
+      const data = await getTransactions(params);
       setTransactions(data.items || []);
       setTotal(data.total || 0);
     } catch (err) {
@@ -53,7 +57,9 @@ const TransactionsPage = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-amber-300">
-      <h1 className="text-3xl font-extrabold mb-6 text-amber-400 drop-shadow-lg">گزارش تراکنش‌ها</h1>
+      <h1 className="text-3xl font-extrabold mb-6 text-amber-400 drop-shadow-lg">
+        گزارش تراکنش‌ها
+      </h1>
 
       {/* Filters */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -77,7 +83,7 @@ const TransactionsPage = () => {
           type="text"
           name="transaction_type"
           value={filters.transaction_type || ""}
-          placeholder="فیلتر بر اساس نوع"
+          placeholder="فیلتر بر اساس شیوه انتقال"
           className="p-3 rounded-lg border border-amber-600 bg-amber-900/20 text-amber-300 placeholder-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
           onChange={handleFilterChange}
         />
@@ -91,7 +97,9 @@ const TransactionsPage = () => {
               <th className="py-3 px-6 border-b border-amber-600">ایمیل</th>
               <th className="py-3 px-6 border-b border-amber-600">تلفن</th>
               <th className="py-3 px-6 border-b border-amber-600">مقدار</th>
-              <th className="py-3 px-6 border-b border-amber-600">نوع</th>
+              <th className="py-3 px-6 border-b border-amber-600">
+                شیوه انتقال
+              </th>
               <th className="py-3 px-6 border-b border-amber-600">تاریخ</th>
               <th className="py-3 px-6 border-b border-amber-600">عملیات</th>
             </tr>
@@ -116,11 +124,31 @@ const TransactionsPage = () => {
                   className="hover:bg-amber-900/30 cursor-pointer transition-colors duration-200"
                   onClick={() => setSelectedTransaction(t)}
                 >
-                  <td className="py-3 px-6 border-b border-amber-600">{t.customer_email}</td>
-                  <td className="py-3 px-6 border-b border-amber-600">{t.customer_phone}</td>
-                  <td className="py-3 px-6 border-b border-amber-600">{t.amount}</td>
-                  <td className="py-3 px-6 border-b border-amber-600">{t.transaction_type}</td>
-                  <td className="py-3 px-6 border-b border-amber-600">{new Date(t.timestamp).toLocaleString()}</td>
+                  <td className="py-3 px-6 border-b border-amber-600">
+                    {t.customer_email}
+                  </td>
+                  <td className="py-3 px-6 border-b border-amber-600">
+                    {t.customer_phone}
+                  </td>
+                  <td className="py-3 px-6 border-b border-amber-600">
+                    {t.amount}
+                  </td>
+                  <td className="py-3 px-6 border-b border-amber-600">
+                    {t.transaction_type}
+                  </td>
+                  <td className="py-3 px-6 border-b border-amber-600">
+                    {" "}
+                    {t.timestamp
+                      ? new Date(t.timestamp).toLocaleDateString("fa-IR", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })
+                      : "-"}
+                  </td>
                   <td className="py-3 px-6 border-b border-amber-600">
                     <button
                       onClick={(e) => {
@@ -150,17 +178,17 @@ const TransactionsPage = () => {
         <button
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
-          className="px-5 py-2 rounded-lg bg-amber-500 text-dark-hard font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-amber-600 transition"
+          className="px-5 py-2 rounded-lg bg-amber-500 text-amber-900 font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-amber-600 transition"
         >
           قبلی
         </button>
-        <span className="text-amber-400 font-bold">
+        <span className=" bg-amber-500 text-amber-900 p-2 rounded-full font-bold">
           صفحه {currentPage} از {Math.ceil(total / itemsPerPage)}
         </span>
         <button
           onClick={handleNextPage}
           disabled={currentPage * itemsPerPage >= total}
-          className="px-5 py-2 rounded-lg bg-amber-500 text-dark-hard font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-amber-600 transition"
+          className="px-5 py-2 rounded-lg bg-amber-500 text-amber-900 font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-amber-600 transition"
         >
           بعدی
         </button>

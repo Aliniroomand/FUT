@@ -75,7 +75,7 @@ const MobileLayout = () => {
           </Link>
         </div>
       </div>
-      <LivePriceTicker />
+      <LivePriceTicker position={"absolute"} />
     </>
   );
 };

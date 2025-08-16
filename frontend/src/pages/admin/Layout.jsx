@@ -28,8 +28,6 @@ const AdminLayout = () => {
         {/* محتوای اصلی */}
         <main className="flex-1 p-4 md:p-6 overflow-x-auto mt-13">
           <Outlet />
-          <OneLineAlertShow/>
-          <LiveAlertsAndPendingTxs/>
         </main>
       </div>
     </>

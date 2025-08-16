@@ -3,7 +3,7 @@ import {
   connectEAWebSocket,
   subscribeEAUpdates,
   disconnectEAWebSocket,
-} from "@/services/eaWebSocketService"; // مسیر رو متناسب با پروژه‌ات بذار
+} from "@/services/eaWebSocket"; // مسیر رو متناسب با پروژه‌ات بذار
 
 const alertColor = {
   CAPTCHA: "bg-red-100 border-red-400 text-red-700",

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getLatestPrice } from "@/services/transferAndRanges";
 import toast from "react-hot-toast";
 
-export default function LivePriceTicker() {
+export default function LivePriceTicker(position) {
   const [prices, setPrices] = useState({ buy: null, sell: null });
 
   useEffect(() => {
@@ -22,12 +22,12 @@ export default function LivePriceTicker() {
   };
 
   return (
-    <div className="
-      absolute sm:top-0 z-50 bg-black/60 backdrop-blur-xs px-4 py-2 shadow-xl
+    <div className={`
+      ${position} sm:top-0 z-50 bg-black/60 backdrop-blur-xs px-4 py-2 shadow-xl
       flex flex-row justify-between gap-4 text-md text-white
       w-full left-0 rounded-none border-2 border-black
       sm:rounded-xl sm:min-w-60 sm:left-0 sm:max-w-fit bottom-0 sm:bottom-auto 
-    ">
+    `}>
       <div className="flex justify-between items-center  w-1/2">
         <span className=" text-yellow-500 text-shadow-2xl text-shadow-red-500 sm:text-md text-nowrap">🪙 خرید:</span>
         <span className=" text-yellow-500  font-bold text-md">
