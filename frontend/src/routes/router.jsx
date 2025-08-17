@@ -28,7 +28,7 @@ import TransactionsPage from "@/pages/TransactionsPage";
 import AdminEAAccountPanel from "@/components/admin/EAAcountsManagement/AdminEAAccountPanel";
 import TransactionsControl from "@/components/admin/TransactionsControl"
 import LiveAlertsAndPendingTxs from "../components/admin/Alerts/OneLineAlertShow";
-import ComingSoon from "../components/comingSoon";
+import ComingSoon from "../pages/ComingSoon";
 
 const router = createBrowserRouter([
   // مسیرهای احراز هویت
@@ -43,10 +43,10 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "contact", element: <ComingSoon /> },
-      { path: "support", element: <ComingSoon /> },
-      { path: "/faq", element: <ComingSoon /> },
-      { path: "bot", element: <ComingSoon /> },
+      // { path: "contact", element: <ComingSoon /> },
+      // { path: "support", element: <ComingSoon /> },
+      { path: "faq", element: <ComingSoon /> },
+      // { path: "bot", element: <ComingSoon /> },
     ],
   },
 
