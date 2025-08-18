@@ -1,32 +1,14 @@
-from dataclasses import dataclass
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
-load_dotenv()
-
-@dataclass
-class Settings:
+class Settings(BaseSettings):
     bot_token: str
-    backend_url: str
-    admin_chat_id: int
     http_proxy: str | None = None
     https_proxy: str | None = None
+    backend_url: str
+    admin_chat_id: str
 
-    @classmethod
-    def from_env(cls) -> 'Settings':
-        bot_token = os.getenv('BOT_TOKEN')
-        backend_url = os.getenv('BACKEND_URL', '').rstrip('/')
-        admin_chat_id = os.getenv('ADMIN_CHAT_ID')
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
-        if not bot_token or not admin_chat_id:
-            raise RuntimeError("BOT_TOKEN and ADMIN_CHAT_ID must be set in the environment variables.")
-
-        return cls(
-            bot_token=bot_token,
-            backend_url=backend_url,
-            admin_chat_id=int(admin_chat_id),
-            http_proxy=os.getenv('HTTP_PROXY'),
-            https_proxy=os.getenv('HTTPS_PROXY')
-        )
-
-settings = Settings.from_env()
+settings = Settings()

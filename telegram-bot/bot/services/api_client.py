@@ -1,29 +1,22 @@
-import httpx
+from bot.proxy import get_httpx_client
 from bot.config import settings
 
-class APIClient:
-    def __init__(self, token: str | None = None):
-        self.base_url = settings.backend_url
-        self.token = token
-        self.client = httpx.AsyncClient(trust_env=True)
+BASE_URL = settings.backend_url
 
-    def _headers(self) -> dict[str, str]:
-        headers = {}
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
-        return headers
+async def get_health():
+    client = await get_httpx_client()
+    r = await client.get(f"{BASE_URL}/health")
+    r.raise_for_status()
+    return r.json()
 
-    async def get(self, path: str) -> dict:
-        url = f"{self.base_url}/{path}"
-        response = await self.client.get(url, headers=self._headers())
-        response.raise_for_status()
-        return response.json()
+async def register_user(data: dict):
+    client = await get_httpx_client()
+    r = await client.post(f"{BASE_URL}/register", json=data)
+    r.raise_for_status()
+    return r.json()
 
-    async def post(self, path: str, json: dict | None = None) -> dict:
-        url = f"{self.base_url}/{path}"
-        response = await self.client.post(url, json=json, headers=self._headers())
-        response.raise_for_status()
-        return response.json()
-
-    async def aclose(self) -> None:
-        await self.client.aclose()
+async def login_user(data: dict):
+    client = await get_httpx_client()
+    r = await client.post(f"{BASE_URL}/login", json=data)
+    r.raise_for_status()
+    return r.json()
