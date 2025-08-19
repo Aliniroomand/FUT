@@ -1,14 +1,10 @@
-# Simple in-memory token storage for demo purposes
-user_tokens: dict[int, str] = {}
+user_tokens = {}
 
-
-def is_logged_in(user_id: int) -> bool:
-    return user_id in user_tokens
-
-
-def save_token(user_id: int, token: str) -> None:
+def save_token(user_id: int, token: str):
     user_tokens[user_id] = token
 
+def delete_token(user_id: int):
+    user_tokens.pop(user_id, None)
 
-def get_token(user_id: int) -> str | None:
-    return user_tokens.get(user_id)
+def token_exists(user_id: int) -> bool:
+    return user_id in user_tokens
