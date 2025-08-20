@@ -9,7 +9,7 @@ from telegram.ext import (
     filters,
 )
 from bot.config import settings
-from bot.handlers.start import start_command, help_command, health_command
+from bot.handlers.start import start_command, help_command, health_command, web_link_handler
 from bot.handlers.errors import error_handler
 from bot.proxy import get_requests_session, get_httpx_client
 from telegram.ext import ChatMemberHandler, filters
@@ -20,6 +20,7 @@ from bot.handlers.auth import register_start, text_handler, login_start, logout
 from bot.handlers.main_menu import show_main_menu, view_transactions
 from bot.keyboards.auth import auth_menu
 from bot.keyboards.main_menu import main_menu
+from telegram import BotCommand
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -41,29 +42,7 @@ def main():
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("health", health_command))
 
-    # هندلر تست پراکسی
-    async def proxy_test(update, context):
-        s = get_requests_session()
-        try:
-            r = s.get("https://api.telegram.org", timeout=10)
-            text1 = f"requests status: {r.status_code}"
-        except Exception as e:
-            text1 = f"requests error: {e}"
-
-        try:
-            client = await get_httpx_client()
-            try:
-                r = await client.get("https://api.telegram.org", timeout=10)
-                text2 = f"httpx status: {r.status_code}"
-            except Exception as e:
-                text2 = f"httpx error: {e}"
-        except Exception as e:
-            text2 = f"httpx error: {e}"
-
-        await update.message.reply_text(text1 + "\n" + text2)
-
-    application.add_handler(CommandHandler("proxytest", proxy_test))
-
+   
     # Handle the welcome "شروع" button from /start with real logic
     async def menu_start_handler(update, context):
         query = update.callback_query
@@ -177,7 +156,11 @@ def main():
     application.add_handler(MessageHandler(filters.Regex(r"^(?:💰\s*فروش سکه|فروش سکه)$"), sell_placeholder))
     application.add_handler(MessageHandler(filters.Regex(r"^(?:📊\s*نمایش تراکنش‌ها|نمایش تراکنش‌ها)$"), view_transactions))
     application.add_handler(MessageHandler(filters.Regex(r"^(?:👤\s*پروفایل|پروفایل)$"), profile_placeholder))
-    application.add_handler(MessageHandler(filters.Regex(r"^(?:🔁\s*شروع مجدد|شروع مجدد)$"), restart_bot))
+    # persistent 'وبسایت' button now opens an inline URL button
+    application.add_handler(MessageHandler(filters.Regex(r"^(?:🌐\s*ورود به وبسایت|ورود به وبسایت)$"), web_link_handler))
+    # persistent 'استعلام قیمت' button
+    from bot.handlers.start import price_query_handler
+    application.add_handler(MessageHandler(filters.Regex(r"^(?:💹\s*استعلام قیمت|استعلام قیمت)$"), price_query_handler))
     application.add_handler(MessageHandler(filters.Regex(r"^(?:❓\s*راهنما|راهنما)$"), help_command))
 
     # هندلر پیام‌های متنی در جریان auth

@@ -23,6 +23,7 @@ def main_menu(user_id: int) -> InlineKeyboardMarkup:
         [InlineKeyboardButton("💰 فروش سکه", callback_data="menu:sell")],
         [InlineKeyboardButton("📊 نمایش تراکنش‌ها", callback_data="menu:tx")],
         [InlineKeyboardButton("👤 پروفایل", callback_data="menu:profile")],
+        [InlineKeyboardButton("🌐 ورود به وبسایت", url="http://localhost:5173/")],
     ])
 
 

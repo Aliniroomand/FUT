@@ -1,6 +1,6 @@
 # models/transfer_method.py
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -12,5 +12,6 @@ class TransferMethod(Base):
     description = Column(String)
     is_active = Column(Integer, default=0)
     logic = Column(String)
+    transfer_multiplier = Column(Float, default=1.0)
 
     card_ranges = relationship("CardRange", back_populates="transfer_method", cascade="all, delete") 

@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     http_proxy: str | None = None
     https_proxy: str | None = None
     backend_url: str
+    frontend_url: str
     admin_chat_id: str
 
     class Config:

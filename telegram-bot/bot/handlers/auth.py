@@ -17,18 +17,18 @@ async def register_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     query = update.callback_query
     if query:
         await query.answer()
-        await query.edit_message_text("🆕 ثبت‌نام\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n ⚠️ 09...  ⚠️")
+        await query.edit_message_text("[■□□] 1/3\n 🆕 ثبت‌نام\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n ⚠️ 09...  ⚠️")
     else:
-        await update.message.reply_text("🆕 ثبت‌نام\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n⚠️ 09...  ⚠️", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■□□] 1/3\n  🆕 ثبت‌نام\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n⚠️ 09...  ⚠️", reply_markup=CANCEL_KB)
     context.user_data['auth_flow'] = 'wait_for_phone_register'
 
 async def login_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     if query:
         await query.answer()
-        await query.edit_message_text("🔐 ورود\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n   ⚠️ 09...  ⚠️ ")
+        await query.edit_message_text(" [■□□] 1/3\n 🔐 ورود\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n   ⚠️ 09...  ⚠️ ")
     else:
-        await update.message.reply_text("🔐 ورود\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n ⚠️ 09...  ⚠️ ", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■□□] 1/3\n 🔐 ورود\n\n📱 لطفاً شماره موبایل خود را وارد کنید:\n ⚠️ 09...  ⚠️ ", reply_markup=CANCEL_KB)
     context.user_data['auth_flow'] = 'wait_for_phone_login'
 
 # ======== لاگ‌اوت ========
@@ -55,12 +55,12 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if flow == 'wait_for_phone_register':
         context.user_data['phone_number'] = text
         context.user_data['auth_flow'] = 'wait_for_email_register'
-        await update.message.reply_text("📧 لطفاً ایمیل خود را وارد کنید:", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■□□] 2/4\n\n 📧 لطفاً ایمیل خود را وارد کنید:", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_email_register':
         context.user_data['email'] = text
         context.user_data['auth_flow'] = 'wait_for_password_register'
-        await update.message.reply_text("🔑 لطفاً رمز عبور خود را وارد کنید:\n ⚠️رمز عبور باید حداقل 6 رقم باشد", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■ ■□] 3/4 \n\n🔑 لطفاً رمز عبور خود را وارد کنید:\n ⚠️رمز عبور باید حداقل 6 رقم باشد", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_password_register':
         # store first password entry and ask for confirmation
@@ -69,7 +69,7 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             return
         context.user_data['password_first'] = text
         context.user_data['auth_flow'] = 'wait_for_password_register_confirm'
-        await update.message.reply_text("🔑 لطفاً رمز عبور خود را مجدداً وارد کنید (تکرار):", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■ ■ ■] 4/4🔑 لطفاً رمز عبور خود را مجدداً وارد کنید (تکرار):", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_password_register_confirm':
         first = context.user_data.get('password_first')
@@ -142,12 +142,12 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     elif flow == 'wait_for_phone_login':
         context.user_data['phone_number'] = text
         context.user_data['auth_flow'] = 'wait_for_email_login'
-        await update.message.reply_text("📧 لطفاً ایمیل خود را وارد کنید:", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■□] 2/3 \n\n 📧 لطفاً ایمیل خود را وارد کنید:", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_email_login':
         context.user_data['email'] = text
         context.user_data['auth_flow'] = 'wait_for_password_login'
-        await update.message.reply_text("🔑 لطفاً رمز عبور خود را وارد کنید:\n ⚠️رمز عبور باید حداقل 6 رقم باشد ", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■ ■] 3/3 \n🔑 لطفاً رمز عبور خود را وارد کنید:\n ⚠️رمز عبور باید حداقل 6 رقم باشد ", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_password_login':
         phone = context.user_data.get('phone_number')
@@ -165,7 +165,7 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     if token and user_id:
                         save_token(user_id, token)
                         await update.message.reply_text(
-                            "✅ ورود موفق بود!",
+                            "✅ ورود موفق بود! \n خب حالا چه کنیم چیکار کنیم؟",
                             reply_markup=main_menu(user_id)
                         )
                     else:
