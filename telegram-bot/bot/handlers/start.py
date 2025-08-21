@@ -207,8 +207,8 @@ async def price_query_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     text = (
         f"� <b>استعلام قیمت ( به ازای هر 100 کا) </b> 💱\n\n"
-        f"� <b>قیمت خرید:</b> <code>{buy:,.2f}</code> تومان\n"
-        f"� <b>قیمت فروش:</b> <code>{sell:,.2f}</code> تومان\n\n"
+        f"� <b>قیمت خرید:</b> <code>{buy:,.0f}</code> تومان\n"
+        f"� <b>قیمت فروش:</b> <code>{sell:,.0f}</code> تومان\n\n"
         f"🕒 <b>زمان دریافت :</b> {time_str}\n\n"
         "ℹ️ با زدن این کلید، آخرین قیمتِ ثبت‌شده در سرور دریافت می‌شود."
     )

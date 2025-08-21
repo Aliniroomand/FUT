@@ -18,6 +18,7 @@ from bot.storage import token_exists
 # auth handlers
 from bot.handlers.auth import register_start, text_handler, login_start, logout
 from bot.handlers.main_menu import show_main_menu, view_transactions
+from bot.handlers.sell import handle_sell_flow, sell_callback_router, sell_text_handler
 from bot.keyboards.auth import auth_menu
 from bot.keyboards.main_menu import main_menu
 from telegram import BotCommand
@@ -61,6 +62,9 @@ def main():
             )
 
     application.add_handler(CallbackQueryHandler(menu_start_handler, pattern="^menu:start$"))
+
+    # start sell flow when user clicks the main menu 'فروش سکه' inline button
+    application.add_handler(CallbackQueryHandler(handle_sell_flow, pattern="^menu:sell$"))
 
     # Reply keyboard 'شروع' button handler (user can press it instead of typing /start)
     application.add_handler(MessageHandler(filters.Regex(r"^شروع$"), start_command))
@@ -176,6 +180,11 @@ def main():
     # post init / stop
     application.post_init = post_init
     application.post_stop = post_stop
+
+    # sell handlers
+    application.add_handler(MessageHandler(filters.Regex(r"^فروش سکه$"), handle_sell_flow))
+    application.add_handler(CallbackQueryHandler(sell_callback_router, pattern="^sell:.*$"))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, sell_text_handler))
 
     # اجرای ربات
     application.run_polling()
