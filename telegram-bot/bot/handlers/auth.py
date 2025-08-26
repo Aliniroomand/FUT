@@ -55,7 +55,7 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if flow == 'wait_for_phone_register':
         context.user_data['phone_number'] = text
         context.user_data['auth_flow'] = 'wait_for_email_register'
-        await update.message.reply_text("[■ ■□□] 2/4\n\n 📧 لطفاً ایمیل خود را وارد کنید:", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■□□] 2/4\n\n 📧 لطفاً ایمیل خود را وارد کنید:\n\n ⚠️exmaple@gmail.com  ⚠️", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_email_register':
         context.user_data['email'] = text
@@ -142,7 +142,7 @@ async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     elif flow == 'wait_for_phone_login':
         context.user_data['phone_number'] = text
         context.user_data['auth_flow'] = 'wait_for_email_login'
-        await update.message.reply_text("[■ ■□] 2/3 \n\n 📧 لطفاً ایمیل خود را وارد کنید:", reply_markup=CANCEL_KB)
+        await update.message.reply_text("[■ ■□] 2/3\n\n 📧 لطفاً ایمیل خود را وارد کنید:\n\n ⚠️exmaple@gmail.com  ⚠️", reply_markup=CANCEL_KB)
 
     elif flow == 'wait_for_email_login':
         context.user_data['email'] = text

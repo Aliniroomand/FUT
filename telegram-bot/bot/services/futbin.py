@@ -1,68 +1,152 @@
+# bot/services/futbin.py
+# -*- coding: utf-8 -*-
+"""
+سرویس ارتباط با Futbin با کش داخلی + نرخ‌دهی درخواست‌ها.
+- از proxy.requests_get استفاده می‌کنیم تا همهٔ تنظیمات پراکسی/timeout یک‌جا باشد.
+- کش ساده درون‌حافظه‌ای با TTL: برای قیمت‌ها 5 دقیقه، برای تصویرها 24 ساعت.
+- نرخ‌دهی: حداکثر ~5 درخواست در دقیقه به صورت جهانی + تأخیر تصادفی بین 0.8 تا 1.6 ثانیه.
+توجه: ساختار APIهای Futbin ممکن است تغییر کند؛ در صورت تغییر لازم است parsing به‌روز شود.
+"""
+from __future__ import annotations
 import time
+import json
+import threading
+import random
 import logging
+from collections import deque
 from typing import Optional, Dict, Any
+
+from bot.proxy import requests_get  # session تنظیم‌شده
+from bot.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Very small in-memory cache as placeholder. In prod replace with Redis.
-_cache: Dict[str, Dict[str, Any]] = {}
+# ---------------- Cache ----------------
+class _TTLCache:
+    def __init__(self, ttl_seconds: int):
+        self.ttl = ttl_seconds
+        self._data: Dict[str, Any] = {}
+        self._exp: Dict[str, float] = {}
+        self._lock = threading.Lock()
 
-CACHE_TTL = 60  # seconds for price/image cache; adjust per data sensitivity
-
-
-def _cache_get(key: str) -> Optional[Any]:
-    entry = _cache.get(key)
-    if not entry:
+    def get(self, key: str):
+        now = time.time()
+        with self._lock:
+            exp = self._exp.get(key, 0)
+            if exp and now < exp:
+                return self._data.get(key)
+            if key in self._data:
+                # expired
+                self._data.pop(key, None)
+                self._exp.pop(key, None)
         return None
-    if time.time() - entry['t'] > entry['ttl']:
-        _cache.pop(key, None)
+
+    def set(self, key: str, value: Any):
+        with self._lock:
+            self._data[key] = value
+            self._exp[key] = time.time() + self.ttl
+
+_price_cache = _TTLCache(ttl_seconds=300)   # 5 دقیقه
+_image_cache = _TTLCache(ttl_seconds=86400) # 24 ساعت
+
+# --------------- Rate-limit ---------------
+_rl_lock = threading.Lock()
+_rl_q = deque()  # timestamps of last requests
+_RL_MAX_PER_MIN = 5
+
+def _allow_request() -> bool:
+    """حداکثر _RL_MAX_PER_MIN درخواست در 60 ثانیه."""
+    now = time.time()
+    with _rl_lock:
+        while _rl_q and now - _rl_q[0] > 60.0:
+            _rl_q.popleft()
+        if len(_rl_q) < _RL_MAX_PER_MIN:
+            _rl_q.append(now)
+            return True
+        return False
+
+def _polite_delay():
+    time.sleep(random.uniform(0.8, 1.6))
+
+# --------------- Helpers ---------------
+def _get_json(url: str, timeout: int = 10) -> Optional[dict]:
+    try:
+        resp = requests_get(url, timeout=timeout, headers={
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "application/json,text/plain,*/*",
+        })
+        if getattr(resp, "status_code", None) == 200:
+            try:
+                return resp.json()
+            except Exception:
+                return json.loads(getattr(resp, "text", "") or "{}")
+        else:
+            logger.warning("futbin GET %s -> %s", url, getattr(resp, "status_code", None))
+            return None
+    except Exception as exc:
+        logger.exception("futbin GET failed url=%s err=%s", url, exc)
         return None
-    return entry['v']
 
-
-def _cache_set(key: str, value: Any, ttl: int = CACHE_TTL) -> None:
-    _cache[key] = {'v': value, 't': time.time(), 'ttl': ttl}
-
-
-async def get_player_price(player_id: int) -> Optional[float]:
-    """Return approximate buy_now price for a player.
-    Placeholder implementation: read from cache or return None.
-    Replace with real Futbin scraping/API call in services.
+# --------------- Public API ---------------
+def get_player_price(player_id: int) -> Optional[int]:
+    """
+    تلاش برای دریافت قیمت تقریبی خرید (Buy Now / Lowest). اگر موفق نشد، None.
+    کش و rate-limit رعایت می‌شود.
     """
     key = f"price:{player_id}"
-    cached = _cache_get(key)
+    cached = _price_cache.get(key)
     if cached is not None:
         return cached
 
-    # TODO: implement Futbin API/scrape with rate-limiting and retries
-    logger.debug("futbin.get_player_price: cache-miss for %s", player_id)
-    # fallback: None indicates unknown
+    if not _allow_request():
+        logger.info("futbin price denied by ratelimiter")
+        return cached  # ممکنه None باشه؛ handler باید fallback داشته باشه
+
+    _polite_delay()
+    # نمونهٔ یکی از endpointها؛ ممکن است لازم شود تغییرش دهید
+    url = f"https://www.futbin.com/24/playerPrices?player={player_id}"
+    data = _get_json(url, timeout=12)
     price = None
+    try:
+        # ساختار رایج: {'LCPrice': '123,000', ...} یا در prices['ps'] / ['xbox'] ...
+        if not data:
+            price = None
+        elif isinstance(data, dict) and "LCPrice" in data:
+            raw = str(data.get("LCPrice", "")).replace(",", "").strip()
+            price = int(raw) if raw.isdigit() else None
+        elif isinstance(data, dict) and "prices" in data:
+            # برداشتن یک پلتفرم (مثلاً ps)
+            for plat in ("ps", "ps4", "ps5", "xbox", "pc"):
+                p = data["prices"].get(plat) if isinstance(data["prices"], dict) else None
+                if p and "LCPrice" in p:
+                    raw = str(p.get("LCPrice", "")).replace(",", "").strip()
+                    if raw.isdigit():
+                        price = int(raw)
+                        break
+    except Exception:
+        logger.exception("parse futbin price failed for player=%s", player_id)
+        price = None
+
     if price is not None:
-        _cache_set(key, price)
+        _price_cache.set(key, price)
     return price
 
-
-async def get_player_image(player_id: int) -> Optional[str]:
+def get_player_image_url(player_id: int) -> Optional[str]:
+    """
+    URL تصویر کارت بازیکن را برمی‌گرداند (کش‌شده). اگر به هر دلیل نتوانستیم، None.
+    """
     key = f"img:{player_id}"
-    cached = _cache_get(key)
+    cached = _image_cache.get(key)
     if cached is not None:
         return cached
 
-    # TODO: implement retrieval; return image URL or None
-    logger.debug("futbin.get_player_image: cache-miss for %s", player_id)
-    img = None
-    if img is not None:
-        _cache_set(key, img)
-    return img
-
-
-async def verify_purchase(user_account: Dict[str, Any], player_id: int, criteria: Dict[str, Any]) -> Dict[str, Any]:
-    """Verify whether the user actually bought the card matching criteria.
-    This is a stub: in prod it should call Futbin/EA services or use account scraping.
-    Returns dict with keys: success:bool, details:dict
-    """
-    # TODO: actual verification logic
-    logger.debug("futbin.verify_purchase called: %s %s", user_account, player_id)
-    # Simulate a negative result by default
-    return {'success': False, 'details': {}}
+    # چند مسیر معمول در futbin/cdn
+    candidates = [
+        f"https://cdn.futbin.com/content/fifa24/img/players/{player_id}.png",
+        f"https://www.futbin.com/images/players/{player_id}.png",
+    ]
+    # اینجا درخواست واقعی نمی‌زنیم؛ فقط URL می‌دهیم و تلگرام خودش لود می‌کند.
+    # اگر خواستید صحت URL را چک کنید، می‌توانید HEAD بزنید (اما ریسک rate-limit دارد).
+    url = candidates[0]
+    _image_cache.set(key, url)
+    return url

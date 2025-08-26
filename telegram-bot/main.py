@@ -18,10 +18,11 @@ from bot.storage import token_exists
 # auth handlers
 from bot.handlers.auth import register_start, text_handler, login_start, logout
 from bot.handlers.main_menu import show_main_menu, view_transactions
-from bot.handlers.sell import handle_sell_flow, sell_callback_router, sell_text_handler
+from bot.handlers.sell import handle_sell_flow, sell_callback_router, sell_text_handler,sell_amount_options_handler
 from bot.keyboards.auth import auth_menu
 from bot.keyboards.main_menu import main_menu
 from telegram import BotCommand
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -43,7 +44,6 @@ def main():
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("health", health_command))
 
-   
     # Handle the welcome "شروع" button from /start with real logic
     async def menu_start_handler(update, context):
         query = update.callback_query
@@ -72,7 +72,6 @@ def main():
     # ==========================
     # CallbackQuery handlers
     # ==========================
-
     # منوی اصلی -> auth
     application.add_handler(
         CallbackQueryHandler(
@@ -115,7 +114,7 @@ def main():
         )
     )
 
-    # هندلرهای متنی مربوط به auth
+    # هندلرهای متنی مربوط به auth (شامل ثبت‌نام/ورود)
     application.add_handler(MessageHandler(filters.Regex(r"^ثبت‌نام$"), register_start))
     application.add_handler(MessageHandler(filters.Regex(r"^ورود$"), login_start))
 
@@ -167,8 +166,19 @@ def main():
     application.add_handler(MessageHandler(filters.Regex(r"^(?:💹\s*استعلام قیمت|استعلام قیمت)$"), price_query_handler))
     application.add_handler(MessageHandler(filters.Regex(r"^(?:❓\s*راهنما|راهنما)$"), help_command))
 
-    # هندلر پیام‌های متنی در جریان auth
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler))
+    # -------------------------
+    # SELL HANDLERS (PRIORITY)
+    # -------------------------
+    # Register sell handlers BEFORE the generic auth text handler so numeric text reaches sell_text_handler
+    application.add_handler(MessageHandler(filters.Regex(r"^فروش سکه$"), handle_sell_flow))
+    application.add_handler(CallbackQueryHandler(sell_callback_router, pattern="^sell:.*$"))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, sell_text_handler), group=1)
+
+    # Now register the generic auth text handler (lower priority than sell handlers)
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler), group=10)
+
+    application.add_handler(CallbackQueryHandler(sell_amount_options_handler, pattern=r"^sell:(cancel_process|again_amount|confirm_amount)$"))
+
 
     # منو و تراکنش‌ها
     application.add_handler(MessageHandler(filters.Regex(r"^مشاهده تراکنش‌ها$"), view_transactions))
@@ -180,11 +190,6 @@ def main():
     # post init / stop
     application.post_init = post_init
     application.post_stop = post_stop
-
-    # sell handlers
-    application.add_handler(MessageHandler(filters.Regex(r"^فروش سکه$"), handle_sell_flow))
-    application.add_handler(CallbackQueryHandler(sell_callback_router, pattern="^sell:.*$"))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, sell_text_handler))
 
     # اجرای ربات
     application.run_polling()
