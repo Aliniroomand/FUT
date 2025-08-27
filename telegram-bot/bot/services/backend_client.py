@@ -121,7 +121,7 @@ async def get_transfer_method(method_id: int) -> Dict[str, Any]:
 
 
 async def list_card_ranges() -> list[Dict[str, Any]]:
-    url = f"{BASE_URL}/card-ranges"
+    url = f"{BASE_URL}/card-ranges/"
     r = await _request('GET', url, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     return r.json()

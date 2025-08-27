@@ -1,3 +1,28 @@
+"""
+Simple per-user rate limiter for buy requests.
+Limits: max 5 buy requests per 10 minutes.
+Developer note: No backend endpoint, local only.
+"""
+import time
+from collections import defaultdict
+
+class RateLimiter:
+    def __init__(self, max_requests=5, window_sec=600):
+        self.max_requests = max_requests
+        self.window_sec = window_sec
+        self.user_timestamps = defaultdict(list)
+
+    def is_allowed(self, user_id):
+        now = time.time()
+        timestamps = self.user_timestamps[user_id]
+        # Remove old timestamps
+        self.user_timestamps[user_id] = [t for t in timestamps if now - t < self.window_sec]
+        if len(self.user_timestamps[user_id]) < self.max_requests:
+            self.user_timestamps[user_id].append(now)
+            return True
+        return False
+
+rate_limiter = RateLimiter()
 import time
 from collections import deque
 

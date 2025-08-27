@@ -19,8 +19,8 @@ def main_menu(user_id: int) -> InlineKeyboardMarkup:
 
     return InlineKeyboardMarkup([
         [auth_button],
-        [InlineKeyboardButton("🛒 خرید سکه", callback_data="menu:buy")],
-        [InlineKeyboardButton("💰 فروش سکه", callback_data="menu:sell")],
+        [InlineKeyboardButton("🛒 خرید سکه", callback_data="menu:sell")],
+        [InlineKeyboardButton("💰 فروش سکه", callback_data="menu:buy")],
         [InlineKeyboardButton("📊 نمایش تراکنش‌ها", callback_data="menu:tx")],
         [InlineKeyboardButton("👤 پروفایل", callback_data="menu:profile")],
         # [InlineKeyboardButton("🌐 ورود به وبسایت", url="#")],

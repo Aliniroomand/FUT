@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     https_proxy: str | None = None
     backend_url: str
     frontend_url: str
+    admin_chat_link:str
     admin_username: str
     admin_chat_id: str
 

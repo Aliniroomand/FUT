@@ -1,4 +1,37 @@
 # bot/ui/sell_messages.py
+"""
+UI texts for selling flow (Farsi)
+"""
+
+def get_sell_entry_text():
+    return (
+        "SellYourFUT_Bot,\n\n"
+        "🔢 لطفاً مقدار را به‌صورت عددی وارد کنید\n"
+        "💡 مثلا به‌جای «۱۵۰۰ کا » فقط اینو بنویس: 1500 🔢"
+    )
+
+def get_invalid_amount_text():
+    return "⚠️ لطفاً فقط عدد وارد کنید."
+
+def get_amount_confirm_text(amount):
+    return f"💰 مقدار وارد شده: {amount}\n\nآیا تایید می‌کنید؟"
+
+def get_amount_out_of_range_text(amount, min_amount, max_amount, support_link):
+    return (
+        f"🚫 مقدار {amount} خارج از بازه مجاز ({min_amount}-{max_amount}) است.\n\n"
+        f"🔒 به دلایل امنیتی، با پشتیبانی در ارتباط باشید:\n{support_link}"
+    )
+
+def get_card_info_text(amount, player_meta):
+    return (
+        f"✅ مقدار تایید شد: {amount}\n\n"
+        f"🎴 کارت اصلی: {player_meta['primary']}\n"
+        f"🎴 کارت ثانویه: {player_meta['secondary']}"
+    )
+
+def get_cancelled_text():
+    return "🛑 عملیات لغو شد."
+# bot/ui/sell_messages.py
 from typing import List, Tuple, Optional
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
