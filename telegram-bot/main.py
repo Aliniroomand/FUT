@@ -164,8 +164,16 @@ def main():
     # BUY HANDLERS (PRIORITY)
     # -------------------------
     # Make sure buy handlers are before generic text handlers so amount parsing works
-    # single router for all buy: callbacks (avoids missing handlers)
+    # Register specific buy-related callback handlers first so they are not caught by the generic router
+    # handle transfer method selection (buy:method:<id>)
+    application.add_handler(CallbackQueryHandler(buy_method_callback, pattern=r"^buy:method:"))
+    # handle confirm amount (buy:confirm)
+    application.add_handler(CallbackQueryHandler(buy_confirm_callback, pattern=r"^buy:confirm$"))
+    # single router for other buy: callbacks (catch-all)
     application.add_handler(CallbackQueryHandler(buy_callback_router, pattern=r"^buy:"))
+    # also accept buy_select and buy_cancel callback prefixes used by present_player flow
+    # Accept only well-formed buy_select and buy_cancel callbacks: buy_select:<int>:(primary|fallback) or buy_cancel:<int>
+    application.add_handler(CallbackQueryHandler(buy_callback_router, pattern=r'^(buy_select:\d+:(primary|fallback)|buy_cancel:\d+)$'))
     # text handler delegates amount parsing to buy_text_handler
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, buy_text_handler), group=1)
 
