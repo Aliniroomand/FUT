@@ -3,11 +3,13 @@
 venv/
 env/
 backend/.venv/
+.env.local
 
 # ========== Python Bytecode ==========
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
 
 # ========== Python Package folders (不要 include site-packages) ==========
 # DO NOT include site-packages
@@ -18,6 +20,8 @@ backend/.venv/Lib/
 # Ignore local SQLite DBs or migration cache (optional)
 *.db
 *.sqlite3
+fut.db
+
 
 # ========== Logs and temp files ==========
 *.log
@@ -46,3 +50,13 @@ coverage.xml
 # ========== Misc ==========
 *.env
 .env.*
+
+
+# Build artifacts
+dist/
+build/
+
+
+# Secret files (example)
+secrets.yml
+*.pem

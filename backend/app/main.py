@@ -4,6 +4,12 @@ from app.routes import player_card, transfer_method, transaction,card_range , ad
 from app.database import engine, Base
 import app.models
 from app.routes import alert, ea_account, transactionsControl
+from app.routes import futbin, market_actions, admin_alerts
+from app.cache import get_redis, close_redis
+from app.services.transfer_worker import start_worker, stop_worker
+from app.config import settings
+from app.utils.rate_limiter import SimpleRateLimitMiddleware
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -14,6 +20,7 @@ app = FastAPI()
 def root():
     return {"message": "API is running"}
 
+app.add_middleware(SimpleRateLimitMiddleware, calls=5, per_seconds=60)
 
 
 app.include_router(admin_choosen_price.router)
@@ -29,6 +36,10 @@ app.include_router(admin.router)
 app.include_router(alert.router)
 app.include_router(ea_account.router)
 
+# include routers
+app.include_router(futbin.router)
+app.include_router(market_actions.router)
+app.include_router(admin_alerts.router)
 
 
 
@@ -49,3 +60,20 @@ app.add_middleware(
     allow_headers=["*"],  # همه هدرها مجاز هستن
 )
 # این رو برای دیپلوی حتما پاک کن !!!!!!!!!!!
+
+@app.on_event("startup")
+async def startup_event():
+    # init redis (connect)
+    await get_redis()
+    # start worker only when enabled in settings (useful to disable during tests)
+    if getattr(settings, "START_WORKER", False):
+        await start_worker(app)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # stop worker only if it was started
+    if getattr(settings, "START_WORKER", False):
+        await stop_worker(app)
+    await close_redis()
+    
+    

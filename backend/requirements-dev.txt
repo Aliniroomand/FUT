@@ -1,0 +1,13 @@
+pytest
+pytest-asyncio
+httpx
+respx
+pytest-mock
+fakeredis
+aioredis
+sqlalchemy
+alembic
+uvicorn
+coverage
+black
+ruff
