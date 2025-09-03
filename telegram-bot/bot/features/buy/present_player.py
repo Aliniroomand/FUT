@@ -1,6 +1,7 @@
 import logging
 from bot.services.backend_client import list_card_ranges, get_player_card_meta  
 from bot.ui.buy_messages import out_of_range_text, build_card_info_text
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ async def present_player_for_amount(amount: float):
             fallback_card = None
 
     text = build_card_info_text(selected, primary_card, fallback_card or {}, float(transfer_multiplier), amount)
-
+    
     return {
         "type": "player",
         "text": text,

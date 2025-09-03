@@ -27,7 +27,7 @@ import MethodManagement from "@/pages/admin/RangeManagement/MethodManagement";
 import TransactionsPage from "@/pages/TransactionsPage";
 import AdminEAAccountPanel from "@/components/admin/EAAcountsManagement/AdminEAAccountPanel";
 import TransactionsControl from "@/components/admin/TransactionsControl"
-import LiveAlertsAndPendingTxs from "../components/admin/Alerts/OneLineAlertShow";
+import AlertsPage from "../components/admin/Alerts/AlertsPage";
 import ComingSoon from "../pages/ComingSoon";
 
 const router = createBrowserRouter([
@@ -81,7 +81,7 @@ const router = createBrowserRouter([
       { path: "transactions", element: <TransactionsPage /> },
       { path: "ea-accounts", element:<AdminEAAccountPanel/>} ,
       { path: "transaction-control", element:<TransactionsControl/>} ,
-      { path: "alerts", element:<LiveAlertsAndPendingTxs/>} ,
+      { path: "alerts", element:<AlertsPage/>} ,
       {
         path: "rangeManagement",
         element: <Outlet />,

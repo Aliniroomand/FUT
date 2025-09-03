@@ -478,3 +478,4 @@ async def clear_negative_block(player_id: str, platform: str):
     """
     redis = await get_redis()
     await redis.delete(_negative_block_key(player_id, platform))
+    

@@ -37,7 +37,7 @@ export const updateEADailyLimit = async (id, dailyLimit) => {
 
 export const fetchLiveAlerts = async () => {
   try {
-    const res = await api.get("/admin/alerts");
+    const res = await api.get("/alerts/live");
     return res.data;
   } catch (err) {
     throw err;

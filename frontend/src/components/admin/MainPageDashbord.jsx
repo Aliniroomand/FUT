@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 // Project components (uses your uploaded paths)
 import PriceManager from "@/components/admin/PriceManager";
 import TransactionsControl from "@/components/admin/TransactionsControl";
-import LiveAlertsAndPendingTxs from "@/components/admin/Alerts/LiveAlertsAndPendingTxs";
+// import LiveAlertsAndPendingTxs from "@/components/admin/Alerts/LiveAlertsAndPendingTxs";
 import AdminEAAccountPanel from "@/components/admin/EAAcountsManagement/AdminEAAccountPanel";
 import PlayerManagement from "@/components/admin/PlayerManagement/PlayerManagement";
 import TransferMethod from "@/components/admin/TransferMethod";
@@ -17,7 +17,7 @@ const COMPONENT_REGISTRY = [
   { key: "live_price", title: "قیمت زنده", Comp: ShowLivePrice, colSpan: 3, route: "/admin/live-price" },
 
   { key: "transactions", title: "تراکنش‌ها", Comp: TransactionsControl, colSpan: 6 },
-  { key: "alerts", title: "نوتیفیکیشن‌ها", Comp: LiveAlertsAndPendingTxs, colSpan: 3 },
+  // { key: "alerts", title: "نوتیفیکیشن‌ها", Comp: LiveAlertsAndPendingTxs, colSpan: 3 },
 
   { key: "ea_accounts", title: " ea اکانتهای", Comp: AdminEAAccountPanel, colSpan: 3 , route: "/admin/ea-accounts"},
   { key: "players", title: "مدیریت بازیکنان", Comp: PlayerManagement, colSpan: 6, route: "/admin/players" },

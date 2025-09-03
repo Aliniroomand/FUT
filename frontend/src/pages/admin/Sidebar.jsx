@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaChevronDown,
   FaChevronUp,
@@ -12,13 +12,16 @@ import {
   FaListOl,
   FaTasks,
   FaToggleOn,
-  FaExclamationTriangle 
+  FaExclamationTriangle,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { GiCardExchange } from "react-icons/gi";
 import LogoutBTN from "@/helper/LogoutBTN";
+import { subscribeAlerts } from "@/services/alerts";
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
+  const [alertsCount, setAlertsCount] = useState(0);
 
   const toggleDropdown = (label) => {
     setOpenDropdowns((prev) => ({
@@ -26,6 +29,18 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
       [label]: !prev[label],
     }));
   };
+  useEffect(() => {
+    // subscribe به alerts.js
+    const unsub = subscribeAlerts((list) => {
+      // فقط هشدارهای unresolved رو شمارش کن
+      const unresolved = list.filter((a) => !a.resolved);
+      setAlertsCount(unresolved.length);
+    });
+
+    return () => {
+      unsub(); // لغو subscription هنگام unmount
+    };
+  }, []);
 
   const links = [
     {
@@ -59,7 +74,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
         },
         {
           to: "/admin/rangeManagement/method",
-          label: "مدیریت روش‌های انتقال",
+          label: "روش‌های انتقال",
           icon: <FaTasks size={23} />,
         },
       ],
@@ -80,15 +95,16 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
       icon: <FaToggleOn size={23} />,
     },
     {
-      to: "/admin/alerts",
+      to: "#",
       label: "تراکنش های درحال انجام",
-      icon: <FaExclamationTriangle  size={23} />,
+      icon: <FaExclamationTriangle size={23} />,
     },
+    { to: "/admin/alerts", label: "هشدارها", icon: <FaExclamationTriangle /> },
   ];
 
   return (
     <aside
-      className={`fixed md:static  right-0 h-full z-50 w-64 bg-dark-hard p-4 space-y-4 border-r bg-white/10 backdrop-blur-md transform transition-transform duration-300 top-12 
+      className={`fixed md:static  right-0 h-full z-50 w-64 bg-dark-hard p-4 space-y-4 border-r bg-white/10 backdrop-blur-md transform transition-transform duration-300 top-12  overflow-scroll pb-10 
         ${isOpen ? "translate-x-0" : "translate-x-full"} md:translate-x-0 `}
     >
       {/* دکمه بستن برای موبایل */}
@@ -110,13 +126,12 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
                 {link.icon}
                 {link.label}
               </span>
-              <span >
-
-              {openDropdowns[link.label] ? (
-                <FaChevronUp size={12}  />
-              ) : (
-                <FaChevronDown size={12}  />
-              )}
+              <span>
+                {openDropdowns[link.label] ? (
+                  <FaChevronUp size={12} />
+                ) : (
+                  <FaChevronDown size={12} />
+                )}
               </span>
             </button>
             {openDropdowns[link.label] && (
@@ -147,12 +162,25 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
             key={link.to}
             to={link.to}
             className={({ isActive }) =>
-              `block py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950 ${
-                isActive ? "bg-amber-500 text-dark-hard" : "hover:bg-amber-800 hover:text-shadow-white"
+              `py-2 rounded-lg transition hover:bg-white text-shadow-lg text-shadow-black hover:text-amber-950 flex justify-end items-start ${
+                isActive
+                  ? "bg-amber-500 text-dark-hard"
+                  : "hover:bg-amber-800 hover:text-shadow-white"
               }`
             }
           >
-            <span className="flex items-center gap-2 flex-row-reverse">
+            {link.to === "/admin/alerts" &&
+              (alertsCount > 0 ? (
+                <div className=" h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center px-2">
+                  {alertsCount}
+                </div>
+              ) : (
+                <div className="text-green-500">
+                  <FaCheckCircle />
+                </div>
+              ))}
+
+            <span className="flex items-center gap-2 flex-row-reverse ">
               {link.icon}
               {link.label}
             </span>

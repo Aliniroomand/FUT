@@ -4,8 +4,8 @@ import { useState } from "react";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "@/pages/admin/Sidebar";
 import Navbar from "@/components/MainNavbar";
-import OneLineAlertShow from "@/components/admin/Alerts/OneLineAlertShow";
-import LiveAlertsAndPendingTxs from "../../components/admin/Alerts/OneLineAlertShow";
+// import OneLineAlertShow from "@/components/admin/Alerts/OneLineAlertShow";
+// import LiveAlertsAndPendingTxs from "../../components/admin/Alerts/OneLineAlertShow";
 
 const AdminLayout = () => {
   const [isOpen, setIsOpen] = useState(false);

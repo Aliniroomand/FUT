@@ -30,7 +30,7 @@ const Navbar = () => {
 
           <Link to="/" className="grid place-items-center ">
 
-            <p className=" logo fut-gold-text text-2xl!">Coin Father</p>
+            <p className=" logo fut-gold-text text-2xl!">Sell Your FUT</p>
           </Link>
           <Link to="/bot" className="grid place-items-center  ">
             <span>
@@ -53,7 +53,7 @@ const Navbar = () => {
             <span>
               <img src={coin} alt="coin" />
             </span>
-            <p className=" logo fut-gold-text">Coin Father</p>
+            <p className=" logo fut-gold-text">SellYourFUT</p>
           </Link>
         </div>
         <div className="flex gap-6 items-center">

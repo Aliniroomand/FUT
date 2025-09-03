@@ -8,7 +8,7 @@ from app.routes import futbin, market_actions, admin_alerts
 from app.cache import get_redis, close_redis
 from app.services.transfer_worker import start_worker, stop_worker
 from app.config import settings
-from app.utils.rate_limiter import SimpleRateLimitMiddleware
+from app.utils.rate_limiter import rate_limit
 
 
 Base.metadata.create_all(bind=engine)
@@ -20,7 +20,6 @@ app = FastAPI()
 def root():
     return {"message": "API is running"}
 
-app.add_middleware(SimpleRateLimitMiddleware, calls=5, per_seconds=60)
 
 
 app.include_router(admin_choosen_price.router)

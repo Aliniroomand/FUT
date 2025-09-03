@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import asyncio
 
 async def main():
-    player_id = 38758
-    slug = "takefusa-kubo"
+    player_id = 45466
+    slug = "harry-maguire"
     url = f"https://www.futbin.com/25/player/{player_id}/{slug}"
 
     headers = {
@@ -19,13 +19,20 @@ async def main():
             soup = BeautifulSoup(r.text, "html.parser")
 
             # انتخاب دقیق div با سه کلاس
-            price_div = soup.select("div.price inline-with-icon lowest-price-1")
-            print("ine:",price_div)
-            if price_div:
-                price_text = price_div.get_text(strip=True)
+            price_box = soup.find("div", class_="price-box player-price-not-ps price-box-original-player")
+            price_text = None
+
+            if price_box:
+                # پیدا کردن اولین div که کلاسش با price شروع میشه
+                for div in price_box.find_all("div", class_=lambda x: x and "price" in x):
+                    if div.find("img", alt="Coin"):  # مطمئن بشیم همون قیمت سکه است
+                        price_text = div.get_text(strip=True)
+                        break
+
+            if price_text:
                 print("Extracted price:", price_text)
             else:
-                print("Price div not found!")
+                print("Price not found!")
 
 asyncio.run(main())
 
