@@ -1,33 +1,51 @@
+# BOT/bot/adapters/backend_client.py
 import asyncio
 import httpx
-from typing import Any
-
-from bot.adapters.cache import cache
 from bot.config import settings
+from pydantic import BaseModel
+import logging
 
-BASE_URL = getattr(settings, 'backend_url', 'http://localhost:8000')
+logger = logging.getLogger(__name__)
 
+BASE_URL = getattr(settings, "backend_url", "http://localhost:8000")
+TIMEOUT = httpx.Timeout(10.0, connect=5.0)
 
-async def http_get(path: str, params: dict | None = None):
-    async with httpx.AsyncClient() as client:
-        r = await client.get(f"{BASE_URL}{path}", params=params, timeout=10.0)
-        r.raise_for_status()
-        return r.json()
+# ----------------------
+# تابع کمکی retry
+# ----------------------
+async def request_with_retry(method: str, url: str, json: dict | None = None, max_retries: int = 3):
+    backoff = 0.5
+    for attempt in range(max_retries):
+        try:
+            async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+                resp = await client.request(method, url, json=json)
+                resp.raise_for_status()
+                return resp.json()
+        except (httpx.HTTPError, httpx.ReadTimeout) as e:
+            logger.warning("Attempt %s failed for %s: %s", attempt + 1, url, e)
+            if attempt == max_retries - 1:
+                logger.error("All retries failed for %s", url)
+                raise
+            await asyncio.sleep(backoff * (2 ** attempt))
 
+# ----------------------
+# تعریف مدل Pydantic برای price
+# ----------------------
+class PriceResponse(BaseModel):
+    price: int | None
+    cached: bool
+    fetched_at: str
+    note: str | None
 
-async def get_card_ranges():
-    # expecting endpoint /card-ranges or /card-ranges/
+# ----------------------
+# تابعی که پاسخ backend را اعتبارسنجی می‌کند
+# ----------------------
+async def get_price(item_id: int) -> PriceResponse:
+    url = f"{BASE_URL}/price/{item_id}"
+    resp_json = await request_with_retry("GET", url)
     try:
-        return await http_get("/card-ranges")
-    except httpx.HTTPStatusError:
-        return await http_get("/card-ranges/")
-
-
-async def get_player_card(card_id: int):
-    cache_key = f"player_card:{card_id}"
-    cached = cache.get(cache_key)
-    if cached:
-        return cached
-    data = await http_get(f"/player-cards/{card_id}")
-    cache.set(cache_key, data)
-    return data
+        return PriceResponse.parse_obj(resp_json)
+    except Exception as e:
+        logger.error("Invalid response from backend for item %s: %s", item_id, e)
+        # برگردوندن پیام خطای دوستانه بدون crash
+        return PriceResponse(price=None, cached=False, fetched_at="", note="خطا در دریافت قیمت")

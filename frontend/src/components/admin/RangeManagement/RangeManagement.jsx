@@ -78,6 +78,14 @@ export default function RangeManagement() {
   return (
     <div className="space-y-6">
       <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
+        <h2 className="text-2xl font-bold text-amber-400 mb-4">لیست بازه‌های قیمتی</h2>
+        <RangeList
+          ranges={ranges}
+          onEdit={handleInlineEdit}
+          onDelete={handleDelete}
+        />
+      </div>
+      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
         <h2 className="text-2xl font-bold text-amber-400 mb-6">
           {selectedRange ? 'ویرایش بازه قیمتی' : 'ایجاد بازه قیمتی جدید'}
         </h2>
@@ -88,14 +96,6 @@ export default function RangeManagement() {
         />
       </div>
 
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6">
-        <h2 className="text-2xl font-bold text-amber-400 mb-4">لیست بازه‌های قیمتی</h2>
-        <RangeList
-          ranges={ranges}
-          onEdit={handleInlineEdit}
-          onDelete={handleDelete}
-        />
-      </div>
     </div>
   );
 }

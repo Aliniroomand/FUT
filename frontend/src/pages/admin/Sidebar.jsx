@@ -104,7 +104,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
 
   return (
     <aside
-      className={`fixed md:static  right-0 h-full z-50 w-64 bg-dark-hard p-4 space-y-4 border-r bg-white/10 backdrop-blur-md transform transition-transform duration-300 top-12  overflow-scroll pb-10 
+      className={`fixed md:static  right-0 h-full z-50 w-64 bg-dark-hard p-4 space-y-4 border-r glass-dark overflow-x-clip transform transition-transform duration-300 top-12  overflow-scroll pb-10 
         ${isOpen ? "translate-x-0" : "translate-x-full"} md:translate-x-0 `}
     >
       {/* دکمه بستن برای موبایل */}

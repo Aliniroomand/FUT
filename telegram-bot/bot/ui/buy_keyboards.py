@@ -1,3 +1,6 @@
+from typing import Dict, List  
+
+
 def final_options_keyboard(user_id):
     from telegram import InlineKeyboardMarkup, InlineKeyboardButton
     from bot.config import settings
@@ -51,3 +54,14 @@ def confirm_amount_keyboard():
         [InlineKeyboardButton("تایید", callback_data="buy:confirm")],
         [InlineKeyboardButton("انصراف", callback_data="buy:cancel")]
     ])
+
+
+def choose_two_players_keyboard(has_second: bool = True):
+    from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+    buttons = [
+        [InlineKeyboardButton(" 👤 بازیکن ۱" , callback_data="buy:choose:1")]
+    ]
+    if has_second:
+        buttons.append([InlineKeyboardButton("👤 بازیکن ۲", callback_data="buy:choose:2")])
+    buttons.append([InlineKeyboardButton("لغو ❌", callback_data="buy:cancel")])
+    return InlineKeyboardMarkup(buttons)

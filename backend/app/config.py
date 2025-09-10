@@ -23,7 +23,7 @@ class Settings:
 
     # Futbin / scraping related settings
     # Cache TTL (in seconds) for Futbin price freshness
-    FUTBIN_CACHE_TTL: int = int(os.getenv("FUTBIN_CACHE_TTL", "3"))
+    FUTBIN_CACHE_TTL: int = int(os.getenv("FUTBIN_CACHE_TTL", "10"))
 
     # When a captcha/protection event occurs, block retries for this many seconds
     FUTBIN_NEGATIVE_CACHE_SECONDS: int = int(os.getenv("FUTBIN_NEGATIVE_CACHE_SECONDS", "60"))
@@ -52,6 +52,9 @@ class Settings:
     # Set to "1" or "true" in env to enable distributed locking across multiple workers.
     USE_DISTRIBUTED_LOCK: bool = _bool_env("USE_DISTRIBUTED_LOCK", False)
 
+    SERVICE_NAMESPACE = os.getenv("SERVICE_NAMESPACE", "futbin")
+
+
 
 settings = Settings()
 
@@ -65,3 +68,4 @@ MAX_FUTBIN_CONCURRENCY = settings.MAX_FUTBIN_CONCURRENCY
 FUTBIN_USER_AGENT = settings.FUTBIN_USER_AGENT
 INTERNAL_ALERT_POST_URL = settings.INTERNAL_ALERT_POST_URL
 USE_DISTRIBUTED_LOCK = settings.USE_DISTRIBUTED_LOCK
+SERVICE_NAMESPACE= settings.SERVICE_NAMESPACE

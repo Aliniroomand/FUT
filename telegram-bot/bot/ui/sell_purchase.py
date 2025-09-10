@@ -6,7 +6,6 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 def build_purchase_message(
     player_name: str,
-    player_image_url: str | None,
     buy_price: int,
     transferable: int,
     multiplier: float,
@@ -19,8 +18,6 @@ def build_purchase_message(
     lines = []
     lines.append("🟢 مرحله فروش: خرید و لیست‌کردن کارت در مارکت")
     lines.append("")
-    if player_image_url:
-        lines.append(f"🖼 عکس کارت: {player_image_url}")
     lines.append(f"👤 بازیکن: {player_name}")
     lines.append(f"💰 قیمت خرید تقریبی: {buy_price:,}")
     lines.append(f"📈 ضریب انتقال: {multiplier:g}x")

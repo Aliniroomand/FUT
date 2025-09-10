@@ -1,14 +1,11 @@
 from app.routes import admin_choosen_price
 from fastapi import FastAPI  
-from app.routes import player_card, transfer_method, transaction,card_range , admin_choosen_price,auth,profile,admin
+from app.routes import player_card, transfer_method, transaction,card_range , admin_choosen_price,auth,profile,admin,alert, ea_account, transactionsControl ,futbin, market_actions, admin_alerts
 from app.database import engine, Base
 import app.models
-from app.routes import alert, ea_account, transactionsControl
-from app.routes import futbin, market_actions, admin_alerts
 from app.cache import get_redis, close_redis
 from app.services.transfer_worker import start_worker, stop_worker
 from app.config import settings
-from app.utils.rate_limiter import rate_limit
 
 
 Base.metadata.create_all(bind=engine)

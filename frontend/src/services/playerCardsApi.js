@@ -1,23 +1,6 @@
-import axios from "axios";
+import api from "@/services/api";
 
-const api = axios.create({
-  baseURL: "http://localhost:8000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    return Promise.reject(error); // خطاها به کامپوننت پاس داده می‌شن
-  }
-);
-
-
-// Player Cards APIs
+// ================== Player Cards APIs ==================
 export const getPlayerCards = async () => {
   const response = await api.get("/player-cards/");
   return response.data;
@@ -38,25 +21,39 @@ export const updatePlayerCard = async (id, data) => {
   return response.data;
 };
 
-export const deletePlayerCard = async (id) => {
-  const response = await api.delete(`/player-cards/${id}`);
+// delete: keep previous signature but backend supports replacement & force
+export const deletePlayerCard = async (
+  id,
+  replacementId = null,
+  force = false
+) => {
+  const params = {};
+  if (replacementId) params.replacement_id = replacementId;
+  if (force) params.force = true;
+  const response = await api.delete(`/player-cards/${id}`, { params });
   return response.data;
 };
 
-// Authentication APIs
+// new: get dependencies for a given card
+export const getPlayerDependencies = async (id) => {
+  const response = await api.get(`/player-cards/dependencies/${id}`);
+  return response.data;
+};
 
-// بررسی اینکه بازیکن در بازه‌ای استفاده شده یا نه
-export async function checkPlayerUsage(playerId) {
-  const response = await fetch(`/api/player-cards/${playerId}/usage`);
-  if (!response.ok) throw new Error("Failed to check player usage");
-  return await response.json();
+
+// existing futbin/trade functions...
+export async function fetchPriceForCard(id, platform = "pc") {
+  return (
+    await api.post(`/player-cards/${id}/fetch-price`, null, {
+      params: { platform },
+    })
+  ).data;
 }
 
-// حذف همه بازه‌هایی که بازیکن primary_card آن‌ها بوده
-export async function deleteRangesWithPrimaryCard(playerId) {
-  const response = await fetch(`/api/card-ranges/by-primary-card/${playerId}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) throw new Error("Failed to delete related ranges");
-  return await response.json();
+export async function getTradeRange(id, methodId, platform = "pc") {
+  return (
+    await api.get(`/player-cards/${id}/trade-range`, {
+      params: { method_id: methodId, platform },
+    })
+  ).data;
 }

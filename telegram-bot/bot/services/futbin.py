@@ -15,6 +15,12 @@ import random
 import logging
 from collections import deque
 from typing import Optional, Dict, Any
+import requests
+import asyncio
+import re
+import unicodedata
+from bot.services.backend_client import get_player_card_meta, get_futbin_price_from_backend
+
 
 from bot.proxy import requests_get  # session تنظیم‌شده
 from bot.config import settings
@@ -47,7 +53,6 @@ class _TTLCache:
             self._exp[key] = time.time() + self.ttl
 
 _price_cache = _TTLCache(ttl_seconds=300)   # 5 دقیقه
-_image_cache = _TTLCache(ttl_seconds=86400) # 24 ساعت
 
 # --------------- Rate-limit ---------------
 _rl_lock = threading.Lock()
@@ -75,78 +80,68 @@ def _get_json(url: str, timeout: int = 10) -> Optional[dict]:
             "User-Agent": "Mozilla/5.0",
             "Accept": "application/json,text/plain,*/*",
         })
-        if getattr(resp, "status_code", None) == 200:
-            try:
-                return resp.json()
-            except Exception:
-                return json.loads(getattr(resp, "text", "") or "{}")
+        if resp.status_code == 200:
+                try:
+                        return resp.json()
+                except Exception:
+                        return json.loads(resp.text or "{}")
         else:
-            logger.warning("futbin GET %s -> %s", url, getattr(resp, "status_code", None))
-            return None
+                logger.warning("futbin GET %s -> %s", url, resp.status_code)
+                return None
     except Exception as exc:
         logger.exception("futbin GET failed url=%s err=%s", url, exc)
         return None
 
 # --------------- Public API ---------------
-def get_player_price(player_id: int) -> Optional[int]:
-    """
-    تلاش برای دریافت قیمت تقریبی خرید (Buy Now / Lowest). اگر موفق نشد، None.
-    کش و rate-limit رعایت می‌شود.
-    """
+
+# local slugify (مطابق backend)
+def _slugify(name: str) -> str:
+    s = unicodedata.normalize("NFKD", name or "").encode("ascii", "ignore").decode("ascii")
+    s = re.sub(r"[^a-zA-Z0-9\s-]", "", s).strip().lower()
+    s = re.sub(r"[\s_-]+", "-", s)
+    return s
+
+# public async API that other modules await
+async def get_price_for_player(player_id: int, platform: str = "pc") -> Optional[int]:
+    """Async: return integer price or None. Uses backend /futbin/price as primary source."""
     key = f"price:{player_id}"
     cached = _price_cache.get(key)
     if cached is not None:
         return cached
 
+    # rate-limit check (local)
     if not _allow_request():
         logger.info("futbin price denied by ratelimiter")
-        return cached  # ممکنه None باشه؛ handler باید fallback داشته باشه
+        return cached  # maybe None
 
-    _polite_delay()
-    # نمونهٔ یکی از endpointها؛ ممکن است لازم شود تغییرش دهید
-    url = f"https://www.futbin.com/24/playerPrices?player={player_id}"
-    data = _get_json(url, timeout=12)
-    price = None
+    # first: get player meta from backend to build slug
     try:
-        # ساختار رایج: {'LCPrice': '123,000', ...} یا در prices['ps'] / ['xbox'] ...
-        if not data:
-            price = None
-        elif isinstance(data, dict) and "LCPrice" in data:
-            raw = str(data.get("LCPrice", "")).replace(",", "").strip()
-            price = int(raw) if raw.isdigit() else None
-        elif isinstance(data, dict) and "prices" in data:
-            # برداشتن یک پلتفرم (مثلاً ps)
-            for plat in ("ps", "ps4", "ps5", "xbox", "pc"):
-                p = data["prices"].get(plat) if isinstance(data["prices"], dict) else None
-                if p and "LCPrice" in p:
-                    raw = str(p.get("LCPrice", "")).replace(",", "").strip()
-                    if raw.isdigit():
-                        price = int(raw)
-                        break
-    except Exception:
-        logger.exception("parse futbin price failed for player=%s", player_id)
-        price = None
+        player = await get_player_card_meta(player_id)
+    except Exception as exc:
+        logger.exception("Failed to get player meta for futbin price: %s", exc)
+        player = None
 
-    if price is not None:
-        _price_cache.set(key, price)
+    slug = _slugify(player.get("name", "")) if player else str(player_id)
+
+    # call backend futbin endpoint (backend does actual scraping/parsing)
+    try:
+        res = await get_futbin_price_from_backend(player_id, slug, platform)
+    except Exception as exc:
+        logger.exception("call to backend /futbin/price failed for player=%s: %s", player_id, exc)
+        return None
+
+    # backend returns {"player_id":..., "platform":..., "price": "<text>"...}
+    price_val = res.get("price")
+    if not price_val:
+        return None
+
+    # normalize price string -> int (e.g. "123,000" -> 123000)
+    raw = str(price_val).replace(",", "").strip()
+    # sometimes backend may return extra chars, try to extract digits
+    digits = re.findall(r"\d+", raw)
+    if not digits:
+        return None
+    price = int("".join(digits))
+
+    _price_cache.set(key, price)
     return price
-
-def get_player_image_url(player_id: int) -> Optional[str]:
-    """
-    URL تصویر کارت بازیکن را برمی‌گرداند (کش‌شده). اگر به هر دلیل نتوانستیم، None.
-    """
-    key = f"img:{player_id}"
-    cached = _image_cache.get(key)
-    if cached is not None:
-        return cached
-
-    # چند مسیر معمول در futbin/cdn
-    candidates = [
-        f"https://cdn.futbin.com/content/fifa24/img/players/{player_id}.png",
-        f"https://www.futbin.com/images/players/{player_id}.png",
-    ]
-    # اینجا درخواست واقعی نمی‌زنیم؛ فقط URL می‌دهیم و تلگرام خودش لود می‌کند.
-    # اگر خواستید صحت URL را چک کنید، می‌توانید HEAD بزنید (اما ریسک rate-limit دارد).
-    url = candidates[0]
-    _image_cache.set(key, url)
-    return url

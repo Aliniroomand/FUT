@@ -128,7 +128,7 @@ async def list_card_ranges() -> list[Dict[str, Any]]:
 
 
 async def get_player_card_meta(player_id: int) -> Dict[str, Any]:
-    url = f"{BASE_URL}/player_card/{player_id}"
+    url = f"{BASE_URL}/player-cards/{player_id}"
     r = await _request('GET', url, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     return r.json()
@@ -160,3 +160,11 @@ async def get_transaction_status() -> Dict[str, Any]:
         raise last_exc
     # fallback (shouldn't reach)
     raise RuntimeError("failed to fetch transaction status")
+
+
+async def get_futbin_price_from_backend(player_id: int, slug: str, platform: str = "pc") -> Dict[str, Any]:
+    """Call backend /futbin/price endpoint to fetch parsed price (backend does the scraping)."""
+    url = f"{BASE_URL}/futbin/price?player_id={player_id}&slug={slug}&platform={platform}"
+    r = await _request('GET', url, timeout=REQUEST_TIMEOUT)
+    r.raise_for_status()
+    return r.json()

@@ -10,6 +10,8 @@
 
 import functools
 import time
+import httpx
+import logging
 
 _futbin_cache = {}
 
@@ -25,11 +27,18 @@ async def create_pending_transaction(payload):
     # Thin wrapper for backend call to create transaction
     from bot.services.backend_client import create_transaction
     return await create_transaction(payload)
+
+
+
 async def get_player_card_info(player_id):
-    # Fetch player info from backend
-    from bot.services.backend_client import get_player_card
-    player = await get_player_card(player_id)
-    # Futbin price (cached)
+    from bot.services.backend_client import get_player_card_meta
+    try:
+        player = await get_player_card_meta(player_id)
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            logging.warning(f"Player {player_id} not found")
+            return None
+
     price_key = f"price:{player_id}"
     buy_now_price = _get_futbin_cache(price_key)
     if buy_now_price is None:
@@ -39,29 +48,17 @@ async def get_player_card_info(player_id):
             _cache_futbin(price_key, buy_now_price)
         except Exception as e:
             buy_now_price = None
-            import logging
             logging.error(f"Futbin price error: {e}")
             from bot.services.trade_control import emit_admin
             await emit_admin('futbin:error', {'player_id': player_id, 'error': str(e)})
-    # Futbin image (cached)
-    image_key = f"image:{player_id}"
-    image_url = _get_futbin_cache(image_key)
-    if image_url is None:
-        from bot.services.futbin import get_image_for_player
-        try:
-            image_url = await get_image_for_player(player_id)
-            _cache_futbin(image_key, image_url)
-        except Exception as e:
-            image_url = None
-            import logging
-            logging.error(f"Futbin image error: {e}")
-            from bot.services.trade_control import emit_admin
-            await emit_admin('futbin:error', {'player_id': player_id, 'error': str(e)})
+
+    # ⚠️ اضافه کردن return نهایی
     return {
-        'player': player,
-        'buy_now_price': buy_now_price,
-        'image_url': image_url
+        "player": player,
+        "buy_now_price": buy_now_price
     }
+
+   
 async def get_card_ranges():
     # Thin wrapper for backend call to fetch card ranges
     from bot.services.backend_client import list_card_ranges as backend_get_card_ranges

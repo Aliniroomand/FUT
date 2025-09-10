@@ -6,7 +6,7 @@ class CardRangeBase(BaseModel):
     min_value: float
     max_value: float
     description: Optional[str] = None
-    primary_card_id: int
+    primary_card_id: Optional[int] = None
     fallback_card_id: Optional[int] = None
     transfer_method_id: int 
 class CardRangeCreate(CardRangeBase):

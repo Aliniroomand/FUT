@@ -53,7 +53,7 @@ def _sanitize_sample(html: str, max_len: int = 4096) -> str:
 # concurrency limiter across this process
 RATE_SEMAPHORE = asyncio.Semaphore(int(MAX_FUTBIN_CONCURRENCY or 2))
 
-DEFAULT_TTL = int(FUTBIN_CACHE_TTL or 3)
+DEFAULT_TTL = int(FUTBIN_CACHE_TTL or 5)
 NEGATIVE_CACHE_SECONDS = int(FUTBIN_NEGATIVE_CACHE_SECONDS or 60)
 ALERT_DEDUPE_SECONDS = int(FUTBIN_ALERT_DEDUPE_SECONDS or 120)
 INTERNAL_ALERT_URL = INTERNAL_ALERT_POST_URL or None
@@ -161,9 +161,10 @@ def _alert_dedupe_key(player_id: str, platform: str) -> str:
 def _negative_block_key(player_id: str, platform: str) -> str:
     return f"futbin:negative:{player_id}:{platform}"
 
-
+from app.config import SERVICE_NAMESPACE
 def _cache_key(player_id: str, platform: str) -> str:
-    return f"futbin:price:{player_id}:{platform}"
+    ns = getattr(SERVICE_NAMESPACE, "value", "futbin") 
+    return f"{ns}:price:{player_id}:{platform}"
 
 
 def _dist_lock_name(player_id: str, platform: str) -> str:
@@ -240,7 +241,151 @@ async def _create_alert(player_id: str, platform: str, reason: str, sample_html:
 # ---------- Public API ----------
 
 
-async def get_player_price(player_id: str, platform: str = "pc", ttl: Optional[int] = None) -> Dict[str, Any]:
+import json
+import httpx
+from datetime import datetime
+from typing import Optional
+
+# فرض: این‌ها قبلاً جای دیگه تعریف شدن
+# FUTBIN_BASE, FIFA_YEAR, FUTBIN_USER_AGENT, REQUEST_TIMEOUT, DEFAULT_TTL
+# USE_DISTRIBUTED_LOCK, RATE_SEMAPHORE, logger
+# get_redis, _cache_key, _negative_block_key, _dist_lock_name, _random_delay
+# _create_alert, _fetch_html, _extract_price_from_html
+
+
+async def _load_from_cache(redis, cache_k: str, player_id: str, platform: str):
+    """بررسی کش و برگردوندن مقدار اگر موجود بود"""
+    cached = await redis.get(cache_k)
+    if not cached:
+        return None
+    try:
+        obj = json.loads(cached)
+        return {
+            "player_id": player_id,
+            "platform": platform,
+            "price": obj.get("price"),
+            "cached": True,
+            "fetched_at": obj.get("fetched_at"),
+        }
+    except Exception:
+        return None
+
+
+async def _fetch_json_price(client, redis, cache_k, ttl, player_id, platform):
+    """فراخوانی API JSON و استخراج قیمت"""
+    endpoint = f"{FUTBIN_BASE}/{FIFA_YEAR}/playerPrices?player={player_id}&platform={platform}"
+    try:
+        r = await client.get(endpoint, timeout=REQUEST_TIMEOUT)
+        if r.status_code == 200 and r.headers.get("content-type", "").lower().startswith("application/json"):
+            payload = r.json()
+            price = _extract_price_from_payload(payload, platform, player_id)
+
+            if price:
+                obj = {"price": int(price), "fetched_at": datetime.utcnow().isoformat()}
+                await redis.set(cache_k, json.dumps(obj), ex=ttl)
+                return {
+                    "player_id": player_id,
+                    "platform": platform,
+                    "price": int(price),
+                    "cached": False,
+                    "fetched_at": obj["fetched_at"],
+                }
+
+        # حالت‌های محدودیت دسترسی
+        if r.status_code in (403, 429):
+            sample = (r.text[:1200] if r.text else None)
+            await _create_alert(player_id, platform, reason=f"http_{r.status_code}_protection", sample_html=sample)
+            return _error_response(player_id, platform, f"http_{r.status_code}")
+
+    except httpx.HTTPStatusError as e:
+        status = getattr(e.response, "status_code", None)
+        if status in (403, 429):
+            sample = (getattr(e.response, "text", "")[:1200] if getattr(e.response, "text", None) else None)
+            await _create_alert(player_id, platform, reason=f"http_{status}_protection", sample_html=sample)
+            return _error_response(player_id, platform, f"http_{status}")
+
+    except Exception:
+        # fallback می‌کنیم به HTML
+        pass
+
+    return None
+
+
+def _extract_price_from_payload(payload, platform, player_id):
+    """استخراج قیمت از JSON Futbin"""
+    price = None
+    if isinstance(payload, dict) and "prices" in payload and isinstance(payload["prices"], dict):
+        maybe = payload["prices"].get(platform) or payload["prices"].get(platform.lower()) or payload["prices"].get(platform.upper())
+        if isinstance(maybe, dict):
+            price = maybe.get(str(player_id)) or maybe.get(int(player_id))
+        elif isinstance(maybe, (int, float, str)):
+            price = maybe
+    # جستجوی fallback در کل دیکشنری
+    if price is None:
+        def find_int(d):
+            if isinstance(d, dict):
+                for v in d.values():
+                    res = find_int(v)
+                    if res:
+                        return res
+            if isinstance(d, int):
+                return d
+            return None
+        price = find_int(payload)
+    return price
+
+
+async def _fetch_html_price(client, redis, cache_k, ttl, player_id, platform,slug):
+    """فراخوانی صفحه HTML و استخراج قیمت"""
+    try:
+        url = f"{FUTBIN_BASE}/{FIFA_YEAR}/player/{player_id}/{slug}"
+        html = await _fetch_html(client, url)
+        lower_html = html.lower()
+
+        captcha_indicators = ["captcha", "are you human", "g-recaptcha", "please verify", "cloudflare", "check if you are human"]
+        if any(k in lower_html for k in captcha_indicators):
+            await _create_alert(player_id, platform, reason="captcha_or_protection_detected", sample_html=html[:1200])
+            return _error_response(player_id, platform, "captcha_detected")
+
+        price = await _extract_price_from_html(html, platform)
+        obj = {"price": price, "fetched_at": datetime.utcnow().isoformat()}
+        await redis.set(cache_k, json.dumps(obj), ex=ttl)
+        return {
+            "player_id": player_id,
+            "platform": platform,
+            "price": price,
+            "cached": False,
+            "fetched_at": obj["fetched_at"],
+        }
+
+    except httpx.HTTPStatusError as e:
+        status = getattr(e.response, "status_code", None)
+        if status in (403, 429):
+            sample = (getattr(e.response, "text", "")[:1200] if getattr(e.response, "text", None) else None)
+            await _create_alert(player_id, platform, reason=f"http_{status}_protection", sample_html=sample)
+            return _error_response(player_id, platform, f"http_{status}")
+        raise
+    except Exception as e:
+        try:
+            await redis.set(_negative_block_key(player_id, platform), "1", ex=5)
+        except Exception:
+            pass
+        raise RuntimeError(f"Failed to fetch/parse futbin data: {e}") from e
+
+
+def _error_response(player_id, platform, note: str):
+    """پاسخ خطا استاندارد"""
+    return {
+        "player_id": player_id,
+        "platform": platform,
+        "price": None,
+        "cached": False,
+        "fetched_at": datetime.utcnow().isoformat(),
+        "note": note,
+    }
+
+
+async def get_player_price(player_id: str, platform: str, slug: Optional[str] = None, name: Optional[str] = None):
     """
     Returns dict:
     {
@@ -252,225 +397,63 @@ async def get_player_price(player_id: str, platform: str = "pc", ttl: Optional[i
        "note": optional info
     }
     """
-    ttl = int(ttl) if ttl is not None else int(DEFAULT_TTL)
+    ttl = int(DEFAULT_TTL)
     redis = await get_redis()
     cache_k = _cache_key(player_id, platform)
     neg_k = _negative_block_key(player_id, platform)
 
-    # short-circuit if negative-block active
+    # check negative-block
     if await redis.get(neg_k):
-        return {"player_id": player_id, "platform": platform, "price": None, "cached": True, "fetched_at": datetime.utcnow().isoformat(), "note": "negative_block_active"}
+        return _error_response(player_id, platform, "negative_block_active")
 
-    # Try cache
-    cached = await redis.get(cache_k)
+    # check cache
+    cached = await _load_from_cache(redis, cache_k, player_id, platform)
     if cached:
-        try:
-            obj = json.loads(cached)
-            return {"player_id": player_id, "platform": platform, "price": obj.get("price"), "cached": True, "fetched_at": obj.get("fetched_at")}
-        except Exception:
-            pass
+        return cached
 
-    # Try distributed lock first (if enabled), otherwise fall back to process-local semaphore
+    # distributed lock یا semaphore
     if USE_DISTRIBUTED_LOCK:
-        lock_name = _dist_lock_name(player_id, platform)
         try:
-            # redis is already obtained above
+            lock_name = _dist_lock_name(player_id, platform)
             async with (await redis.lock(lock_name, timeout=10)):
-                # double-check cache inside distributed lock to avoid stampede
-                cached = await redis.get(cache_k)
+                cached = await _load_from_cache(redis, cache_k, player_id, platform)
                 if cached:
-                    try:
-                        obj = json.loads(cached)
-                        return {"player_id": player_id, "platform": platform, "price": obj.get("price"), "cached": True, "fetched_at": obj.get("fetched_at")}
-                    except Exception:
-                        pass
-
-                await _random_delay()
-
-                headers = {"User-Agent": FUTBIN_USER_AGENT, "Accept": "text/html,application/json"}
-
-                async with httpx.AsyncClient(headers=headers) as client:
-                    # try JSON-ish endpoint first (best-effort)
-                    json_endpoint = f"{FUTBIN_BASE}/{FIFA_YEAR}/playerPrices?player={player_id}&platform={platform}"
-                    try:
-                        r = await client.get(json_endpoint, timeout=REQUEST_TIMEOUT)
-                        if r.status_code == 200 and r.headers.get("content-type", "").lower().startswith("application/json"):
-                            payload = r.json()
-                            # attempt to find a price value
-                            price = None
-                            if isinstance(payload, dict):
-                                if "prices" in payload and isinstance(payload["prices"], dict):
-                                    maybe = payload["prices"].get(platform) or payload["prices"].get(platform.lower()) or payload["prices"].get(platform.upper())
-                                    if isinstance(maybe, dict):
-                                        price = maybe.get(str(player_id)) or maybe.get(int(player_id)) or None
-                                    elif isinstance(maybe, (int, float, str)):
-                                        price = maybe
-                                # fallback: search for any int value
-                                if price is None:
-                                    def find_int(d):
-                                        if isinstance(d, dict):
-                                            for v in d.values():
-                                                res = find_int(v)
-                                                if res:
-                                                    return res
-                                        if isinstance(d, int):
-                                            return d
-                                        return None
-                                    price = find_int(payload)
-                            if price:
-                                obj = {"price": int(price), "fetched_at": datetime.utcnow().isoformat()}
-                                await redis.set(cache_k, json.dumps(obj), ex=ttl)
-                                return {"player_id": player_id, "platform": platform, "price": int(price), "cached": False, "fetched_at": obj["fetched_at"]}
-
-                        # handle protective status codes
-                            if r.status_code in (403, 429):
-                                sample = (r.text[:1200] if r.text else None)
-                                logger.warning("Futbin protective response detected", extra={"player_id": player_id, "platform": platform, "status": r.status_code})
-                                await _create_alert(player_id, platform, reason=f"http_{r.status_code}_protection", sample_html=sample)
-                                return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": f"http_{r.status_code}"}
-                    except httpx.HTTPStatusError as e:
-                        status = getattr(e.response, "status_code", None)
-                        if status in (403, 429):
-                            sample = (getattr(e.response, "text", "")[:1200] if getattr(e.response, "text", None) else None)
-                            logger.warning("Futbin protective response detected (exception)", extra={"player_id": player_id, "platform": platform, "status": status})
-                            await _create_alert(player_id, platform, reason=f"http_{status}_protection", sample_html=sample)
-                            return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": f"http_{status}"}
-                        # else continue to HTML fallback
-                    except Exception:
-                        # swallow and fallback to HTML
-                        pass
-
-                    # HTML fallback
-                    try:
-                        url = f"{FUTBIN_BASE}/{FIFA_YEAR}/player/{player_id}"
-                        html = await _fetch_html(client, url)
-                        lower_html = html.lower()
-                        captcha_indicators = ["captcha", "are you human", "g-recaptcha", "please verify", "cloudflare", "check if you are human"]
-                        is_captcha = any(k in lower_html for k in captcha_indicators)
-                        if is_captcha:
-                            sample = html[:1200]
-                            logger.warning("Captcha/protection detected on Futbin page", extra={"player_id": player_id, "platform": platform})
-                            await _create_alert(player_id, platform, reason="captcha_or_protection_detected", sample_html=sample)
-                            return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": "captcha_detected"}
-
-                        price = await _extract_price_from_html(html, platform)
-                        obj = {"price": price, "fetched_at": datetime.utcnow().isoformat()}
-                        await redis.set(cache_k, json.dumps(obj), ex=ttl)
-                        return {"player_id": player_id, "platform": platform, "price": price, "cached": False, "fetched_at": obj["fetched_at"]}
-                    except httpx.HTTPStatusError as e:
-                        status = getattr(e.response, "status_code", None)
-                        if status in (403, 429):
-                            sample = (getattr(e.response, "text", "")[:1200] if getattr(e.response, "text", None) else None)
-                            logger.warning("Futbin protective response detected (HTML fallback)", extra={"player_id": player_id, "platform": platform, "status": status})
-                            await _create_alert(player_id, platform, reason=f"http_{status}_protection", sample_html=sample)
-                            return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": f"http_{status}"}
-                        raise
-                    except Exception as e:
-                        # save a short negative-cache record so we don't retry immediately
-                        try:
-                            await redis.set(_negative_block_key(player_id, platform), "1", ex=5)
-                        except Exception:
-                            pass
-                        logger.exception("Failed to fetch/parse futbin data for player %s platform %s", player_id, platform)
-                        raise RuntimeError(f"Failed to fetch/parse futbin data: {e}") from e
+                    return cached
+                return await _fetch_with_client(redis, cache_k, ttl, player_id, platform)
         except Exception as e:
             logger.exception("Failed acquiring distributed lock, falling back to semaphore: %s", e)
 
-    # fallback to local semaphore (original behavior)
     async with RATE_SEMAPHORE:
-        # double-check cache inside semaphore to avoid stampede
-        cached = await redis.get(cache_k)
+        cached = await _load_from_cache(redis, cache_k, player_id, platform)
         if cached:
+            return cached
+        return await _fetch_with_client(redis, cache_k, ttl, player_id, platform)
+
+from app.database import SessionLocal
+from app.crud import price_cache
+
+async def _fetch_with_client(redis, cache_k, ttl, player_id, platform,slug: Optional[str] = None):
+    """مدیریت fetch اصلی (JSON → HTML fallback)"""
+    await _random_delay()
+    headers = {"User-Agent": FUTBIN_USER_AGENT, "Accept": "text/html,application/json"}
+
+    async with httpx.AsyncClient(headers=headers) as client:
+        result = await _fetch_json_price(client, redis, cache_k, ttl, player_id, platform)
+        if not result:
+            result = await _fetch_html_price(client, redis, cache_k, ttl, player_id, platform, slug=slug)
+        if result and result.get("price") is not None:
+            db = SessionLocal()
             try:
-                obj = json.loads(cached)
-                return {"player_id": player_id, "platform": platform, "price": obj.get("price"), "cached": True, "fetched_at": obj.get("fetched_at")}
-            except Exception:
-                pass
+                price_cache.save(
+                    db,
+                    player_id=player_id,
+                    platform=platform,
+                    price=result["price"],
+                )
+            finally:
+                db.close()
 
-        await _random_delay()
-
-        headers = {"User-Agent": FUTBIN_USER_AGENT, "Accept": "text/html,application/json"}
-
-        async with httpx.AsyncClient(headers=headers) as client:
-            # try JSON-ish endpoint first (best-effort)
-            json_endpoint = f"{FUTBIN_BASE}/{FIFA_YEAR}/playerPrices?player={player_id}&platform={platform}"
-            try:
-                r = await client.get(json_endpoint, timeout=REQUEST_TIMEOUT)
-                if r.status_code == 200 and r.headers.get("content-type", "").lower().startswith("application/json"):
-                    payload = r.json()
-                    # attempt to find a price value
-                    price = None
-                    if isinstance(payload, dict):
-                        if "prices" in payload and isinstance(payload["prices"], dict):
-                            maybe = payload["prices"].get(platform) or payload["prices"].get(platform.lower()) or payload["prices"].get(platform.upper())
-                            if isinstance(maybe, dict):
-                                price = maybe.get(str(player_id)) or maybe.get(int(player_id)) or None
-                            elif isinstance(maybe, (int, float, str)):
-                                price = maybe
-                        # fallback: search for any int value
-                        if price is None:
-                            def find_int(d):
-                                if isinstance(d, dict):
-                                    for v in d.values():
-                                        res = find_int(v)
-                                        if res:
-                                            return res
-                                if isinstance(d, int):
-                                    return d
-                                return None
-                            price = find_int(payload)
-                    if price:
-                        obj = {"price": int(price), "fetched_at": datetime.utcnow().isoformat()}
-                        await redis.set(cache_k, json.dumps(obj), ex=ttl)
-                        return {"player_id": player_id, "platform": platform, "price": int(price), "cached": False, "fetched_at": obj["fetched_at"]}
-
-                # handle protective status codes
-                if r.status_code in (403, 429):
-                    sample = (r.text[:1200] if r.text else None)
-                    await _create_alert(player_id, platform, reason=f"http_{r.status_code}_protection", sample_html=sample)
-                    return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": f"http_{r.status_code}"}
-            except httpx.HTTPStatusError as e:
-                status = getattr(e.response, "status_code", None)
-                if status in (403, 429):
-                    sample = (getattr(e.response, "text", "")[:1200] if getattr(e.response, "text", None) else None)
-                    await _create_alert(player_id, platform, reason=f"http_{status}_protection", sample_html=sample)
-                    return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": f"http_{status}"}
-                # else continue to HTML fallback
-            except Exception:
-                # swallow and fallback to HTML
-                pass
-
-            # HTML fallback
-            try:
-                url = f"{FUTBIN_BASE}/{FIFA_YEAR}/player/{player_id}"
-                html = await _fetch_html(client, url)
-                lower_html = html.lower()
-                captcha_indicators = ["captcha", "are you human", "g-recaptcha", "please verify", "cloudflare", "check if you are human"]
-                is_captcha = any(k in lower_html for k in captcha_indicators)
-                if is_captcha:
-                    sample = html[:1200]
-                    await _create_alert(player_id, platform, reason="captcha_or_protection_detected", sample_html=sample)
-                    return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": "captcha_detected"}
-
-                price = await _extract_price_from_html(html, platform)
-                obj = {"price": price, "fetched_at": datetime.utcnow().isoformat()}
-                await redis.set(cache_k, json.dumps(obj), ex=ttl)
-                return {"player_id": player_id, "platform": platform, "price": price, "cached": False, "fetched_at": obj["fetched_at"]}
-            except httpx.HTTPStatusError as e:
-                status = getattr(e.response, "status_code", None)
-                if status in (403, 429):
-                    sample = (getattr(e.response, "text", "")[:1200] if getattr(e.response, "text", None) else None)
-                    await _create_alert(player_id, platform, reason=f"http_{status}_protection", sample_html=sample)
-                    return {"player_id": player_id, "platform": platform, "price": None, "cached": False, "fetched_at": datetime.utcnow().isoformat(), "note": f"http_{status}"}
-                raise
-            except Exception as e:
-                # save a short negative-cache record so we don't retry immediately
-                try:
-                    await redis.set(_negative_block_key(player_id, platform), "1", ex=5)
-                except Exception:
-                    pass
-                raise RuntimeError(f"Failed to fetch/parse futbin data: {e}") from e
-
+        return result
 
 async def clear_negative_block(player_id: str, platform: str):
     """

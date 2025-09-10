@@ -29,10 +29,11 @@ def get_requests_session(no_proxies: bool = False) -> requests.Session:
     return session
 
 
-def requests_get(url: str, timeout: int = 10) -> requests.Response | None:
+def requests_get(url: str, timeout: int = 10, headers: dict | None = None) -> requests.Response | None:
     """Perform a GET request using proxy for remote hosts and bypass proxy for localhost.
 
     Returns the requests.Response on success or None on exception.
+    Accepts optional headers dict.
     """
     parsed = urllib.parse.urlparse(url)
     host = (parsed.hostname or '').lower()
@@ -40,10 +41,13 @@ def requests_get(url: str, timeout: int = 10) -> requests.Response | None:
     no_proxies = host in ('127.0.0.1', 'localhost', '::1')
     sess = get_requests_session(no_proxies=no_proxies)
     try:
+        if headers:
+            return sess.get(url, timeout=timeout, headers=headers)
         return sess.get(url, timeout=timeout)
     except Exception:
         # caller will handle logging/emits
         return None
+
 
 # --------------------
 # aiohttp (async)

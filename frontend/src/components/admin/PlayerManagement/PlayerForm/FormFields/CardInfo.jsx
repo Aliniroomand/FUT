@@ -27,12 +27,11 @@ export const CardInfoSection = ({ formData, handleChange }) => (
       required
     />
     <InputField
-      label="*کمستری"
+      label="کمستری"
       name="chemistry"
       type="number"
       value={formData.chemistry || 0}
       onChange={handleChange}
-      required
     />
     <InputField
       label="پوزیشن"
@@ -40,7 +39,7 @@ export const CardInfoSection = ({ formData, handleChange }) => (
       value={formData.position || ""}
       onChange={handleChange}
       type="select"
-      required
+      
     >
       <option value="">-- انتخاب پوزیشن --</option>
       {PLAYERS_POSITION.all_positions.map((pos, index) => (

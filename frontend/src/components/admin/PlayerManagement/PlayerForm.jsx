@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BaseInfoSection } from "./PlayerForm/FormFields/BaseInfo";
 import { CardInfoSection } from "./PlayerForm/FormFields/CardInfo";
-import { PriceInfoSection } from "./PlayerForm/FormFields/PriceInfo";
 
 export default function PlayerForm({ onSubmit, initialData }) {
   const [formData, setFormData] = useState({
@@ -17,7 +16,6 @@ export default function PlayerForm({ onSubmit, initialData }) {
     price_range_max: "",
     games_played: 0,
     contract_number: 0,
-    owner_number: 0,
   });
   const [addPlayer,setAddPlayer]=useState(false)
 
@@ -27,6 +25,7 @@ export default function PlayerForm({ onSubmit, initialData }) {
     } else {
       // Reset form when there's no initial data (creating new player)
       setFormData({
+        id:"",
         name: "",
         club: "",
         position: "",
@@ -60,10 +59,9 @@ export default function PlayerForm({ onSubmit, initialData }) {
   return (
     addPlayer ? (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white/10 backdrop-blur-md p-3 sp-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         <BaseInfoSection formData={formData} handleChange={handleChange} />
         <CardInfoSection formData={formData} handleChange={handleChange} />
-        <PriceInfoSection formData={formData} handleChange={handleChange} />
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
