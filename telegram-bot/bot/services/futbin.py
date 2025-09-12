@@ -102,7 +102,7 @@ def _slugify(name: str) -> str:
     return s
 
 # public async API that other modules await
-async def get_price_for_player(player_id: int, platform: str = "pc") -> Optional[int]:
+async def get_price_for_player(player_id: int, platform: str = "console") -> Optional[int]:
     """Async: return integer price or None. Uses backend /futbin/price as primary source."""
     key = f"price:{player_id}"
     cached = _price_cache.get(key)
@@ -126,6 +126,7 @@ async def get_price_for_player(player_id: int, platform: str = "pc") -> Optional
     # call backend futbin endpoint (backend does actual scraping/parsing)
     try:
         res = await get_futbin_price_from_backend(player_id, slug, platform)
+        print("qqqqqqqqqqq:",res)
     except Exception as exc:
         logger.exception("call to backend /futbin/price failed for player=%s: %s", player_id, exc)
         return None

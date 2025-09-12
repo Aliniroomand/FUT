@@ -99,8 +99,10 @@ async def _extract_price_from_html(html: str, platform: str) -> Optional[int]:
         f"span.{platform}",
         f"span.{platform}-price",
         ".player-price",
+        "div.price.inline-with-icon.lowest-price-1",  # 👈 اضافه شد
         ".price",  # fallback
     ]
+
     for sel in selectors:
         tag = soup.select_one(sel)
         if tag and tag.text.strip():
@@ -404,8 +406,27 @@ async def get_player_price(player_id: str, platform: str, slug: Optional[str] = 
 
     # check negative-block
     if await redis.get(neg_k):
-        return _error_response(player_id, platform, "negative_block_active")
+            # تلاش برای برگرداندن آخرین مقدار ذخیره‌شده از دیتابیس (fallback)
+            try:
+                from app.database import SessionLocal
+                from app.crud import price_cache as price_cache_crud
+                db = SessionLocal()
+                latest = price_cache_crud.get_latest(db, player_id=player_id, platform=platform)
+                db.close()
+                if latest and latest.price is not None:
+                    return {
+                        "player_id": player_id,
+                        "platform": platform,
+                        "price": int(latest.price),
+                        "cached": True,
+                        "fetched_at": latest.fetched_at.isoformat() if getattr(latest, "fetched_at", None) else None,
+                        "note": "negative_block_active_fallback_db"
+                    }
+            except Exception:
+                # اگر خطا شد، ادامه باشه و error واقعی برگرده
+                pass
 
+            return _error_response(player_id, platform, "negative_block_active")
     # check cache
     cached = await _load_from_cache(redis, cache_k, player_id, platform)
     if cached:
@@ -439,8 +460,11 @@ async def _fetch_with_client(redis, cache_k, ttl, player_id, platform,slug: Opti
 
     async with httpx.AsyncClient(headers=headers) as client:
         result = await _fetch_json_price(client, redis, cache_k, ttl, player_id, platform)
+        print("rrrrrrr",result)
         if not result:
             result = await _fetch_html_price(client, redis, cache_k, ttl, player_id, platform, slug=slug)
+            print("nnnnnnn",result)
+
         if result and result.get("price") is not None:
             db = SessionLocal()
             try:

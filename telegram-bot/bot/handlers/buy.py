@@ -28,8 +28,11 @@ async def buy_callback_router(update, context):
         if not flow:
             flow = BuyFlow(state=BuyState.ASK_AMOUNT)
             context.user_data['buy_flow'] = flow
+            user_id = update.effective_user.id
+
             # convert None values to empty string
             flow_dict = {k: (v if v is not None else "") for k, v in flow.to_dict().items()}
+            user_id = update.effective_user.id
             await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
 
         # clear matched ranges but keep method info
@@ -38,14 +41,28 @@ async def buy_callback_router(update, context):
         flow.state = BuyState.ASK_AMOUNT
         # convert None values to empty string
         flow_dict = {k: (v if v is not None else "") for k, v in flow.to_dict().items()}
-        await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
+        redis = await get_redis()
+        user_id = update.effective_user.id
+        
+        if redis:
+            await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
+        else:
+            logging.error("Redis client is not initialized")
         # send a fresh message asking for amount (editing sometimes fails on edited/old messages)
-        await _reply_or_edit(update, "لطفاً مقدار موجودی که میخواید انتقال بدید وارد کنید (فقط عدد).", edit=False)
+        await _reply_or_edit(update, "🔢 لطفاً مقدار را به‌صورت عددی وارد کنید\n \n  💡 مثلا به‌جای «۱۵۰۰ کا » فقط اینو بنویس: 1500 🔢", edit=False)
         return
 
     # disabled method selected
+
     if data.startswith("buy:method_disabled:"):
+        from bot.services.buy_service import get_transfer_methods
+        from bot.ui.buy_keyboards import method_list_keyboard
+
         await _reply_or_edit(update, BUY_METHOD_DISABLED_MSG, edit=True)
+        methods = await get_transfer_methods()
+        if methods:
+            await _reply_or_edit(update, "🔽 لطفاً یکی از روش‌های فعال را انتخاب کنید:", 
+                                reply_markup=method_list_keyboard(methods), edit=False)
         return
 
     # select method
@@ -281,44 +298,77 @@ async def buy_list_callback(update, context):
     
 import asyncio 
 
+import asyncio
+import logging
+import json
+from decimal import Decimal
+from bot.ui.buy_messages import BUY_METHODS_ERROR_MSG  # example, اگر نیاز نیست حذف کن
+from bot.flows.buy_flows import BuyFlow, BuyState
+
 async def present_transfer_player(update, context):
+    # safe imports inside function to avoid circular import issues
+    from bot.services.redis_client import get_redis
+    from bot.services.buy_service import get_player_card_info
+    from bot.services.futbin import get_price_for_player
+
     flow = context.user_data.get('buy_flow')
     if not flow or not getattr(flow, 'matched_ranges', None):
-    # use helper to reply (works for Message and CallbackQuery)
+        # use helper to reply (works for Message and CallbackQuery)
         await _reply_or_edit(update, "اطلاعات بازه کارت پیدا نشد. لطفاً دوباره مقدار را وارد کنید.")
         if flow:
             flow.state = BuyState.ASK_AMOUNT
-            flow_dict = {k: (v if v is not None else "") for k, v in flow.to_dict().items()}
-            await redis.hset(f"buyflow:{update.effective_user.id}", mapping=flow_dict)
+            # ensure we have redis client before writing
+            try:
+                redis = await get_redis()
+                flow_dict = {}
+                for k, v in flow.to_dict().items():
+                    if v is None:
+                        flow_dict[k] = ""
+                    elif isinstance(v, Decimal):
+                        flow_dict[k] = float(v)
+                    elif isinstance(v, (list, dict)):
+                        flow_dict[k] = json.dumps(v, default=str)
+                    else:
+                        flow_dict[k] = v
+                user_id_tmp = getattr(update.effective_user, 'id', None)
+                if redis and user_id_tmp:
+                    await redis.hset(f"buyflow:{user_id_tmp}", mapping=flow_dict)
+            except Exception:
+                logging.exception("failed to persist flow when matched_ranges missing")
         return
-
 
     # از اولین بازه‌ی مچ‌شده استفاده می‌کنیم
     range_ = flow.matched_ranges[0]
     primary_id = range_.get('primary_card_id')
-    fallback_id = range_.get('fallback_card_id') or range_.get('secondary_card_id')  
-    from bot.services.buy_service import get_player_card_info
+    fallback_id = range_.get('fallback_card_id') or range_.get('secondary_card_id')
 
-    # اطلاعات کارت اول (primary)
-    logging.error(f"present_transfer_player: primary_id={primary_id}")
+    logging.error(f"present_transfer_player: primary_id={primary_id}, fallback_id={fallback_id}")
+
+    # fetch card infos
     primary_info = await get_player_card_info(primary_id)
-    if not primary_info:
-        logging.warning(f"Player {primary_id} info is None")
+    if not primary_info or not isinstance(primary_info, dict):
+        logging.warning(f"Player {primary_id} info is None or invalid")
         primary_info = {"player": {}, "buy_now_price": 0}
-    transfer_multiplier = getattr(flow, 'transfer_multiplier', 1)
 
-    if primary_info:
-        p_player = primary_info['player']
-        p_price = primary_info.get('buy_now_price', 0)
-    else:
-        p_player = {}
-        p_price = 0
+    transfer_multiplier = float(getattr(flow, 'transfer_multiplier', 1) or 1)
 
-    p_transferable = int((p_price or 0) * transfer_multiplier)
+    # primary price, with fallback fetch if zero
+    p_player = primary_info.get('player', {}) or {}
+    p_price = primary_info.get('buy_now_price', 0) or 0
+    if p_price == 0:
+        try:
+            logging.info("primary price is 0, trying get_price_for_player for %s", primary_id)
+            fetched = await get_price_for_player(primary_id)
+            if fetched:
+                p_price = fetched
+        except Exception:
+            logging.exception("Failed to fetch price for primary %s", primary_id)
+    try:
+        p_transferable = int((p_price or 0) * transfer_multiplier)
+    except Exception:
+        p_transferable = 0
 
-
-    # اطلاعات کارت دوم (fallback) - اگر وجود داشته باشد
-# اطلاعات کارت دوم (fallback) - اگر وجود داشته باشد
+    # fallback card info
     fb_info = None
     f_player = {}
     f_price = 0
@@ -326,33 +376,40 @@ async def present_transfer_player(update, context):
     if fallback_id:
         fb_info = await get_player_card_info(fallback_id)
         if not fb_info or not isinstance(fb_info, dict):
-            # fallback not available — keep defaults
-            logging.warning("present_transfer_player: fallback %s info is None", fallback_id)
+            logging.warning("present_transfer_player: fallback %s info is None or invalid", fallback_id)
+            fb_info = None
         else:
             f_player = fb_info.get('player', {}) or {}
             f_price = fb_info.get('buy_now_price') or 0
-            f_transferable = int((f_price or 0) * transfer_multiplier)
+            if f_price == 0:
+                try:
+                    logging.info("fallback price is 0, trying get_price_for_player for %s", fallback_id)
+                    fetched_f = await get_price_for_player(fallback_id)
+                    if fetched_f:
+                        f_price = fetched_f
+                except Exception:
+                    logging.exception("Failed to fetch price for fallback %s", fallback_id)
+            try:
+                f_transferable = int((f_price or 0) * transfer_multiplier)
+            except Exception:
+                f_transferable = 0
 
-
-    # هدر با ایموجی
+    # header + message formatting
     header = "🤖✨ از دید هوش مصنوعی بهترین کارت برای انتقال شما این دو کارت هستن،کدوم یکی رو میخاید استفاده کنین؟  🤖✨"
 
-    # قالب نمایش مشخصات هر کارت (بر اساس present_transfer_player خودت)
     def format_card_block(title, player, buy_now_price, transferable_amount):
-        # اگر فیلدهای زیر نبودند، None-safe باش
         name = player.get('name', '')
         rating = player.get('rating', '')
         version = player.get('version', '')
         min_bn = player.get('min_buy_now_price')
         max_bn = player.get('max_buy_now_price')
-
         lines = [
-            f"{title}\n \n",
+            f"{title}\n",
             f"👤 نام: {name}",
             f"⭐ ریتینگ: {rating}",
             f"🏅 ورژن: {version}",
             f"💰 قیمت تقریبی خرید کارت: {buy_now_price if buy_now_price else '---'}",
-            f"💸 مقدار تقریبی قابل انتقال ( {transferable_amount}"
+            f"💸 مقدار تقریبی قابل انتقال: {transferable_amount}"
         ]
         if min_bn or max_bn:
             lines.append(f"بازه BIN: {min_bn or '-'} — {max_bn or '-'}")
@@ -367,33 +424,96 @@ async def present_transfer_player(update, context):
     msg_parts.append("☑️  یکی از گزینه‌ها را انتخاب کنید…  ☑️")
     msg = "\n".join(msg_parts)
 
-    # مپ انتخاب‌ها را برای کال‌بک نگه می‌داریم
+    # نگهداری مپ انتخاب‌ها
     flow.choice_map = {"1": primary_id}
     if fallback_id:
         flow.choice_map["2"] = fallback_id
 
-    # ارسال پیام با کیبورد سه‌گزینه‌ای
     from bot.ui.buy_keyboards import choose_two_players_keyboard
-    await _reply_or_edit(update, msg, reply_markup=choose_two_players_keyboard(has_second=bool(fallback_id)))
+    reply_markup = choose_two_players_keyboard(has_second=bool(fallback_id))
+    # send the main message and capture the sent/edited Message object so we can edit it later
+    sent_message = await _reply_or_edit(update, msg, reply_markup=reply_markup)
 
-
-    # وضعیت را pending نگه داریم تا تایمر و انتخاب کار کند
+    # وضعیت pending
     flow.state = BuyState.PENDING
-    user_id = update.effective_user.id
-    flow_dict = {k: (v if v is not None else "") for k, v in flow.to_dict().items()}
-    await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
-    
-    # تایمر ۶۰ ثانیه‌ای مانند قبل
-    async def timer():
-        await asyncio.sleep(60)
-        if flow.state == BuyState.PENDING:
-            await _reply_or_edit(update, "⏳ زمان تمام شد، لطفاً مقدار را دوباره وارد کنید. ⏳")
-            flow.state = BuyState.ASK_AMOUNT
-            flow_dict = {k: (v if v is not None else "") for k, v in flow.to_dict().items()}
-            await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
+    user_id = getattr(update.effective_user, 'id', None)
 
+    # persist flow (use get_redis to be safe)
+    try:
+        redis = await get_redis()
+        flow_dict = {}
+        for k, v in flow.to_dict().items():
+            if v is None:
+                flow_dict[k] = ""
+            elif isinstance(v, Decimal):
+                flow_dict[k] = float(v)
+            elif isinstance(v, (list, dict)):
+                flow_dict[k] = json.dumps(v, default=str)
+            else:
+                flow_dict[k] = v
+        if redis and user_id:
+            await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
+        else:
+            logging.warning("Redis client not available or user_id missing while persisting flow")
+    except Exception:
+        logging.exception("Failed to persist buyflow after presenting transfer player")
+
+    # 60s countdown timer that updates the same message every second
+    async def timer():
+        try:
+            # If we couldn't capture a sent message, try to reference query.message or update.message
+            target_msg = sent_message
+            query = getattr(update, "callback_query", None)
+            if not target_msg:
+                if query and getattr(query, 'message', None):
+                    target_msg = query.message
+                else:
+                    target_msg = getattr(update, 'message', None)
+
+            for remaining in range(60, 0, -1):
+                # stop if flow progressed
+                if flow.state != BuyState.PENDING:
+                    return
+
+                # build text with remaining timer under the main message
+                try:
+                    text_with_timer = f"{msg}\n\n⏳ مهلت انتخاب : {remaining} ثانیه مانده"
+                    if target_msg:
+                        try:
+                            await target_msg.edit_text(text_with_timer, reply_markup=reply_markup)
+                        except Exception:
+                            # fallback: try to send a new message if edit fails
+                            await _reply_or_edit(update, text_with_timer, reply_markup=reply_markup)
+                except Exception:
+                    logging.exception("Failed updating countdown message")
+
+                await asyncio.sleep(1)
+
+            # final 0 reached
+            if flow.state == BuyState.PENDING:
+                await _reply_or_edit(update, "⏳ زمان تمام شد، لطفاً از منو گزینه ای برای شروع مجدد انتخاب کنید. ⏳")
+                flow.state = BuyState.ASK_AMOUNT
+                try:
+                    redis2 = await get_redis()
+                    flow_dict2 = {}
+                    for k, v in flow.to_dict().items():
+                        if v is None:
+                            flow_dict2[k] = ""
+                        elif isinstance(v, Decimal):
+                            flow_dict2[k] = float(v)
+                        elif isinstance(v, (list, dict)):
+                            flow_dict2[k] = json.dumps(v, default=str)
+                        else:
+                            flow_dict2[k] = v
+                    if redis2 and user_id:
+                        await redis2.hset(f"buyflow:{user_id}", mapping=flow_dict2)
+                except Exception:
+                    logging.exception("Failed to persist flow in timer")
+        except Exception:
+            logging.exception("Countdown timer failed")
 
     asyncio.create_task(timer())
+
 
 
 
@@ -424,25 +544,25 @@ async def _reply_or_edit(update, text=None, reply_markup=None, photo_url=None, e
             if edit:
                 try:
                     if photo_url:
-                        await query.message.reply_photo(photo_url, caption=text or "", reply_markup=reply_markup)
+                        sent = await query.message.reply_photo(photo_url, caption=text or "", reply_markup=reply_markup)
                     else:
-                        await query.edit_message_text(text or "", reply_markup=reply_markup)
-                    return
+                        sent = await query.edit_message_text(text or "", reply_markup=reply_markup)
+                    return sent
                 except Exception:
                     pass
 
             if photo_url:
-                await query.message.reply_photo(photo_url, caption=text or "", reply_markup=reply_markup)
+                sent = await query.message.reply_photo(photo_url, caption=text or "", reply_markup=reply_markup)
             else:
-                await query.message.reply_text(text or "", reply_markup=reply_markup)
-            return
+                sent = await query.message.reply_text(text or "", reply_markup=reply_markup)
+            return sent
 
         if msg:
             if photo_url:
-                await msg.reply_photo(photo_url, caption=text or "", reply_markup=reply_markup)
+                sent = await msg.reply_photo(photo_url, caption=text or "", reply_markup=reply_markup)
             else:
-                await msg.reply_text(text or "", reply_markup=reply_markup)
-            return
+                sent = await msg.reply_text(text or "", reply_markup=reply_markup)
+            return sent
 
         logging.warning("_reply_or_edit: no callback_query or message in update; text dropped: %s", text)
 
@@ -548,6 +668,8 @@ async def buy_method_callback(update, context):
     query = update.callback_query
     data = query.data
     flow = context.user_data.get('buy_flow')
+    redis = await get_redis()  
+
     if not flow:
         await query.answer()
         await query.edit_message_text("جریان خرید پیدا نشد. لطفاً دوباره شروع کنید.")
@@ -566,7 +688,7 @@ async def buy_method_callback(update, context):
         flow.state = BuyState.ASK_AMOUNT
         flow_dict = {k: (v if v is not None else "") for k, v in flow.to_dict().items()}
         await redis.hset(f"buyflow:{user_id}", mapping=flow_dict)
-        await query.edit_message_text("لطفاً مقدار موجودی که میخواید انتقال بدید وارد کنید (فقط عدد).")
+        await query.edit_message_text("🔢 لطفاً مقدار را به‌صورت عددی وارد کنید\n \n  💡 مثلا به‌جای «۱۵۰۰ کا » فقط اینو بنویس: 1500 🔢")
         return
 
 async def buy_amount_handler(update, context):
@@ -628,7 +750,7 @@ async def buy_confirm_callback(update, context):
 
         if chat_link.startswith("@"):
             chat_link = f"https://t.me/{chat_link[1:]}"
-        msg = "به دلیل تشخیص هوش مصنوعی برای رعایت امنیت اکانت شما، این مقدار انتقال شما بهتر است توسط ادمین انجام بگیره."
+        msg = "❗️⚠️ به دلیل تشخیص هوش مصنوعی برای رعایت امنیت اکانت شما، این مقدار انتقال شما بهتر است توسط ادمین انجام بگیره.⚠️❗️"
         await query.edit_message_text(msg, reply_markup=support_or_back_keyboard(chat_link))
         return
     user_id = update.effective_user.id

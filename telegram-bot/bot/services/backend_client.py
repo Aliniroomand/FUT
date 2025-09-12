@@ -162,9 +162,10 @@ async def get_transaction_status() -> Dict[str, Any]:
     raise RuntimeError("failed to fetch transaction status")
 
 
-async def get_futbin_price_from_backend(player_id: int, slug: str, platform: str = "pc") -> Dict[str, Any]:
+async def get_futbin_price_from_backend(player_id: int, slug: str, platform: str = "console") -> Dict[str, Any]:
     """Call backend /futbin/price endpoint to fetch parsed price (backend does the scraping)."""
     url = f"{BASE_URL}/futbin/price?player_id={player_id}&slug={slug}&platform={platform}"
     r = await _request('GET', url, timeout=REQUEST_TIMEOUT)
+    print(r.json(),"aaaaaaaaaaa")
     r.raise_for_status()
     return r.json()

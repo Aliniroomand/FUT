@@ -29,7 +29,7 @@ from typing import Any, Callable, Optional
 
 logger = logging.getLogger(__name__)
 
-REDIS_URL = os.environ.get("REDIS_URL")
+REDIS_URL = os.environ.get("                                            ")
 APP_CACHE_PREFIX = os.environ.get("APP_CACHE_PREFIX", "bot:cache:")
 
 _redis_client = None

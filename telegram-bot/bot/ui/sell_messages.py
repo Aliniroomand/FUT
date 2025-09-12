@@ -97,8 +97,8 @@ def confirm_amount_keyboard():
 
 
 def out_of_range_text(admin_username: str) -> Tuple[str, InlineKeyboardMarkup]:
-    text = ("به دلیل تشخیص هوش مصنوعی و برای حفظ امنیت اکانت شما، "
-            "انتقال این مقدار بهتر است توسط ادمین انجام شود.")
+    text = ("⚠️ به دلیل تشخیص هوش مصنوعی و برای حفظ امنیت اکانت شما، "
+            "انتقال این مقدار بهتر است توسط ادمین انجام شود.⚠️")
     kb = InlineKeyboardMarkup([
         [InlineKeyboardButton("💬 چت با پشتیبانی", url=f"https://t.me/{admin_username}")],
         [InlineKeyboardButton("بازگشت به منوی اصلی", callback_data="sell:back_to_menu")]
