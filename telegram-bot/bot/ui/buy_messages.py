@@ -12,7 +12,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from typing import Tuple
 
 def out_of_range_text(admin_username: str) -> Tuple[str, InlineKeyboardMarkup]:
-    text = ("⚠️ به دلیل تشخیص هوش مصنوعی و برای حفظ امنیت اکانت شما، "
+    text = ("⚠️ به دلیل تشخیص هوش مصنوعی و برای حفظ امنیت اکانت شما،در حا حاضر "
             "انتقال این مقدار بهتر است توسط ادمین انجام شود.⚠️")
     kb = InlineKeyboardMarkup([
         [InlineKeyboardButton("💬 چت با پشتیبانی", url=f"https://t.me/{admin_username}")],

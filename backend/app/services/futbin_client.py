@@ -91,6 +91,37 @@ async def _fetch_html(client: httpx.AsyncClient, url: str) -> str:
     return r.text
 
 
+async def fetch_futbin_page(url: str, account=None) -> str:
+    from app.crud import alerts as crud_alerts
+    import logging
+
+    logger = logging.getLogger("app.futbin_client")
+    """
+    Fetch futbin page, detect CAPTCHA/blocks, and create alert if needed.
+    Returns response.text if ok, else raises RuntimeError.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url, timeout=REQUEST_TIMEOUT)
+
+    body_lower = (resp.text or "").lower()
+    if resp.status_code in (403, 429) or "captcha" in body_lower or "recaptcha" in body_lower or "please verify" in body_lower:
+        payload = {
+            "type": "CAPTCHA",
+            "title": "CAPTCHA detected on futbin",
+            "message": f"Captcha detected when fetching {url} (status {resp.status_code})",
+            "futbin_url": url,
+            "sample_html": resp.text[:20000],
+            "account_id": getattr(account, "id", None),
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        try:
+            await crud_alerts.create_alert(payload)
+        except Exception as e:
+            logger.exception("failed to create alert: %s", e)
+        raise RuntimeError("FUTBIN_CAPTCHA_DETECTED")
+
+    return resp.text
+
 async def _extract_price_from_html(html: str, platform: str) -> Optional[int]:
     soup = BeautifulSoup(html, "html.parser")
 
@@ -338,15 +369,16 @@ def _extract_price_from_payload(payload, platform, player_id):
 
 
 async def _fetch_html_price(client, redis, cache_k, ttl, player_id, platform,slug):
+
     """فراخوانی صفحه HTML و استخراج قیمت"""
     try:
         url = f"{FUTBIN_BASE}/{FIFA_YEAR}/player/{player_id}/{slug}"
-        html = await _fetch_html(client, url)
+        html = await fetch_futbin_page(url)
         lower_html = html.lower()
 
-        captcha_indicators = ["captcha", "are you human", "g-recaptcha", "please verify", "cloudflare", "check if you are human"]
+        captcha_indicators = ["captcha", "are you human", "g-recaptcha", "please verify", "cloudflare", "check if you are human","you are being asked to solve a CAPTCHA","please solve the puzzle","verify you are human","cf-chl-jschl"]
         if any(k in lower_html for k in captcha_indicators):
-            await _create_alert(player_id, platform, reason="captcha_or_protection_detected", sample_html=html[:1200])
+            await _create_alert(player_id, platform, reason="اسو برس به دادم،کپچا گرفته راهم !! ", sample_html=html[:1200])
             return _error_response(player_id, platform, "captcha_detected")
 
         price = await _extract_price_from_html(html, platform)
@@ -460,10 +492,8 @@ async def _fetch_with_client(redis, cache_k, ttl, player_id, platform,slug: Opti
 
     async with httpx.AsyncClient(headers=headers) as client:
         result = await _fetch_json_price(client, redis, cache_k, ttl, player_id, platform)
-        print("rrrrrrr",result)
         if not result:
             result = await _fetch_html_price(client, redis, cache_k, ttl, player_id, platform, slug=slug)
-            print("nnnnnnn",result)
 
         if result and result.get("price") is not None:
             db = SessionLocal()
@@ -479,10 +509,68 @@ async def _fetch_with_client(redis, cache_k, ttl, player_id, platform,slug: Opti
 
         return result
 
-async def clear_negative_block(player_id: str, platform: str):
+import json
+import hashlib
+import logging
+from app.crud import alerts as crud_alerts
+from app.cache import get_redis
+
+logger = logging.getLogger("app.futbin_client")
+
+async def clear_futbin_block_for_alert(alert_id: int):
     """
-    Admin helper: remove negative block so next request will try fetch again.
+    Remove related negative cache / block keys for a given alert.
+    Called when admin resolves an alert.
     """
     redis = await get_redis()
-    await redis.delete(_negative_block_key(player_id, platform))
-    
+    alert = await crud_alerts.get_alert_full(alert_id)
+    if not alert:
+        return
+
+    # پاک کردن key براساس futbin_url
+    futbin_url = alert.get("futbin_url")
+    try:
+        if futbin_url:
+            k = hashlib.sha1(futbin_url.encode()).hexdigest()
+            pattern = f"futbin:block:{k}*"
+            keys = await redis.keys(pattern)
+            for key in keys:
+                await redis.delete(key)
+
+        # پاک کردن key براساس player_id در meta
+        meta = alert.get("meta")
+        if meta:
+            try:
+                m = json.loads(meta)
+                player_id = m.get("player_id")
+                if player_id:
+                    pattern2 = f"futbin:neg:{player_id}*"
+                    keys2 = await redis.keys(pattern2)
+                    for k2 in keys2:
+                        await redis.delete(k2)
+            except Exception:
+                pass
+    except Exception as e:
+        logger.exception("Failed to clear futbin block for alert %s: %s", alert_id, e)
+
+
+
+
+# در انتهای app/services/futbin_client.py اضافه کن
+
+async def clear_negative_block(player_id: str, platform: str) -> bool:
+    """
+    Clear the negative-cache block for a player/platform.
+    Returns True if cleared, False otherwise.
+    """
+    try:
+        redis = await get_redis()
+        neg_k = _negative_block_key(player_id, platform)
+        await redis.delete(neg_k)
+        logger.info("Cleared negative block", extra={"player_id": player_id, "platform": platform})
+        return True
+    except Exception as e:
+        logger.exception("Failed to clear negative block: %s", e)
+        return False
+
+

@@ -1,82 +1,141 @@
-
 # app/crud/alerts.py
-# Compatibility wrapper for alert CRUD. If you have a real DB-backed
-# implementation, place it in app.crud.alerts_impl with the same names
-# (create_alert, update_alert_status, get_alert) and this wrapper will
-# delegate to it. The wrapper supports both sync and async real functions.
-#
-# TEMP: added app/crud/alerts.py stub for dev. Remove and replace with
-# a real DB CRUD implementation when available. (Keep this note in the
-# PR/commit message when merging.)
-
 import asyncio
-import inspect
-import logging
 from typing import Any, Dict, Optional
+from app.database import SessionLocal
+from app.models.alert import Alert, AlertType
+from datetime import datetime, timedelta, timezone
+import json
 
-logger = logging.getLogger("app.crud.alerts")
+def _sync_create_alert(payload: Dict[str, Any]) -> Dict[str, Any]:
+    db = SessionLocal()
+    try:
+        account_id = payload.get("account_id") or 0
+        type_val = payload.get("type", "ERROR")
+        try:
+            alert_type = AlertType[type_val] if isinstance(type_val, str) and type_val in AlertType.__members__ else AlertType.ERROR
+        except Exception:
+            alert_type = AlertType.ERROR
 
-# Try to import a real implementation module (optional)
-_real_create = None
-_real_update = None
-_real_get = None
-try:
-    from app.crud.alerts_impl import create_alert as _real_create  # type: ignore
-    from app.crud.alerts_impl import update_alert_status as _real_update  # type: ignore
-    from app.crud.alerts_impl import get_alert as _real_get  # type: ignore
-except Exception:
-    # No real implementation found; fall back to internal stub
-    _real_create = None
-    _real_update = None
-    _real_get = None
-
-
-async def _run_maybe_sync(func, *args, **kwargs):
-    """Run func whether it's sync or async. Return its result."""
-    if inspect.iscoroutinefunction(func):
-        return await func(*args, **kwargs)
-    else:
-        loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
-
+        a = Alert(
+            account_id = account_id,
+            type = alert_type,
+            message = payload.get("message", payload.get("title", "No message provided")),
+            futbin_url = payload.get("futbin_url"),
+            sample_html = payload.get("sample_html"),
+            meta = json.dumps(payload.get("meta", {})) if payload.get("meta") else None
+        )
+        db.add(a)
+        db.commit()
+        db.refresh(a)
+        return {"id": a.id, "ok": True}
+    except Exception as e:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 async def create_alert(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Compatibility wrapper. Delegates to a real implementation if available.
-    Otherwise uses a minimal async stub.
-    """
-    if _real_create:
+    return await asyncio.to_thread(_sync_create_alert, payload)
+
+# helpers:
+async def get_alert_full(alert_id: int) -> Optional[Dict[str, Any]]:
+    def _sync(aid):
+        db = SessionLocal()
         try:
-            return await _run_maybe_sync(_real_create, payload)
-        except Exception:
-            logger.exception("Real create_alert failed; falling back to stub")
+            a = db.query(Alert).filter_by(id=aid).first()
+            if not a:
+                return None
+            return {
+                "id": a.id,
+                "account_id": a.account_id,
+                "type": a.type.name if a.type else None,
+                "message": a.message,
+                "futbin_url": a.futbin_url,
+                "sample_html": a.sample_html,
+                "meta": a.meta,
+                "resolved": a.resolved,
+                "created_at": a.created_at.isoformat(),
+                "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
+            }
+        finally:
+            db.close()
+    return await asyncio.to_thread(_sync, alert_id)
 
-    # minimal stub
-    logger.info("STUB create_alert called", extra={"payload": payload})
-    await asyncio.sleep(0)
-    return {"id": 0, **payload}
-
-
-async def update_alert_status(alert_id: int, status: str, meta: Optional[Dict[str, Any]] = None) -> bool:
-    if _real_update:
+async def resolve_alert(alert_id: int) -> Dict[str, Any]:
+    def _sync_res(aid):
+        db = SessionLocal()
         try:
-            return await _run_maybe_sync(_real_update, alert_id, status, meta)
-        except Exception:
-            logger.exception("Real update_alert_status failed; falling back to stub")
+            a = db.query(Alert).filter_by(id=aid).first()
+            if not a:
+                return {"ok": False}
+            a.resolved = True
+            a.resolved_at = datetime.now(timezone.utc)
+            db.commit()
+            return {"ok": True}
+        finally:
+            db.close()
+    return await asyncio.to_thread(_sync_res, alert_id)
 
-    logger.info("STUB update_alert_status", extra={"alert_id": alert_id, "status": status, "meta": meta})
-    await asyncio.sleep(0)
-    return True
+# app/crud/alerts.py
 
-
-async def get_alert(alert_id: int) -> Dict[str, Any]:
-    if _real_get:
+async def get_unresolved_alerts(hours: int = 24):
+    """فقط alert هایی که resolve نشده‌اند"""
+    def _sync():
+        db = SessionLocal()
         try:
-            return await _run_maybe_sync(_real_get, alert_id)
-        except Exception:
-            logger.exception("Real get_alert failed; falling back to stub")
+            since = datetime.now(timezone.utc) - timedelta(hours=hours)
+            q = (
+                db.query(Alert)
+                .filter(Alert.created_at >= since, Alert.resolved == False)
+                .order_by(Alert.created_at.desc())
+                .all()
+            )
+            return [
+                {
+                    "id": a.id,
+                    "account_id": a.account_id,
+                    "type": a.type.name if a.type else None,
+                    "message": a.message,
+                    "futbin_url": a.futbin_url,
+                    "sample_html": a.sample_html,
+                    "meta": a.meta,
+                    "resolved": a.resolved,
+                    "created_at": a.created_at.isoformat(),
+                }
+                for a in q
+            ]
+        finally:
+            db.close()
+    return await asyncio.to_thread(_sync)
 
-    logger.info("STUB get_alert", extra={"alert_id": alert_id})
-    await asyncio.sleep(0)
-    return {"player_id": "12345", "platform": "pc", "status": "open"}
 
+async def get_resolved_alerts(hours: int = 24):
+    """فقط alert هایی که resolve شده‌اند (برای نمایش آرشیو)"""
+    def _sync():
+        db = SessionLocal()
+        try:
+            since = datetime.now(timezone.utc) - timedelta(hours=hours)
+            q = (
+                db.query(Alert)
+                .filter(Alert.created_at >= since, Alert.resolved == True)
+                .order_by(Alert.created_at.desc())
+                .all()
+            )
+            return [
+                {
+                    "id": a.id,
+                    "account_id": a.account_id,
+                    "type": a.type.name if a.type else None,
+                    "message": a.message,
+                    "futbin_url": a.futbin_url,
+                    "sample_html": a.sample_html,
+                    "meta": a.meta,
+                    "resolved": a.resolved,
+                    "created_at": a.created_at.isoformat(),
+                    "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
+                }
+                for a in q
+            ]
+        finally:
+            db.close()
+    return await asyncio.to_thread(_sync)

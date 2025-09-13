@@ -271,11 +271,38 @@ async def buy_list_callback(update, context):
     await query.edit_message_text("در حال تلاش برای خرید و لیست … وضعیت را در همین پیام دریافت خواهید کرد.")
 
     async def buy_and_list_task():
+        from bot.services.backend_client import create_backend_alert_from_bot
+        from bot.config import settings
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
         try:
             transfer_multiplier = getattr(flow, 'transfer_multiplier', 1)
             from bot.services.futbin import get_price_for_player
             buy_now_price = await get_price_for_player(player_id)
-            max_buy_now = int((buy_now_price or 0) * transfer_multiplier)
+            if buy_now_price is (None or 0):
+                # 1) ارسال alert به backend
+                payload = {
+                    "type": "ERROR",
+                    "title": "اسو برس به داادم که رباتو قیمتای فوتبین رو نمیگیره !!!! ",
+                    "message": f"مشتی توی گرفتن قیمت بازیکن با id={player_id} مشکل خوردم،خدا خیرت بده برس به دادم که بازیکنو مشکل داره",
+                    "player_id": str(player_id),
+                    "platform": "console",
+                    "account_id": None
+                }
+                # فراخوانی async
+                try:
+                    await create_backend_alert_from_bot(payload)
+                except Exception:
+                    # لاگ کن ولی به کاربر خطا نده
+                    pass
+
+                # 2) پیام دوستانه به کاربر با دکمه تماس با ادمین
+                text = "⛔️ ارتباط با futbin (سایت قیمت‌ها) مشکل پیدا کرد. ما به ادمین اطلاع دادیم. اگر می‌خواهید مستقیماً با ادمین صحبت کنید روی دکمه زیر بزنید.\n \n در غیر این صورت از منو گزینه ای دیگر انتخاب کنید"
+                admin_link = getattr(settings, "admin_chat_link", None) or f"tg://resolve?domain={getattr(settings,'admin_username','')}"
+                kb = InlineKeyboardMarkup([[InlineKeyboardButton("💬 چت با ادمین", url=admin_link)]])
+                await _reply_or_edit(update, text, reply_markup=kb)
+                return
+            
+            max_buy_now = int((buy_now_price) * transfer_multiplier)
             min_bid = int(max_buy_now * 0.95)
             from bot.services.trade_control import attempt_buy_and_list
             result = await attempt_buy_and_list(player_id, max_buy_now, min_bid)
@@ -305,11 +332,10 @@ from decimal import Decimal
 from bot.ui.buy_messages import BUY_METHODS_ERROR_MSG  # example, اگر نیاز نیست حذف کن
 from bot.flows.buy_flows import BuyFlow, BuyState
 
+from bot.services.redis_client import get_redis
+from bot.services.buy_service import get_player_card_info
+from bot.services.futbin import get_price_for_player
 async def present_transfer_player(update, context):
-    # safe imports inside function to avoid circular import issues
-    from bot.services.redis_client import get_redis
-    from bot.services.buy_service import get_player_card_info
-    from bot.services.futbin import get_price_for_player
 
     flow = context.user_data.get('buy_flow')
     if not flow or not getattr(flow, 'matched_ranges', None):
@@ -394,8 +420,58 @@ async def present_transfer_player(update, context):
             except Exception:
                 f_transferable = 0
 
+
+    from bot.services.backend_client import create_backend_alert_from_bot
+    from bot.config import settings
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+    async def handle_price_issue(update, player_id, backend_resp=None, price=None):
+
+        note = backend_resp.get("note") if backend_resp else None
+
+        if price is None or (note and "captcha" in note.lower()) or (backend_resp and backend_resp.get("error")):
+            # 1) ارسال alert به backend
+            payload = {
+                "type": "CAPTCHA" if (note and "captcha" in (note or "").lower()) else "ERROR",
+                "title": "Bot detected futbin problem",
+                "message": f"Bot could not get price for player {player_id}. backend_resp_note={note}",
+                "player_id": str(player_id),
+                "futbin_url": backend_resp.get("futbin_url") if backend_resp else None,
+                "sample_html": backend_resp.get("sample_html") if backend_resp else None,
+                "meta": {"reporter": "bot", "chat_id": update.effective_chat.id}
+            }
+            try:
+                await create_backend_alert_from_bot(payload)
+            except Exception:
+                pass
+
+            # 2) پیام دوستانه به کاربر با دکمه تماس با ادمین
+            admin_link = getattr(settings, "admin_chat_link", None) or f"tg://resolve?domain={getattr(settings,'admin_username','')}"
+            text = (
+                "⛔️ ارتباط با سایت futbin یا استخراج قیمت مشکل پیدا کرد. "
+                "ما به ادمین اطلاع دادیم. برای تماس مستقیم با ادمین روی دکمه زیر بزنید."
+            )
+            kb = InlineKeyboardMarkup([[InlineKeyboardButton("💬 چت با ادمین", url=admin_link)]])
+            await _reply_or_edit(update, text, reply_markup=kb)
+            return True  # برای متوقف کردن ادامه نمایش کارت
+        return False
+    # بررسی price و backend_resp قبل از نمایش کارت‌ها
+    backend_resp = None
+    try:
+        from bot.services.futbin import get_price_for_player
+        fetched_price = await get_price_for_player(primary_id)
+        backend_resp = fetched_price if isinstance(fetched_price, dict) else {"price": fetched_price}
+        p_price = backend_resp.get("price") if backend_resp else fetched_price
+    except Exception:
+        logging.exception("Failed to fetch price for primary %s", primary_id)
+        p_price = 0
+
+    # اگر مشکل قیمت وجود داشت، پیام به کاربر بده و ادامه را متوقف کن
+    if await handle_price_issue(update, primary_id, backend_resp=backend_resp, price=p_price):
+        return
+
+
     # header + message formatting
-    header = "🤖✨ از دید هوش مصنوعی بهترین کارت برای انتقال شما این دو کارت هستن،کدوم یکی رو میخاید استفاده کنین؟  🤖✨"
+    header = "🤖✨ طبق بررسی هوش مصنوعی بهترین کارت برای انتقال شما این دو کارت هستن،کدوم یکی رو میخاید استفاده کنین؟  🤖✨"
 
     def format_card_block(title, player, buy_now_price, transferable_amount):
         name = player.get('name', '')
@@ -406,8 +482,8 @@ async def present_transfer_player(update, context):
         lines = [
             f"{title}\n",
             f"👤 نام: {name}",
-            f"⭐ ریتینگ: {rating}",
-            f"🏅 ورژن: {version}",
+            f"- ریتینگ: {rating}",
+            f"- ورژن: {version}",
             f"💰 قیمت تقریبی خرید کارت: {buy_now_price if buy_now_price else '---'}",
             f"💸 مقدار تقریبی قابل انتقال: {transferable_amount}"
         ]
@@ -750,7 +826,7 @@ async def buy_confirm_callback(update, context):
 
         if chat_link.startswith("@"):
             chat_link = f"https://t.me/{chat_link[1:]}"
-        msg = "❗️⚠️ به دلیل تشخیص هوش مصنوعی برای رعایت امنیت اکانت شما، این مقدار انتقال شما بهتر است توسط ادمین انجام بگیره.⚠️❗️"
+        msg = "⚠️ به دلیل تشخیص هوش مصنوعی و برای حفظ امنیت اکانت شما،در حال حاضر انتقال این مقدار بهتر است توسط ادمین انجام شود.⚠️"
         await query.edit_message_text(msg, reply_markup=support_or_back_keyboard(chat_link))
         return
     user_id = update.effective_user.id

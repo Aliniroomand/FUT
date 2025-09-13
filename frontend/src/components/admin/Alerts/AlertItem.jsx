@@ -3,19 +3,16 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { FaExclamationCircle } from "react-icons/fa";
+import { FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const AlertItem = ({ alert, onResolve }) => {
+const AlertItem = ({ alert, onResolve, resolved }) => {
   if (!alert.created_at) return null;
-
   // زمان به تایم تهران
-  const tehranTime = dayjs(alert.created_at)
-    .tz("Asia/Tehran")
-    .format("HH:mm"); // ساعت و دقیقه
+  const tehranTime = dayjs(alert.created_at).tz("Asia/Tehran").format("HH:mm"); // ساعت و دقیقه
 
   // تاریخ شمسی (فارسی)
   const tehranDate = new Date(alert.created_at).toLocaleDateString("fa-IR", {
@@ -23,40 +20,82 @@ const AlertItem = ({ alert, onResolve }) => {
     month: "long",
     day: "numeric",
   });
-
   // مدت زمان گذشته
   const fromNow = dayjs(alert.created_at).fromNow();
-
+  console.log("aaa", alert.raw);
   return (
-    <div className="border rounded-lg p-3 flex items-center justify-between glass-light">
-      <div className="flex items-center justify-start  gap-7 ">
-        <div className="text-red-600">
-          <FaExclamationCircle size={30} />
+    <>
+      <div
+        className={`border rounded-lg p-3 flex items-center justify-between ${
+          resolved ? "bg-green-700/45 opacity-70" : "bg-red-700/45"
+        }`}
+      >
+        <div className="flex items-center justify-start  gap-7 ">
+          <div
+            className={`${
+              resolved ? "text-green-300 opacity-70" : "text-red-500"
+            }`}
+          >
+            {resolved ? (
+              <FaCheckCircle size={30} />
+            ) : (
+              <FaExclamationCircle size={30} />
+            )}
+          </div>
+          <div className="font-bold bg-red-800 p-3 rounded-full">
+            <span>نوع ارور :</span>
+            <br />
+            <span>{alert.type}</span>
+          </div>
+          <div className="text-base text-black bg-red-100 p-4 rounded-2xl">
+            <span>پیام ارور:</span>
+            <br />
+            <span>{alert.message}</span>
+            <br />
+          </div>
+          <div>
+            {alert.type === "CAPTCHA" && (
+              <>
+                <span className="text-base text-black bg-red-100 p-4 rounded-2xl">
+                  مسیر ارور فوتبین:
+                </span>
+                <br />
+                <span className="text-black">
+                  {alert?.raw?.futbin_url || "----"}
+                </span>
+              </>
+            )}
+          </div>
+          <div>
+            {alert.type === "CAPTCHA" && (
+              <>
+                <span className="text-base bg-black text-red-100 p-4 rounded-2xl">
+                  مسیر :
+                </span>
+                <br />
+                <span className="text-white">
+                  {alert?.raw?.sample_html || "----"}
+                </span>
+              </>
+            )}
+          </div>
+          <div className="text-sm text-yellow-900 bg-amber-300 mt-1 p-2 rounded">
+            تایم ارور :<br />
+            ساعت: {tehranTime} <br /> {tehranDate} <br />
+            time lapsed {fromNow}
+          </div>
         </div>
-        <div className="font-bold bg-red-800 p-3 rounded-full">
-          <span>نوع ارور :</span>
-          <br />
-          <span>{alert.type}</span>
-        </div>
-        <div className="text-base text-black bg-red-100 p-4 rounded-2xl">
-          <span>پیام ارور</span>
-          <span>{alert.message}</span>
-        </div>
-        <div className="text-sm text-yellow-900 bg-amber-300 mt-1 p-2 rounded">
-          تایم ارور :<br />
-          ساعت: {tehranTime}  <br /> {tehranDate} <br />
-          time lapsed {fromNow}
+        <div className="flex items-center gap-2">
+          <button
+            className="px-3 py-1 bg-green-600 text-white rounded cursor-pointer disabled:cursor-auto hover:bg-white hover:text-green-600"
+            onClick={onResolve}
+            disabled={resolved}
+          >
+            {resolved ? "حل شده " : " حلش کردم"}
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          className="px-3 py-1 bg-green-600 text-white rounded"
-          onClick={onResolve}
-        >
-          حل شد
-        </button>
-      </div>
-    </div>
+    </>
   );
 };
 

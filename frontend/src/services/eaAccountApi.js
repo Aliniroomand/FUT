@@ -35,14 +35,7 @@ export const updateEADailyLimit = async (id, dailyLimit) => {
   }
 };
 
-export const fetchLiveAlerts = async () => {
-  try {
-    const res = await api.get("/alerts/live");
-    return res.data;
-  } catch (err) {
-    throw err;
-  }
-};
+
 
 export const fetchPendingTransactions = async () => {
   try {
@@ -53,10 +46,3 @@ export const fetchPendingTransactions = async () => {
   }
 };
 
-export const resolveAlert = async (alertId) => {
-  try {
-    await api.post(`/alerts/resolve/${alertId}`);
-  } catch (err) {
-    throw err;
-  }
-};

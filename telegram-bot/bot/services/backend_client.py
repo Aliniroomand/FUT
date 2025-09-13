@@ -169,3 +169,16 @@ async def get_futbin_price_from_backend(player_id: int, slug: str, platform: str
     print(r.json(),"aaaaaaaaaaa")
     r.raise_for_status()
     return r.json()
+
+
+
+async def create_backend_alert_from_bot(payload: dict):
+    """POST /alerts on backend; swallow exceptions and log."""
+    url = f"{BASE_URL}/alerts"
+    try:
+        r = await _request("POST", url, json=payload, timeout=5.0)
+        # اگر لازم بود ریتِ لیمیت یا تایید را بررسی کن
+        return r
+    except Exception as e:
+        logger.exception("Failed to POST alert to backend: %s", e)
+        return None

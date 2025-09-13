@@ -1,11 +1,11 @@
 import {
   fetchEAAccounts,
   updateEADailyLimit,
-  fetchLiveAlerts,
-  fetchPendingTransactions,
-  resolveAlert,
-} from "@/services/eaAccountApi";
 
+  fetchPendingTransactions,
+
+} from "@/services/eaAccountApi";
+import {  fetchUnresolvedAlerts,resolveAlert} from "@/services/alerts/alerts-handlers"
 export const useEAAccountLogic = () => {
   const fetchAccounts = async (setAccounts, setError) => {
     try {
@@ -18,7 +18,7 @@ export const useEAAccountLogic = () => {
 
   const fetchAlerts = async (setAlerts, setError) => {
     try {
-      const data = await fetchLiveAlerts();
+      const data = await fetchUnresolvedAlerts();
       setAlerts(data);
     } catch (err) {
       setError && setError(err);

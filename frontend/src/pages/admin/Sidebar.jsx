@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa";
 import { GiCardExchange } from "react-icons/gi";
 import LogoutBTN from "@/helper/LogoutBTN";
-import { subscribeAlerts } from "@/services/alerts";
+import { subscribeAlerts } from "@/services/alerts/alerts";
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
